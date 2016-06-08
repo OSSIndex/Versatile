@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Versatile.Core", "Versatile.Core\Versatile.Core.csproj", "{B427A2ED-043F-4B7E-BC13-E69D528406F3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Versatile.Tests", "Versatile.Tests\Versatile.Tests.csproj", "{CAFD5D84-DB6C-4244-97D6-4DBA3811D9AB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{B427A2ED-043F-4B7E-BC13-E69D528406F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B427A2ED-043F-4B7E-BC13-E69D528406F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B427A2ED-043F-4B7E-BC13-E69D528406F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAFD5D84-DB6C-4244-97D6-4DBA3811D9AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAFD5D84-DB6C-4244-97D6-4DBA3811D9AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAFD5D84-DB6C-4244-97D6-4DBA3811D9AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAFD5D84-DB6C-4244-97D6-4DBA3811D9AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
