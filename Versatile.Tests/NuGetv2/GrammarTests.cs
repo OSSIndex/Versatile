@@ -14,6 +14,8 @@ namespace Versatile.Tests
         [Fact]
         public void CanParseVersion()
         {
+            var f = NuGetv2.Grammar.NuGetv2Version.Parse("3.2.5-foo");
+            var f2 = NuGetv2.Grammar.NuGetv2Version.Parse("3.1.0.3-foo");
             NuGetv2 n = NuGetv2.Parse("3.2.5-foo");
             Assert.Equal(n, NuGetv2.Grammar.NuGetv2Version.Parse("3.2.5-foo"));
             Assert.Equal(n.Version.Major, 3);
@@ -63,6 +65,13 @@ namespace Versatile.Tests
             Assert.Equal(c.Version.Version.Major, 1);
             Assert.Equal(c.Version.Version.Minor, 0);
             Assert.Equal(c.Version.SpecialVersion.ToString(), "alpha");
+        }
+
+        [Fact]
+        public void CanParseOpenBracketsOpenBrackets()
+        {
+            NuGetv2.ComparatorSet cs = NuGetv2.Grammar.OpenBracketOpenBracketRange.Parse("(2.0, 3.1.0)");
+            Assert.Equal(cs.Count, 2);
         }
     }
 }
