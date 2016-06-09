@@ -397,7 +397,6 @@ namespace Versatile
                 }
             }
 
-            
             public static Parser<ComparatorSet> OpenBracketOpenBracketRange
             {
                 get
@@ -420,6 +419,54 @@ namespace Versatile
                         select x;
                 }
             }
+
+            public static Parser<ComparatorSet> OpenBracketClosedBracketRange
+            {
+                get
+                {
+                    return
+                        from left_bracket in Sprache.Parse.Char('(').Once()
+                        from l in NuGetv2Version.Optional()
+                        from c in Sprache.Parse.Char(',')
+                        from r in NuGetv2Version
+                        from right_bracket in Sprache.Parse.Char(']').Once()
+                        let x = l.IsDefined ? new ComparatorSet
+                            {
+                                new Comparator(ExpressionType.GreaterThan, l.Get()),
+                                new Comparator(ExpressionType.LessThanOrEqual, r)
+                            }
+                        : new ComparatorSet
+                        {
+                            new Comparator(ExpressionType.LessThanOrEqual, r)
+                        }
+                        select x;
+                }
+            }
+
+            public static Parser<ComparatorSet> ClosedBracketOpenBracketRange
+            {
+                get
+                {
+                    return
+                        from left_bracket in Sprache.Parse.Char('[').Once()
+                        from l in NuGetv2Version
+                        from c in Sprache.Parse.Char(',')
+                        from r in NuGetv2Version.Optional()
+                        from right_bracket in Sprache.Parse.Char(')').Once()
+                        let x = r.IsDefined ? new ComparatorSet
+                            {
+                                new Comparator(ExpressionType.GreaterThanOrEqual, l),
+                                new Comparator(ExpressionType.LessThan, r.Get())
+                            }
+                        : new ComparatorSet
+                        {
+                            new Comparator(ExpressionType.LessThanOrEqual, l)
+                        }
+                        select x;
+                }
+            }
+
+
 
         }
     }
