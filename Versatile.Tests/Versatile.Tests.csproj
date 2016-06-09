@@ -66,6 +66,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyVersionTests.cs" />
+    <Compile Include="NuGetv2\SatisfiesTests.cs" />
+    <Compile Include="NuGetv2\NuGetv2Tests.cs" />
+    <Compile Include="NuGetv2\GrammarTests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SemanticVersion\GrammarTests.cs" />

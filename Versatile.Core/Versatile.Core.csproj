@@ -44,8 +44,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="AssemblyVersion\Grammar.cs" />
+    <Compile Include="Comparator.cs" />
+    <Compile Include="NuGet\Comparator.cs" />
+    <Compile Include="NuGet\ComparatorSet.cs" />
+    <Compile Include="NuGet\Grammar.cs" />
     <Compile Include="NuGet\NuGetv2.cs" />
     <Compile Include="NuGet\NuGetv2TypeConverter.cs" />
     <Compile Include="SemanticVersion\Comparator.cs" />
@@ -57,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Versatile.nuspec" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -362,8 +362,8 @@ namespace Versatile
                         from x in XIdentifier
                         select new ComparatorSet
                         {
-                        new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor)),
-                        new Comparator(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
+                            new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor)),
+                            new Comparator(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
                         };
                 }
             }

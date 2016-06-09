@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Versatile</id>
+    <version>$version$</version>
+    <title>Versatile</title>
+    <authors>Allister Beharry</authors>
+    <owners>Allister Beharry</owners>
+    <licenseUrl>https://github.com/allisterb/Versatile/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/allisterb/Versatile</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Versatile parsing and querying software version strings.</description>
+    <releaseNotes>Initial NuGet release.</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>Versioning Sprache</tags>
+    <dependencies>
+      <dependency id="Sprache" version="2.0.0.51" />
+    </dependencies>
+  </metadata>
+</package>
