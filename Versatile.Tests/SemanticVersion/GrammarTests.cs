@@ -9,11 +9,10 @@ using Versatile;
 
 namespace Versatile.Tests
 {
-    public class SemanticVersionGrammarTests
+    public partial class SemanticVersionTests
     {
-
         [Fact]
-        public void CanParseDigits()
+        public void GrammarCanParseDigits()
         {
             Assert.Equal(SemanticVersion.Grammar.Digits.Parse("1"), "1");
             Assert.Equal(SemanticVersion.Grammar.Digits.Parse("01"), "01");
@@ -23,7 +22,7 @@ namespace Versatile.Tests
         }
 
         [Fact]
-        public void CanParseNonDigit()
+        public void GrammarCanParseNonDigit()
         {
             Assert.True(SemanticVersion.Grammar.NonDigit.Parse("-") == '-');
             Assert.True(SemanticVersion.Grammar.NonDigit.Parse("a") == 'a');
@@ -32,7 +31,7 @@ namespace Versatile.Tests
 
 
         [Fact]
-        public void CanParseIdentifierCharacter()
+        public void GrammarCanParseIdentifierCharacter()
         {
             Assert.True(SemanticVersion.Grammar.IdentifierCharacter.Parse("-") == '-');
             Assert.True(SemanticVersion.Grammar.IdentifierCharacter.Parse("a") == 'a');
@@ -41,21 +40,21 @@ namespace Versatile.Tests
         }
 
         [Fact]
-        public void CanParseIdentifierCharacters()
+        public void GrammarCanParseIdentifierCharacters()
         {
             Assert.True(SemanticVersion.Grammar.IdentifierCharacters.Parse("23-") == "23-");
             Assert.True(SemanticVersion.Grammar.IdentifierCharacters.Parse("alpha1") == "alpha1");
         }
 
         [Fact]
-        public void CanParsePreleaseSuffix()
+        public void GrammarCanParsePreleaseSuffix()
         {
             string p = SemanticVersion.Grammar.PreReleaseSuffix.Parse("-alpha.1");
         }
 
 
         [Fact]
-        public void CanParseDotSeparatedBuildIdentifiers()
+        public void GrammarCanParseDotSeparatedBuildIdentifiers()
         {
             IEnumerable<string> v = SemanticVersion.Grammar.DotSeparatedBuildIdentifier.Parse("2.3.4");
             Assert.True(v.Count() == 3);
@@ -64,7 +63,7 @@ namespace Versatile.Tests
         }
 
         [Fact]
-        public void CanParseAlphaNumericIdentifier()
+        public void GrammarCanParseAlphaNumericIdentifier()
         {
             Assert.True(SemanticVersion.Grammar.IdentifierCharacters.Parse("23") == "23");
             Assert.True(SemanticVersion.Grammar.IdentifierCharacters.Parse("23-") == "23-");
@@ -72,7 +71,7 @@ namespace Versatile.Tests
         }
 
         [Fact]
-        public void CanParseVersionCore()
+        public void GrammarCanParseVersionCore()
         {
             List<string> v = SemanticVersion.Grammar.VersionCore.Parse("2.3.4").ToList();
             Assert.NotEmpty(v);
@@ -84,14 +83,14 @@ namespace Versatile.Tests
         }
 
         [Fact]
-        public void CanParseVersionIdentifier()
+        public void GrammarCanParseVersionIdentifier()
         {
             var v = SemanticVersion.Grammar.SemanticVersionIdentifier.Parse("0.0.1+build.12");
             Assert.NotEmpty(v);
         }
 
         [Fact]
-        public void CanParseComparator()
+        public void GrammarCanParseComparator()
         {
             SemanticVersion.Comparator re = SemanticVersion.Grammar.Comparator.Parse("<10.3.4");
             Assert.Equal(ExpressionType.LessThan, re.Operator);
@@ -116,7 +115,7 @@ namespace Versatile.Tests
         }
 
         [Fact]
-        public void CanParseLessThan()
+        public void GrammarCanParseLessThan()
         {
             SemanticVersion.Comparator c = SemanticVersion.Grammar.Comparator.Parse("<1.5.4");
             Assert.Equal(c.Operator, ExpressionType.LessThan);
@@ -134,7 +133,7 @@ namespace Versatile.Tests
         }
 
         [Fact]
-        public void CanParseXRangeExpression()
+        public void GrammarCanParseXRangeExpression()
         {
             SemanticVersion.ComparatorSet xr1 = SemanticVersion.Grammar.MajorXRange.Parse("4.x");
             Assert.NotNull(xr1);
@@ -150,7 +149,7 @@ namespace Versatile.Tests
         }
 
         [Fact]
-        public void CanParseTildeRangeExpression()
+        public void GrammarCanParseTildeRangeExpression()
         {
             SemanticVersion.ComparatorSet tr1 = SemanticVersion.Grammar.MajorTildeRange.Parse("~4");
             SemanticVersion.ComparatorSet tr2 = SemanticVersion.Grammar.MajorTildeRange.Parse("~14.4");
@@ -159,5 +158,6 @@ namespace Versatile.Tests
             Assert.NotNull(tr2);
             Assert.NotNull(tr3);
         }
+        
     }
 }

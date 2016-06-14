@@ -9,19 +9,16 @@ using Versatile;
 
 namespace Versatile.Tests
 {
-    public partial class NuGetv2Tests
+    public partial class ComposerTests
     {
         [Fact]
         public void GrammarCanParseVersion()
         {
-            NuGetv2 f = NuGetv2.Grammar.NuGetv2Version.Parse("3.2.5-foo");
-            NuGetv2 f2 = NuGetv2.Grammar.NuGetv2Version.Parse("3.1.0.3-foo");
-            NuGetv2 n = NuGetv2.Parse("3.2.5-foo");
-            Assert.Equal(n, NuGetv2.Grammar.NuGetv2Version.Parse("3.2.5-foo"));
-            Assert.Equal(n.Version.Major, 3);
-            Assert.Equal(n.SpecialVersion, "foo");
-            Assert.Equal(n.Version.Minor, 2);
-            Assert.Equal(n.Version.Build, 5);
+            Composer c1 = Composer.Grammar.ComposerVersion.Parse("3.2.5-dev");
+            Composer c2 = Composer.Grammar.ComposerVersion.Parse("0.1.4.3-");
+            Assert.Equal(c1.Major, 3);
+            Assert.Equal(c2.Major, 0);
+            Assert.Equal(c1.PreRelease.ToString(), "dev");
             //Assert.Throws<ParseException>(() => NuGetv2.Grammar.NuGetv2Version.Parse("A.2.3"));
             //Assert.Throws<ParseException>(() => NuGetv2.Grammar.NuGetv2Version.Parse("3.2.3.X"));
         }

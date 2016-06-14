@@ -12,7 +12,7 @@ using Versatile;
 
 namespace Versatile.Tests
 {
-    public class NuGetv2SatisfiesTests
+    public partial class NuGetv2Tests
     {
         NuGetv2 v1 = new NuGetv2(1, 0, 0, 0);
         NuGetv2 v11 = new NuGetv2(1, 1, 0, 0);
@@ -36,7 +36,6 @@ namespace Versatile.Tests
         [Fact]
         public void CanSatisfyLessThan()
         {
-
             BinaryExpression e = NuGetv2.GetBinaryExpression(ExpressionType.LessThan, v1, v2);
             Assert.NotNull(e);
             BinaryExpression e2 = NuGetv2.GetBinaryExpression(ExpressionType.LessThan, v000a2, v090a1);

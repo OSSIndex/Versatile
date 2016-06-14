@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Versatile.Tests
 {
-   public class NuGetv2Tests
+   public partial class NuGetv2Tests
     {
         [Fact]
         public void CanCompare()

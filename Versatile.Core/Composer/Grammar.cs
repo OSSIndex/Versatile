@@ -9,7 +9,7 @@ using Sprache;
 
 namespace Versatile
 {
-    public partial class SemanticVersion
+    public partial class Composer
     {
         public class Grammar
         {
@@ -25,7 +25,7 @@ namespace Versatile
             {
                 get
                 {
-                    return Parse.Letter.Or(Parse.Char('-')).Token();
+                    return Parse.Letter.Token();
                 }
             }
 
@@ -45,6 +45,23 @@ namespace Versatile
                 }
             }
 
+            public static Parser<char> AlphaNumericIdentifierChar
+            {
+                get
+                {
+                    return Parse.Digit.Or(NonDigit).Token();
+                }
+            }
+
+            public static Parser<string> AlphaNumericIdentifier
+            {
+                get
+                {
+                    return AlphaNumericIdentifierChar.AtLeastOnce().Token().Text();
+                }
+            }
+
+
             public static Parser<string> Major
             {
                 get
@@ -57,7 +74,6 @@ namespace Versatile
             {
                 get
                 {
-
                     return
                         from dot in Parse.Char('.')
                         from m in NumericIdentifier
@@ -69,7 +85,6 @@ namespace Versatile
             {
                 get
                 {
-
                     return
                         from dot in Parse.Char('.')
                         from m in NumericIdentifier
@@ -77,152 +92,39 @@ namespace Versatile
                 }
             }
 
-            public static Parser<string> PreReleaseSuffix
+            public static Parser<ComposerPreRelease> PreRelease
             {
                 get
                 {
 
                     return
-                        from dot in Parse.Char('-')
-                        from m in PreRelease.Select(b => string.Join(".", b.ToArray()))
-                        select m;
+                        from dash in Parse.Char('-')
+                        from s in Parse.String("dev").Or(Parse.String("patch")).Or(Parse.String("alpha")).Or(Parse.String("beta")).Or(Parse.String("RC")).Token().Text()
+                        from d in NumericIdentifier.Optional().Select(o => o.GetOrElse(string.Empty))
+                        select new ComposerPreRelease(s.ToString(), d);
                 }
             }
 
-            public static Parser<string> BuildSuffix
-            {
-                get
-                {
-
-                    return
-                        from dot in Parse.Char('+')
-                        from b in Build.Select(b => string.Join(".", b.ToArray()))
-                        select b;
-                }
-            }
-
-            public static Parser<char> IdentifierCharacter
-            {
-                get
-                {
-                    return Parse.Digit.Or(NonDigit).Token();
-                }
-            }
-
-            public static Parser<string> IdentifierCharacters
-            {
-                get
-                {
-                    return IdentifierCharacter.AtLeastOnce().Token().Text();
-                }
-            }
-
-
-            public static Parser<string> AlphaNumericIdentifier
+            public static Parser<List<string>> ComposerVersionIdentifier
             {
                 get
                 {
                     return
-                        IdentifierCharacters.Concat(NonDigit.Once()).Concat(IdentifierCharacters)
-                        .Or(IdentifierCharacters.Concat(NonDigit.Once()))
-                        .Or(NonDigit.Once().Concat(IdentifierCharacters))
-                        .Or(NonDigit.Once())
-                        .Token()
-                        .Text();
-                }
-            }
 
-            public static Parser<string> BuildIdentifier
-            {
-                get
-                {
-                    return AlphaNumericIdentifier.Or(Digits);
-                }
-            }
-
-            public static Parser<string> PreReleaseIdentifier
-            {
-                get
-                {
-                    return AlphaNumericIdentifier.Or(NumericIdentifier);
-                }
-            }
-
-
-            public static Parser<IEnumerable<string>> DotSeparatedBuildIdentifier
-            {
-                get
-                {
-                    return
-                        BuildIdentifier.DelimitedBy(Parse.String("."));
-                }
-            }
-
-
-            public static Parser<IEnumerable<string>> Build
-            {
-                get
-                {
-                    return DotSeparatedBuildIdentifier;
-
-                }
-            }
-
-            public static Parser<IEnumerable<string>> DotSeparatedPreReleaseIdentifiers
-            {
-                get
-                {
-                    return
-                       PreReleaseIdentifier.DelimitedBy(Parse.String("."));
-                }
-            }
-
-            public static Parser<IEnumerable<string>> PreRelease
-            {
-                get
-                {
-                    return DotSeparatedPreReleaseIdentifiers;
-                }
-            }
-
-            public static Parser<IEnumerable<string>> VersionCore
-            {
-                get
-                {
-                    return
                         Major
-                            .Then(major => (Minor.XOr(Parse.Return(string.Empty)))
-                            .Select(minor => major + "|" + minor))
-                            .Then(minor => (Patch.XOr(Parse.Return(string.Empty)))
-                            .Select(patch => (minor + "|" + patch)))
+                        .Then(major => Minor.XOr(Parse.Return(string.Empty)).Select(minor => major + "|" + minor))
+                        .Then(minor => Patch.XOr(Parse.Return(string.Empty)).Select(patch => (minor + "|" + patch)))
+                        .Then(patch => PreRelease.XOr(Parse.Return(new ComposerPreRelease("", "")))
+                            .Select(prs => patch + "|" + prs.ToString()))
                             .Select(v => v.Split('|').ToList());
-                }
-            }
-
-            public static Parser<List<string>> SemanticVersionIdentifier
-            {
-                get
-                {
-                    return
-
-                        Major
-                        .Then(major => (Minor.XOr(Parse.Return(string.Empty)))
-                        .Select(minor => major + "|" + minor))
-                        .Then(minor => (Patch.XOr(Parse.Return(string.Empty)))
-                        .Select(patch => (minor + "|" + patch)))
-                        .Then(patch => (PreReleaseSuffix.XOr(Parse.Return(string.Empty)))
-                        .Select(prs => (patch + "|" + prs)))
-                        .Then(prs => (BuildSuffix.XOr(Parse.Return(string.Empty)))
-                        .Select(bs => (prs + "|" + bs)))
-                        .Select(v => v.Split('|').ToList());
                 }
             } //<valid semver> ::= <version core> | <version core> "-" <pre-release> | <version core> "+" <build> | <version core> "-" <pre-release> "+" <build>
 
-            public static Parser<SemanticVersion> SemanticVersion
+            public static Parser<Composer> ComposerVersion
             {
                 get
                 {
-                    return SemanticVersionIdentifier.Select(v => new SemanticVersion(v.ToList()));
+                    return ComposerVersionIdentifier.Select(v => new Composer(v));
 
                 }
             }
@@ -293,8 +195,9 @@ namespace Versatile
                 get
                 {
                     return VersionOperator.Then(o =>
-                        SemanticVersion.Select(version=> new Comparator(o, version)))
-                            .Or(SemanticVersion.Select(s => new Comparator(ExpressionType.Equal, s)));
+                        ComposerVersion.Select(version
+                        => new Comparator(o, version)))
+                        .Or(ComposerVersion.Select(s => new Comparator(ExpressionType.Equal, s)));
                 }
             }
 
@@ -332,8 +235,8 @@ namespace Versatile
                         from x in XIdentifier
                         select new ComparatorSet
                         {
-                        new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major)),
-                        new Comparator(ExpressionType.LessThan, new SemanticVersion(major + 1))
+                            new Comparator(ExpressionType.GreaterThanOrEqual, new Composer(major)),
+                            new Comparator(ExpressionType.LessThan, new Composer(major + 1))
                         };
                 }
             }
@@ -361,8 +264,8 @@ namespace Versatile
                         from x in XIdentifier
                         select new ComparatorSet
                         {
-                            new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor)),
-                            new Comparator(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
+                            new Comparator(ExpressionType.GreaterThanOrEqual, new Composer(major, minor)),
+                            new Comparator(ExpressionType.LessThan, new Composer(major, minor  + 1))
                         };
                 }
             }
@@ -389,8 +292,8 @@ namespace Versatile
                         })
                         select new ComparatorSet
                         {
-                        new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major)),
-                        new Comparator(ExpressionType.LessThan, new SemanticVersion(major + 1))
+                        new Comparator(ExpressionType.GreaterThanOrEqual, new Composer(major)),
+                        new Comparator(ExpressionType.LessThan, new Composer(major + 1))
                         };
 
                 }
@@ -417,8 +320,8 @@ namespace Versatile
                         })
                         select new ComparatorSet
                         {
-                        new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor)),
-                        new Comparator(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
+                        new Comparator(ExpressionType.GreaterThanOrEqual, new Composer(major, minor)),
+                        new Comparator(ExpressionType.LessThan, new Composer(major, minor  + 1))
                         };
 
                 }
@@ -453,8 +356,8 @@ namespace Versatile
 
                         select new ComparatorSet
                         {
-                        new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor, patch)),
-                        new Comparator(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
+                        new Comparator(ExpressionType.GreaterThanOrEqual, new Composer(major, minor, patch)),
+                        new Comparator(ExpressionType.LessThan, new Composer(major, minor  + 1))
                         };
 
                 }
@@ -486,11 +389,11 @@ namespace Versatile
                             return num;
 
                         })
-                        from prerelease in PreReleaseSuffix
+                        from prerelease in PreRelease
                         select new ComparatorSet
                         {
-                        new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor, patch, prerelease)),
-                        new Comparator(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
+                            new Comparator(ExpressionType.GreaterThanOrEqual, new Composer(major, minor, patch, prerelease.ToString())),
+                            new Comparator(ExpressionType.LessThan, new Composer(major, minor  + 1))
                         };
 
                 }
@@ -533,8 +436,8 @@ namespace Versatile
 
                         select new ComparatorSet
                         {
-                        new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor, patch)),
-                        new Comparator(ExpressionType.LessThan, new SemanticVersion(major + 1))
+                        new Comparator(ExpressionType.GreaterThanOrEqual, new Composer(major, minor, patch)),
+                        new Comparator(ExpressionType.LessThan, new Composer(major + 1))
                         };
 
                 }
@@ -563,8 +466,8 @@ namespace Versatile
                         })
                         select new ComparatorSet
                         {
-                        new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor, patch)),
-                        new Comparator(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
+                        new Comparator(ExpressionType.GreaterThanOrEqual, new Composer(major, minor, patch)),
+                        new Comparator(ExpressionType.LessThan, new Composer(major, minor  + 1))
                         };
 
                 }
@@ -588,8 +491,8 @@ namespace Versatile
                         })
                         select new ComparatorSet
                         {
-                        new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor, patch)),
-                        new Comparator(ExpressionType.LessThan, new SemanticVersion(major, minor, patch + 1))
+                        new Comparator(ExpressionType.GreaterThanOrEqual, new Composer(major, minor, patch)),
+                        new Comparator(ExpressionType.LessThan, new Composer(major, minor, patch + 1))
                         };
 
                 }

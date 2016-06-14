@@ -75,6 +75,14 @@ namespace Versatile
                 }
             }
 
+            public static Parser<char> RangeSymbol
+            {
+                get
+                {
+                    return Sprache.Parse.AnyChar.Where(c => "(),<>".Contains(c));
+                }
+            }
+
             public static Parser<int> Major
             {
                 get
@@ -253,9 +261,7 @@ namespace Versatile
             {
                 get
                 {
-                    return VersionOperator.Then(o =>
-                        NuGetv2Version.Select(version
-                        => new Comparator(o, version)))
+                    return VersionOperator.Then(o => NuGetv2Version.Select(version => new Comparator(o, version)))
                         .Or(NuGetv2Version.Select(s => new Comparator(ExpressionType.Equal, s)));
                 }
             }
@@ -465,9 +471,6 @@ namespace Versatile
                         select x;
                 }
             }
-
-
-
         }
     }
  
