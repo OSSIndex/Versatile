@@ -156,11 +156,25 @@ namespace Versatile
             }
             if (aComps.Length == 3 && bComps.Length > 3) // if a and b have equal components but b has a pre-release
             {
-                return 1;
+                if (bComps[3] != "patch")
+                {
+                    return 1;
+                }
+                else
+                {
+                    return -1;
+                }
             }
             else if (bComps.Length == 3 && aComps.Length > 3)
             {
-                return -1;
+                if (aComps[3] != "patch")
+                {
+                    return -1;
+                }
+                else
+                {
+                    return 1;
+                }
             }
             else
             {

@@ -42,10 +42,9 @@ namespace Versatile.Tests
             e2 = Composer.GetBinaryExpression(ExpressionType.LessThan, v000a1, v010p1);
             Assert.True(Composer.InvokeBinaryExpression(e2)); 
             Assert.True(Composer.InvokeBinaryExpression(Composer.GetBinaryExpression(ExpressionType.LessThan, v202a, v202)));
-            //Assert.True(Composer.InvokeBinaryExpression(Composer.GetBinaryExpression(ExpressionType.LessThan, v090p1, v090b2)));
+            Assert.False(Composer.InvokeBinaryExpression(Composer.GetBinaryExpression(ExpressionType.LessThan, v090p1, v090b2)));
             Assert.False(Composer.InvokeBinaryExpression(Composer.GetBinaryExpression(ExpressionType.LessThan, v000a1, v000a0)));
             Assert.True(Composer.InvokeBinaryExpression(Composer.GetBinaryExpression(ExpressionType.LessThan, v090b1, v090b2)));
-            //Assert.True(Composer.InvokeBinaryExpression(Composer.GetBinaryExpression(ExpressionType.LessThan, v090p1, v090b2)));
             Assert.True(Composer.InvokeBinaryExpression(Composer.GetBinaryExpression(ExpressionType.LessThan, v090a2, v090b1)));
         }
 
@@ -55,7 +54,7 @@ namespace Versatile.Tests
             BinaryExpression e = Composer.GetBinaryExpression(ExpressionType.LessThanOrEqual, v1, v1);
             Assert.NotNull(e);
             Assert.True(Composer.InvokeBinaryExpression(e));
-            BinaryExpression e2 = Composer.GetBinaryExpression(ExpressionType.LessThanOrEqual, v090p1, v090);
+            BinaryExpression e2 = Composer.GetBinaryExpression(ExpressionType.LessThanOrEqual, v090, v090p1);
             Assert.True(Composer.InvokeBinaryExpression(e2));
             e2 = Composer.GetBinaryExpression(ExpressionType.LessThanOrEqual, v000a1, v010p1);
             Assert.True(Composer.InvokeBinaryExpression(e2)); 
