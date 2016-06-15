@@ -9,7 +9,7 @@ using Sprache;
 
 namespace Versatile
 {
-    public partial class Composer
+    public partial class Composer : IComparable, IComparable<Composer>, IEquatable<Composer>
     {
         public int? Major { get; set; } = null;
         public int? Minor { get; set; } = null;
@@ -28,16 +28,13 @@ namespace Versatile
             this.Patch = patch;
             if (!string.IsNullOrEmpty(prerelease))
             {
-                this.PreRelease = (ComposerPreRelease) Grammar.PreRelease.Parse(prerelease);
+                this.PreRelease = (ComposerPreRelease) Grammar.PreRelease.Parse("-" + prerelease);
             }
         }
 
         public Composer(List<string> v)
         {
-            if (v.Count() != 4) throw new ArgumentException("List length is not 4.");
-            this.Major = null;
-            this.Minor = null;
-            this.Patch = null;
+            if (v.Count() < 3) throw new ArgumentException("List length must be at least 3.", "v");
             int major, minor, patch;
             if (Int32.TryParse(v[0], out major))
             {
@@ -47,8 +44,22 @@ namespace Versatile
             {
                 throw new ArgumentNullException("Could not parse major component or major component cannot be null.");
             }
-            if (Int32.TryParse(v[1], out minor)) this.Minor = minor;
-            if (Int32.TryParse(v[2], out patch)) this.Patch = patch;
+            if (Int32.TryParse(v[1], out minor))
+            {
+                this.Minor = minor;
+            }
+            else
+            {
+                throw new ArgumentNullException("Could not parse minor component or minor component cannot be null.");
+            }
+            if (Int32.TryParse(v[2], out patch))
+            {
+                this.Patch = patch;
+            }
+            else
+            {
+                throw new ArgumentNullException("Could not parse major component or major component cannot be null.");
+            }
             if (!string.IsNullOrEmpty(v[3]))
             {
                 this.PreRelease = (ComposerPreRelease) Grammar.PreRelease.Parse("-" + v[3]);
@@ -60,6 +71,49 @@ namespace Versatile
 
         #endregion
 
+        public int CompareTo(object obj)
+        {
+            if (Object.ReferenceEquals(obj, null))
+            {
+                return 1;
+            }
+            Composer other = obj as Composer;
+            if (other == null)
+            {
+                throw new ArgumentException("Must be a Composer Version", "obj");
+            }
+            return CompareComponent(this.ToNormalizedString(), other.ToNormalizedString());
+        }
+
+        public int CompareTo(Composer other)
+        {
+            if (Object.ReferenceEquals(other, null))
+            {
+                return 1;
+            }
+            return CompareComponent(this.ToNormalizedString(), other.ToNormalizedString());
+        }
+
+        private string ToNormalizedString()
+        {
+            StringBuilder s = new StringBuilder(5);
+            s.Append(this.Major.HasValue ? this.Major.Value : 0);
+            s.Append(".");
+            s.Append(this.Minor.HasValue ? this.Minor.Value : 0);
+            s.Append(".");
+            s.Append(this.Patch.HasValue ? this.Patch.Value : 0);
+            if (this.PreRelease != null && this.PreRelease.Count > 0)
+            {
+                s.Append(".");
+                s.Append(this.PreRelease[0]);
+                if (this.PreRelease.Count == 2)
+                {
+                    s.Append(".");
+                    s.Append(this.PreRelease[1]);
+                }
+            }
+            return s.ToString();
+        }
         public static int CompareComponent(string a, string b, bool lower = false)
         {
             var aEmpty = String.IsNullOrEmpty(a);
@@ -100,41 +154,51 @@ namespace Versatile
                         return r;
                 }
             }
-
-            return aComps.Length.CompareTo(bComps.Length);
+            if (aComps.Length == 3 && bComps.Length > 3) // if a and b have equal components but b has a pre-release
+            {
+                return 1;
+            }
+            else if (bComps.Length == 3 && aComps.Length > 3)
+            {
+                return -1;
+            }
+            else
+            {
+                return aComps.Length.CompareTo(bComps.Length);
+            }
         }
 
 
         public static bool operator == (Composer left, Composer right)
         {
-            return Expression.Lambda<Func<bool>>(GetBinaryExpression(ExpressionType.Equal, left, right)).Compile().Invoke();
+            return left.Equals(right);
         }
 
         public static bool operator !=(Composer left, Composer right)
         {
-            return Expression.Lambda<Func<bool>>(GetBinaryExpression(ExpressionType.NotEqual, left, right)).Compile().Invoke();
+            return !left.Equals(right);
         }
 
         public static bool operator <(Composer left, Composer right)
         {
-            return Expression.Lambda<Func<bool>>(GetBinaryExpression(ExpressionType.LessThan, left, right)).Compile().Invoke();
+            return CompareComponent (left.ToNormalizedString(), right.ToNormalizedString()) == -1;
         }
        
 
         public static bool operator >(Composer left, Composer right)
         {
-            return Expression.Lambda<Func<bool>>(GetBinaryExpression(ExpressionType.GreaterThan, left, right)).Compile().Invoke();
+            return CompareComponent(left.ToNormalizedString(), right.ToNormalizedString()) == 1;
         }
 
              
         public static bool operator <=(Composer left, Composer right)
         {
-            return Expression.Lambda<Func<bool>>(GetBinaryExpression(ExpressionType.LessThanOrEqual, left, right)).Compile().Invoke();
+            return (new List<int> { 0, -1 }).Contains(CompareComponent(left.ToNormalizedString(), right.ToNormalizedString()));
         }
 
         public static bool operator >=(Composer left, Composer right)
         {
-            return Expression.Lambda<Func<bool>>(GetBinaryExpression(ExpressionType.GreaterThanOrEqual, left, right)).Compile().Invoke();
+            return (new List<int> { 0, 1 }).Contains(CompareComponent(left.ToNormalizedString(), right.ToNormalizedString()));
         }
 
         public static Composer operator ++(Composer s)
@@ -185,13 +249,24 @@ namespace Versatile
             }
         }
 
+        public bool Equals(Composer other)
+        {
+            return !Object.ReferenceEquals(null, other) &&
+                CompareComponent(this.ToNormalizedString(), other.ToNormalizedString()) == 0; 
+        }
+
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(obj, null))
                 return false;
             if (ReferenceEquals(this, obj))
                 return true;
-            return Expression.Lambda<Func<bool>>(GetBinaryExpression(ExpressionType.Equal, (Composer)obj, this)).Compile().Invoke();
+            Composer other = obj as Composer;
+            if (other == null)
+            {
+                throw new ArgumentException("Must be a Composer Version", "obj");
+            }
+            return CompareComponent(this.ToNormalizedString(), other.ToNormalizedString()) == 0;
         }
 
         public override string ToString()
@@ -208,7 +283,7 @@ namespace Versatile
 
             if (this.PreRelease != null && this.PreRelease.Count() > 0)
             {
-                result = result + "." + this.PreRelease.ToString();
+                result = result + "-" + this.PreRelease.ToString();
             }
          
             return result;
@@ -239,107 +314,8 @@ namespace Versatile
 
         public static BinaryExpression GetBinaryExpression(ExpressionType et, Composer left, Composer right)
         {
-            if (ReferenceEquals(right, null)) throw new ArgumentNullException("Right operand cannot be null.");
-            if (ReferenceEquals(left, null)) throw new ArgumentNullException("Left operand cannot be null.");
-            ConstantExpression zero = Expression.Constant(0, typeof(int));
-            ConstantExpression l = Expression.Constant(left, typeof(Composer));
-            ConstantExpression r = Expression.Constant(right, typeof(Composer));
-            ConstantExpression l_major = Expression.Constant(left.Major, typeof(int));
-            ConstantExpression l_minor = left.Minor.HasValue ? Expression.Constant(left.Minor, typeof(int)) : Expression.Constant(0, typeof(int));
-            ConstantExpression l_patch = left.Patch.HasValue ? Expression.Constant(left.Patch, typeof(int)) : Expression.Constant(0, typeof(int));
-            ConstantExpression l_prerelease = Expression.Constant(left.PreRelease, typeof(ComposerPreRelease));
-            ConstantExpression r_major = Expression.Constant(right.Major, typeof(int));
-            ConstantExpression r_minor = right.Minor.HasValue ? Expression.Constant(right.Minor, typeof(int)) : zero;
-            ConstantExpression r_patch = right.Patch.HasValue ? Expression.Constant(right.Patch, typeof(int)) : zero;
-            ConstantExpression r_prerelease = Expression.Constant(right.PreRelease, typeof(ComposerPreRelease));
-            BinaryExpression a = Expression.MakeBinary(et, l_major, r_major);
-            BinaryExpression b = Expression.MakeBinary(et, l_minor, r_minor);
-            BinaryExpression c = Expression.MakeBinary(et, l_patch, r_patch);
-            BinaryExpression d = Expression.MakeBinary(et, l_prerelease, r_prerelease);
-            if (et == ExpressionType.Equal || et == ExpressionType.NotEqual)
-            {
-                return Expression.AndAlso(Expression.AndAlso(a, Expression.AndAlso(b, c)), d);
-            }
-            else if (et == ExpressionType.LessThan || et == ExpressionType.GreaterThan)
-            {
-                if (!ReferenceEquals(right.PreRelease, null) && !ReferenceEquals(left.PreRelease, null))//Major + minor + patch + prerelease
-                {
-                    return Expression.AndAlso(Expression.AndAlso(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major),
-                        Expression.MakeBinary(ExpressionType.Equal, l_minor, r_minor)), Expression.MakeBinary(ExpressionType.Equal, l_patch, r_patch)), d);
-                }
-                else
-                {
-                    return Expression.OrElse(a,
-                                Expression.OrElse(//  or major = major and b
-                                    Expression.OrElse(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major), b),
-                                        Expression.AndAlso(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major),
-                                        Expression.MakeBinary(ExpressionType.Equal, l_minor, r_minor)), c)),
-                                    Expression.AndAlso(Expression.AndAlso(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major),
-                                    Expression.MakeBinary(ExpressionType.Equal, l_minor, r_minor)), Expression.MakeBinary(ExpressionType.Equal, l_patch, r_patch)), d))
-                            );
-                }
-                /*
-                if (!right.Minor.HasValue) //Major only
-                {
-                    return a;
-                }
-                else if (!right.Patch.HasValue) //Major + minor
-                {
-                    return Expression.OrElse(a,
-                        Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major), b));
-                }
-
-                else if (ReferenceEquals(right.PreRelease, null) && ReferenceEquals(left.PreRelease, null))//Major + minor + patch only
-                {
-                    return Expression.OrElse(a,
-                            Expression.OrElse(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major), b),
-                                Expression.AndAlso(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major), 
-                                Expression.MakeBinary(ExpressionType.Equal, l_minor, r_minor)), c)
-                            ));
-                }
-
-                else if (!ReferenceEquals(right.PreRelease, null) && !ReferenceEquals(left.PreRelease, null))//Major + minor + patch + prerelease
-                {
-                    return Expression.AndAlso(Expression.AndAlso(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major),
-                        Expression.MakeBinary(ExpressionType.Equal, l_minor, r_minor)), Expression.MakeBinary(ExpressionType.Equal, l_patch, r_patch)), d);
-                }
-
-                else //Major + minor + patch + 1 preonly
-                {
-                    return Expression.OrElse(a,
-                            Expression.OrElse(//  or major = major and b
-                                Expression.OrElse(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major), b),
-                                    Expression.AndAlso(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major), 
-                                    Expression.MakeBinary(ExpressionType.Equal, l_minor, r_minor)), c)),         
-                                Expression.AndAlso(Expression.AndAlso(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major),
-                                Expression.MakeBinary(ExpressionType.Equal, l_minor, r_minor)), Expression.MakeBinary(ExpressionType.Equal, l_patch, r_patch)), d))
-                        );
-                }
-                //                left.Major > right.Major ||
-                //                    (left.Major == right.Major) && (left.Minor > right.Minor) ||
-                //                    (left.Major == right.Major) && (left.Minor == right.Minor) && (left.Patch > right.Patch);
-                */
- 
-            }
-
-            else if (et == ExpressionType.LessThanOrEqual)
-            {
-                return Expression.OrElse(GetBinaryExpression(ExpressionType.LessThan, left, right), GetBinaryExpression(ExpressionType.Equal, left, right));
-            }
-
-            else if (et == ExpressionType.GreaterThanOrEqual)
-            {
-                return Expression.OrElse(GetBinaryExpression(ExpressionType.GreaterThan, left, right), GetBinaryExpression(ExpressionType.Equal, left, right));
-            }
-
-
-            else if (et == ExpressionType.OnesComplement)
-            {
-                return Expression.AndAlso(Expression.MakeBinary(ExpressionType.GreaterThan, l, r),
-                    Expression.MakeBinary(ExpressionType.LessThanOrEqual, l, Expression.MakeUnary(ExpressionType.OnesComplement, r, null)));
-            }
-                       
-            else throw new ArgumentException("Unimplemented expression type: " + et.ToString() + ".");
+            return Expression.MakeBinary(et, Expression.Constant(left, typeof(Composer)), 
+                Expression.Constant(right, typeof(Composer)));
         }
 
         public static BinaryExpression GetBinaryExpression(Composer left, ComparatorSet right)

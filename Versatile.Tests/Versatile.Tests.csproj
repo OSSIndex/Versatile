@@ -67,6 +67,8 @@
   <ItemGroup>
     <Compile Include="AssemblyVersionTests.cs" />
     <Compile Include="Composer\GrammarTests.cs" />
+    <Compile Include="Composer\ModelTests.cs" />
+    <Compile Include="Composer\SatisfiesTests.cs" />
     <Compile Include="NuGetv2\SatisfiesTests.cs" />
     <Compile Include="NuGetv2\CompareTests.cs" />
     <Compile Include="NuGetv2\GrammarTests.cs" />

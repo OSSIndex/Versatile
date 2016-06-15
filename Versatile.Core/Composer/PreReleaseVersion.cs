@@ -17,6 +17,15 @@ namespace Versatile
             }
         }
 
+        public ComposerPreRelease(List<string> p)
+        {
+            this.Add(p[0]);
+            if (p.Count == 2 && !string.IsNullOrEmpty(p[1]))
+            {
+                this.Add(p[1]);
+            }
+        }
+
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(obj, null))

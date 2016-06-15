@@ -15,37 +15,27 @@ namespace Versatile.Tests
         public void GrammarCanParseVersion()
         {
             Composer c1 = Composer.Grammar.ComposerVersion.Parse("3.2.5-dev");
-            Composer c2 = Composer.Grammar.ComposerVersion.Parse("0.1.4.3-");
+            Composer c2 = Composer.Grammar.ComposerVersion.Parse("v0.1.4.3");
             Assert.Equal(c1.Major, 3);
             Assert.Equal(c2.Major, 0);
             Assert.Equal(c1.PreRelease.ToString(), "dev");
-            //Assert.Throws<ParseException>(() => NuGetv2.Grammar.NuGetv2Version.Parse("A.2.3"));
-            //Assert.Throws<ParseException>(() => NuGetv2.Grammar.NuGetv2Version.Parse("3.2.3.X"));
+            Assert.Throws<ParseException>(() => NuGetv2.Grammar.NuGetv2Version.Parse("A.2.3"));
+            Assert.Throws<ParseException>(() => NuGetv2.Grammar.NuGetv2Version.Parse("3.2.3.X"));
         }
 
         [Fact]
         public void GrammarCanParseComparator()
         {
-            NuGetv2.Comparator re = NuGetv2.Grammar.Comparator.Parse("<10.3.4");
+            Composer.Comparator re = Composer.Grammar.Comparator.Parse("<10.3.4");
             Assert.Equal(ExpressionType.LessThan, re.Operator);
-            Assert.Equal(10, re.Version.Version.Major);
-            Assert.Equal(3, re.Version.Version.Minor);
-            Assert.Equal(4, re.Version.Version.Build);
-            re = NuGetv2.Grammar.Comparator.Parse("<=0.0.4-alpha");
+            Assert.Equal(10, re.Version.Major);
+            Assert.Equal(3, re.Version.Minor);
+            Assert.Equal(4, re.Version.Patch);
+            re = Composer.Grammar.Comparator.Parse("<=0.0.4-alpha");
             Assert.Equal(ExpressionType.LessThanOrEqual, re.Operator);
-            Assert.Equal(0, re.Version.Version.Major);
-            Assert.Equal(4, re.Version.Version.Build);
-            Assert.Equal("alpha", re.Version.SpecialVersion.ToString());
-            re = NuGetv2.Grammar.Comparator.Parse(">10.0.100-beta");
-            Assert.Equal(ExpressionType.GreaterThan, re.Operator);
-            Assert.Equal(10, re.Version.Version.Major);
-            Assert.Equal(100, re.Version.Version.Build);
-            Assert.Equal("beta", re.Version.SpecialVersion.ToString());
-            re = NuGetv2.Grammar.Comparator.Parse("10.6");
-            Assert.Equal(ExpressionType.Equal, re.Operator);
-            Assert.Equal(10, re.Version.Version.Major);
-            Assert.Equal(6, re.Version.Version.Minor);
-            Assert.Equal(string.Empty, re.Version.SpecialVersion);
+            Assert.Equal(0, re.Version.Major);
+            Assert.Equal(4, re.Version.Patch);
+            Assert.Equal("alpha", re.Version.PreRelease.ToString());
         }
 
         [Fact]

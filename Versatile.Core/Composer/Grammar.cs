@@ -92,7 +92,7 @@ namespace Versatile
                 }
             }
 
-            public static Parser<ComposerPreRelease> PreRelease
+            public static Parser<List<string>> PreReleaseIdentifier
             {
                 get
                 {
@@ -101,7 +101,16 @@ namespace Versatile
                         from dash in Parse.Char('-')
                         from s in Parse.String("dev").Or(Parse.String("patch")).Or(Parse.String("alpha")).Or(Parse.String("beta")).Or(Parse.String("RC")).Token().Text()
                         from d in NumericIdentifier.Optional().Select(o => o.GetOrElse(string.Empty))
-                        select new ComposerPreRelease(s.ToString(), d);
+                        select new List<string> { s, d };
+                }
+            }
+
+            public static Parser<ComposerPreRelease> PreRelease
+            {
+                get
+                {
+
+                    return PreReleaseIdentifier.Select(p => new ComposerPreRelease(p));
                 }
             }
 
@@ -110,13 +119,12 @@ namespace Versatile
                 get
                 {
                     return
-
                         Major
                         .Then(major => Minor.XOr(Parse.Return(string.Empty)).Select(minor => major + "|" + minor))
                         .Then(minor => Patch.XOr(Parse.Return(string.Empty)).Select(patch => (minor + "|" + patch)))
-                        .Then(patch => PreRelease.XOr(Parse.Return(new ComposerPreRelease("", "")))
-                            .Select(prs => patch + "|" + prs.ToString()))
-                            .Select(v => v.Split('|').ToList());
+                        .Then(patch => PreReleaseIdentifier.Select(p => p[0] + "-" + p[1]).XOr(Parse.Return(string.Empty))
+                            .Select(prs => patch + "|" + prs))
+                        .Select(v => v.Split('|').ToList());
                 }
             } //<valid semver> ::= <version core> | <version core> "-" <pre-release> | <version core> "+" <build> | <version core> "-" <pre-release> "+" <build>
 
@@ -124,8 +132,10 @@ namespace Versatile
             {
                 get
                 {
-                    return ComposerVersionIdentifier.Select(v => new Composer(v));
-
+                    return 
+                        from v in Parse.Char('v').Optional()
+                        from c in ComposerVersionIdentifier
+                        select new Composer(c);
                 }
             }
 
