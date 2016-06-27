@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using Sprache;
 
+
 namespace Versatile
 {
     public partial class NuGetv2
@@ -257,12 +258,12 @@ namespace Versatile
             }
 
 
-            public static Parser<Comparator> Comparator
+            public static Parser<Comparator<NuGetv2>> Comparator
             {
                 get
                 {
-                    return VersionOperator.Then(o => NuGetv2Version.Select(version => new Comparator(o, version)))
-                        .Or(NuGetv2Version.Select(s => new Comparator(ExpressionType.Equal, s)));
+                    return VersionOperator.Then(o => NuGetv2Version.Select(version => new Comparator<NuGetv2>(o, version)))
+                        .Or(NuGetv2Version.Select(s => new Comparator<NuGetv2>(ExpressionType.Equal, s)));
                 }
             }
 
@@ -276,15 +277,15 @@ namespace Versatile
             }
 
 
-            public static Parser<ComparatorSet> AllXRange
+            public static Parser<ComparatorSet<NuGetv2>> AllXRange
             {
                 get
                 {
-                    return XIdentifier.Return(new ComparatorSet());
+                    return XIdentifier.Return(new ComparatorSet<NuGetv2>());
                 }
             }
 
-            public static Parser<ComparatorSet> MajorXRange
+            public static Parser<ComparatorSet<NuGetv2>> MajorXRange
             {
                 get
                 {
@@ -292,15 +293,15 @@ namespace Versatile
                         from major in Major
                         from dot in Sprache.Parse.Char('.').Once().Text().Token()
                         from x in XIdentifier
-                        select new ComparatorSet
+                        select new ComparatorSet<NuGetv2>
                         {
-                        new Comparator(ExpressionType.GreaterThanOrEqual, new NuGetv2(major, 0, 0, 0)),
-                        new Comparator(ExpressionType.LessThan, new NuGetv2((major + 1), 0, 0, 0))
+                        new Comparator<NuGetv2>(ExpressionType.GreaterThanOrEqual, new NuGetv2(major, 0, 0, 0)),
+                        new Comparator<NuGetv2>(ExpressionType.LessThan, new NuGetv2((major + 1), 0, 0, 0))
                         };
                 }
             }
 
-            public static Parser<ComparatorSet> MajorMinorXRange
+            public static Parser<ComparatorSet<NuGetv2>> MajorMinorXRange
             {
                 get
                 { 
@@ -309,15 +310,15 @@ namespace Versatile
                         from minor in Minor
                         from dot in Sprache.Parse.Char('.').Once().Text().Token()
                         from x in XIdentifier
-                        select new ComparatorSet
+                        select new ComparatorSet<NuGetv2>
                         {
-                            new Comparator(ExpressionType.GreaterThanOrEqual, new NuGetv2(major, minor, 0, 0)),
-                            new Comparator(ExpressionType.LessThan, new NuGetv2(major, minor  + 1, 0, 0))
+                            new Comparator<NuGetv2>(ExpressionType.GreaterThanOrEqual, new NuGetv2(major, minor, 0, 0)),
+                            new Comparator<NuGetv2>(ExpressionType.LessThan, new NuGetv2(major, minor  + 1, 0, 0))
                         };
                 }
             }
 
-            public static Parser<ComparatorSet> XRange
+            public static Parser<ComparatorSet<NuGetv2>> XRange
             {
                 get
                 {
@@ -325,23 +326,23 @@ namespace Versatile
                 }
             }
 
-            public static Parser<ComparatorSet> MajorTildeRange
+            public static Parser<ComparatorSet<NuGetv2>> MajorTildeRange
             {
                 get
                 {
                     return
                         from tilde in Sprache.Parse.Char('~')
                         from major in Major
-                        select new ComparatorSet
+                        select new ComparatorSet<NuGetv2>
                         {
-                            new Comparator(ExpressionType.GreaterThanOrEqual, new NuGetv2(major, 0, 0, 0)),
-                            new Comparator(ExpressionType.LessThan, new NuGetv2(major + 1, 0, 0, 0))
+                            new Comparator<NuGetv2>(ExpressionType.GreaterThanOrEqual, new NuGetv2(major, 0, 0, 0)),
+                            new Comparator<NuGetv2>(ExpressionType.LessThan, new NuGetv2(major + 1, 0, 0, 0))
                         };
 
                 }
             }
 
-            public static Parser<ComparatorSet> MajorMinorTildeRange
+            public static Parser<ComparatorSet<NuGetv2>> MajorMinorTildeRange
             {
                 get
                 {
@@ -349,16 +350,16 @@ namespace Versatile
                         from tilde in Sprache.Parse.Char('~')
                         from major in Major
                         from minor in Minor
-                        select new ComparatorSet
+                        select new ComparatorSet<NuGetv2>
                         {
-                            new Comparator(ExpressionType.GreaterThanOrEqual, new NuGetv2(major, minor, 0, 0)),
-                            new Comparator(ExpressionType.LessThan, new NuGetv2(major, minor  + 1, 0, 0))
+                            new Comparator<NuGetv2>(ExpressionType.GreaterThanOrEqual, new NuGetv2(major, minor, 0, 0)),
+                            new Comparator<NuGetv2>(ExpressionType.LessThan, new NuGetv2(major, minor  + 1, 0, 0))
                         };
 
                 }
             }
 
-            public static Parser<ComparatorSet> MajorMinorBuildTildeRange
+            public static Parser<ComparatorSet<NuGetv2>> MajorMinorBuildTildeRange
             {
                 get
                 {
@@ -367,16 +368,16 @@ namespace Versatile
                         from major in Major
                         from minor in Minor
                         from build in Build
-                        select new ComparatorSet
+                        select new ComparatorSet<NuGetv2>
                         {
-                            new Comparator(ExpressionType.GreaterThanOrEqual, new NuGetv2(major, minor, build, 0)),
-                            new Comparator(ExpressionType.LessThan, new NuGetv2(major, minor  + 1, build, 0))
+                            new Comparator<NuGetv2>(ExpressionType.GreaterThanOrEqual, new NuGetv2(major, minor, build, 0)),
+                            new Comparator<NuGetv2>(ExpressionType.LessThan, new NuGetv2(major, minor  + 1, build, 0))
                         };
 
                 }
             }
 
-            public static Parser<ComparatorSet> MajorMinorBuildSpecialTildeRange
+            public static Parser<ComparatorSet<NuGetv2>> MajorMinorBuildSpecialTildeRange
             {
                 get
                 {
@@ -386,16 +387,16 @@ namespace Versatile
                         from minor in Minor
                         from build in Build
                         from special in Special
-                        select new ComparatorSet
+                        select new ComparatorSet<NuGetv2>
                         {
-                            new Comparator(ExpressionType.GreaterThanOrEqual, new NuGetv2(major, minor, build, special)),
-                            new Comparator(ExpressionType.LessThan, new NuGetv2(major, minor  + 1, 0, 0))
+                            new Comparator<NuGetv2>(ExpressionType.GreaterThanOrEqual, new NuGetv2(major, minor, build, special)),
+                            new Comparator<NuGetv2>(ExpressionType.LessThan, new NuGetv2(major, minor  + 1, 0, 0))
                         };
 
                 }
             }
 
-            public static Parser<ComparatorSet> TildeRange
+            public static Parser<ComparatorSet<NuGetv2>> TildeRange
             {
                 get
                 {
@@ -403,75 +404,98 @@ namespace Versatile
                 }
             }
 
-            public static Parser<ComparatorSet> OpenBracketOpenBracketRange
+            public static Parser<ComparatorSet<NuGetv2>> OpenBracketOpenBracketRange
             {
                 get
                 {
                     return
-                        from left_bracket in Sprache.Parse.Char('(').Once()
+                        from left_bracket in Sprache.Parse.Char('(').Token()
                         from l in NuGetv2Version.Optional()
-                        from c in Sprache.Parse.Char(',')
-                        from r in NuGetv2Version
-                        from right_bracket in Sprache.Parse.Char(')').Once()
-                        let x = l.IsDefined ? new ComparatorSet
-                            {
-                                new Comparator(ExpressionType.GreaterThan, l.Get()),
-                                new Comparator(ExpressionType.LessThan, r)
-                            }
-                        : new ComparatorSet
-                        {
-                            new Comparator(ExpressionType.LessThan, r)
-                        }
-                        select x;
-                }
-            }
-
-            public static Parser<ComparatorSet> OpenBracketClosedBracketRange
-            {
-                get
-                {
-                    return
-                        from left_bracket in Sprache.Parse.Char('(').Once()
-                        from l in NuGetv2Version.Optional()
-                        from c in Sprache.Parse.Char(',')
-                        from r in NuGetv2Version
-                        from right_bracket in Sprache.Parse.Char(']').Once()
-                        let x = l.IsDefined ? new ComparatorSet
-                            {
-                                new Comparator(ExpressionType.GreaterThan, l.Get()),
-                                new Comparator(ExpressionType.LessThanOrEqual, r)
-                            }
-                        : new ComparatorSet
-                        {
-                            new Comparator(ExpressionType.LessThanOrEqual, r)
-                        }
-                        select x;
-                }
-            }
-
-            public static Parser<ComparatorSet> ClosedBracketOpenBracketRange
-            {
-                get
-                {
-                    return
-                        from left_bracket in Sprache.Parse.Char('[').Once()
-                        from l in NuGetv2Version
-                        from c in Sprache.Parse.Char(',')
+                        from c in Sprache.Parse.Char(',').Token()
                         from r in NuGetv2Version.Optional()
-                        from right_bracket in Sprache.Parse.Char(')').Once()
-                        let x = r.IsDefined ? new ComparatorSet
+                        from right_bracket in Sprache.Parse.Char(')').Token()
+                        let x = new ComparatorSet<NuGetv2>
                             {
-                                new Comparator(ExpressionType.GreaterThanOrEqual, l),
-                                new Comparator(ExpressionType.LessThan, r.Get())
+                                l.IsDefined ? new Comparator<NuGetv2>(ExpressionType.GreaterThan, l.Get()) 
+                                : new Comparator<NuGetv2>(ExpressionType.GreaterThan, new NuGetv2(0, 0, 0, 0)),
+                                r.IsDefined ? new Comparator<NuGetv2>(ExpressionType.LessThan, r.Get())
+                                : new Comparator<NuGetv2>(ExpressionType.LessThan, new NuGetv2(100000, 100000, 100000, 100000)),
                             }
-                        : new ComparatorSet
-                        {
-                            new Comparator(ExpressionType.LessThanOrEqual, l)
-                        }
                         select x;
                 }
             }
+
+            public static Parser<ComparatorSet<NuGetv2>> OpenBracketClosedBracketRange
+            {
+                get
+                {
+                    return
+                        from left_bracket in Sprache.Parse.Char('(').Token()
+                        from l in NuGetv2Version.Optional()
+                        from c in Sprache.Parse.Char(',').Token()
+                        from r in NuGetv2Version.Optional()
+                        from right_bracket in Sprache.Parse.Char(']').Token()
+                        let x = new ComparatorSet<NuGetv2>
+                            {
+                                l.IsDefined ? new Comparator<NuGetv2>(ExpressionType.GreaterThan, l.Get())
+                                : new Comparator<NuGetv2>(ExpressionType.GreaterThan, new NuGetv2(0, 0, 0, 0)),
+                                r.IsDefined ? new Comparator<NuGetv2>(ExpressionType.LessThanOrEqual, r.Get())
+                                : new Comparator<NuGetv2>(ExpressionType.LessThanOrEqual, new NuGetv2(100000, 100000, 100000, 100000)),
+                            }
+                        select x;
+                }
+            }
+
+            public static Parser<ComparatorSet<NuGetv2>> ClosedBracketOpenBracketRange
+            {
+                get
+                {
+                    return
+                        from left_bracket in Sprache.Parse.Char('[').Token()
+                        from l in NuGetv2Version.Optional()
+                        from c in Sprache.Parse.Char(',').Token()
+                        from r in NuGetv2Version.Optional()
+                        from right_bracket in Sprache.Parse.Char(')').Token()
+                        let x = new ComparatorSet<NuGetv2>
+                            {
+                                l.IsDefined ? new Comparator<NuGetv2>(ExpressionType.GreaterThanOrEqual, l.Get())
+                                : new Comparator<NuGetv2>(ExpressionType.GreaterThanOrEqual, new NuGetv2(0, 0, 0, 0)),
+                                r.IsDefined ? new Comparator<NuGetv2>(ExpressionType.LessThan, r.Get())
+                                : new Comparator<NuGetv2>(ExpressionType.LessThan, new NuGetv2(100000, 100000, 100000, 100000)),
+                            }
+                        select x;
+                }
+            }
+
+            public static Parser<ComparatorSet<NuGetv2>> ClosedBracketClosedBracketRange
+            {
+                get
+                {
+                    return
+                        from left_bracket in Sprache.Parse.Char('[').Token()
+                        from l in NuGetv2Version.Optional()
+                        from c in Sprache.Parse.Char(',').Token()
+                        from r in NuGetv2Version.Optional()
+                        from right_bracket in Sprache.Parse.Char(']').Token()
+                        let x = new ComparatorSet<NuGetv2>
+                            {
+                                l.IsDefined ? new Comparator<NuGetv2>(ExpressionType.GreaterThanOrEqual, l.Get())
+                                : new Comparator<NuGetv2>(ExpressionType.GreaterThanOrEqual, new NuGetv2(0, 0, 0, 0)),
+                                r.IsDefined ? new Comparator<NuGetv2>(ExpressionType.LessThanOrEqual, r.Get())
+                                : new Comparator<NuGetv2>(ExpressionType.LessThanOrEqual, new NuGetv2(100000, 100000, 100000, 100000)),
+                            }
+                        select x;
+                }
+            }
+            public static Parser<Interval<NuGetv2>> BracketRangeInterval
+            {
+                get
+                {
+                    return ClosedBracketClosedBracketRange.Or(ClosedBracketOpenBracketRange).Or(OpenBracketClosedBracketRange).Or(OpenBracketOpenBracketRange)
+                        .Select(cs => NuGetv2.ComparatorSetToInterval(cs));
+                }
+            }
+
         }
     }
- 
 }

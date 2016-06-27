@@ -6,6 +6,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 using Sprache;
+
+
 namespace Versatile
 {
 
@@ -50,6 +52,8 @@ namespace Versatile
             : this(version, specialVersion, null)
         {
         }
+
+        public NuGetv2() : this(0, 0, 0, 0) { }
 
         private NuGetv2(Version version, string specialVersion, string originalString)
         {
@@ -468,7 +472,7 @@ namespace Versatile
             }
         }
 
-        public static BinaryExpression GetBinaryExpression(NuGetv2 left, ComparatorSet right)
+        public static BinaryExpression GetBinaryExpression(NuGetv2 left, ComparatorSet<NuGetv2> right)
         {
             if (right.Count == 0)
             {
@@ -477,7 +481,7 @@ namespace Versatile
             else
             {
                 BinaryExpression c = null;
-                foreach (Comparator r in right)
+                foreach (Comparator<NuGetv2> r in right)
                 {
                     if (c == null)
                     {
@@ -494,14 +498,32 @@ namespace Versatile
 
         public static bool RangeIntersect(string left, string right)
         {
-            Comparator l = Grammar.Comparator.Parse(left);
-            Comparator r = Grammar.Comparator.Parse(right);
+            Comparator<NuGetv2> l = Grammar.Comparator.Parse(left);
+            Comparator<NuGetv2> r = Grammar.Comparator.Parse(right);
             return RangeIntersect(l.Operator, l.Version, r.Operator, r.Version);
         }
 
-        public static bool Satisfies(NuGetv2 v, ComparatorSet s)
+        public static bool Satisfies(NuGetv2 v, ComparatorSet<NuGetv2> s)
         {
             return InvokeBinaryExpression(GetBinaryExpression(v, s));
         }
+
+        public static Interval<NuGetv2> ComparatorSetToInterval(ComparatorSet<NuGetv2> cs)
+        {
+            if (cs.Count != 2) throw new ArgumentOutOfRangeException("cs", "The comparator set size must be 2.");
+            if ((cs[0].Operator == ExpressionType.LessThan || cs[0].Operator == ExpressionType.LessThanOrEqual) &&
+                (cs[1].Operator == ExpressionType.GreaterThan || cs[1].Operator == ExpressionType.GreaterThanOrEqual))
+            {// first comparator has the endpoint, 2nd the startpoint
+                return new Interval<NuGetv2>(cs[1].Version, cs[1].Operator == ExpressionType.GreaterThan ? false : true,
+                    cs[0].Version, cs[0].Operator == ExpressionType.LessThan ? false : true);
+            }
+            else if ((cs[0].Operator == ExpressionType.GreaterThan || cs[0].Operator == ExpressionType.GreaterThanOrEqual) &&
+                        (cs[1].Operator == ExpressionType.LessThan || cs[1].Operator == ExpressionType.LessThanOrEqual))
+            {// 2nd comparator has the endpoint, first the sta
+                return new Interval<NuGetv2>(cs[0].Version, cs[0].Operator == ExpressionType.GreaterThan ? false : true,
+                    cs[1].Version, cs[1].Operator == ExpressionType.LessThan ? false : true);
+            }
+            else throw new ArgumentOutOfRangeException("cs", "Cannot convert comparator expressions: + " + cs.ToString() + ".");
+        }       
     }
 }

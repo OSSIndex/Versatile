@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Versatile.Tests
 {
-    public class SemanticVersionModelTests
+    public partial class SemanticVersionTests
     {
 
         [Fact]

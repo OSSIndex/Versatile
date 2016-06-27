@@ -29,7 +29,7 @@ namespace Versatile.Tests
         [Fact]
         public void GrammarCanParseComparator()
         {
-            NuGetv2.Comparator re = NuGetv2.Grammar.Comparator.Parse("<10.3.4");
+            Comparator<NuGetv2> re = NuGetv2.Grammar.Comparator.Parse("<10.3.4");
             Assert.Equal(ExpressionType.LessThan, re.Operator);
             Assert.Equal(10, re.Version.Version.Major);
             Assert.Equal(3, re.Version.Version.Minor);
@@ -54,7 +54,7 @@ namespace Versatile.Tests
         [Fact]
         public void GrammarCanParseLessThan()
         {
-            NuGetv2.Comparator c = NuGetv2.Grammar.Comparator.Parse("<1.5.4");
+            Comparator<NuGetv2> c = NuGetv2.Grammar.Comparator.Parse("<1.5.4");
             Assert.Equal(c.Operator, ExpressionType.LessThan);
             Assert.Equal(c.Version.Version.Major, 1);
             Assert.Equal(c.Version.Version.Minor, 5);
@@ -72,8 +72,25 @@ namespace Versatile.Tests
         [Fact]
         public void GrammarCanParseOpenBracketsOpenBrackets()
         {
-            NuGetv2.ComparatorSet cs = NuGetv2.Grammar.OpenBracketOpenBracketRange.Parse("(2.0, 3.1.0)");
+            ComparatorSet<NuGetv2> cs = NuGetv2.Grammar.OpenBracketOpenBracketRange.Parse("(2.0, 3.1.0)");
             Assert.Equal(cs.Count, 2);
+            Assert.Equal(cs[0].Operator, ExpressionType.GreaterThan);
+            Assert.Equal(cs[1].Operator, ExpressionType.LessThan);
+            cs = NuGetv2.Grammar.OpenBracketOpenBracketRange.Parse("(, 3.1)");
+            Assert.Equal(cs.Count, 2);
+            Assert.Equal(cs[0].Operator, ExpressionType.GreaterThan);
+        }
+
+        [Fact]
+        public void GrammarCanParseOpenBracketsClosedBrackets()
+        {
+            ComparatorSet<NuGetv2> cs = NuGetv2.Grammar.OpenBracketClosedBracketRange.Parse("(2.3, 3.3.0-beta6]");
+            Assert.Equal(cs.Count, 2);
+            Assert.Equal(cs[0].Operator, ExpressionType.GreaterThan);
+            Assert.Equal(cs[1].Operator, ExpressionType.LessThanOrEqual);
+            cs = NuGetv2.Grammar.OpenBracketClosedBracketRange.Parse("(, 3.1]");
+            Assert.Equal(cs.Count, 2);
+            Assert.Equal(cs[1].Operator, ExpressionType.LessThanOrEqual);
         }
     }
 }

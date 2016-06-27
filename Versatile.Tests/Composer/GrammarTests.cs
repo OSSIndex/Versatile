@@ -41,7 +41,7 @@ namespace Versatile.Tests
         [Fact]
         public void GrammarCanParseLessThan()
         {
-            NuGetv2.Comparator c = NuGetv2.Grammar.Comparator.Parse("<1.5.4");
+            Comparator<NuGetv2> c = NuGetv2.Grammar.Comparator.Parse("<1.5.4");
             Assert.Equal(c.Operator, ExpressionType.LessThan);
             Assert.Equal(c.Version.Version.Major, 1);
             Assert.Equal(c.Version.Version.Minor, 5);
@@ -59,7 +59,7 @@ namespace Versatile.Tests
         [Fact]
         public void GrammarCanParseOpenBracketsOpenBrackets()
         {
-            NuGetv2.ComparatorSet cs = NuGetv2.Grammar.OpenBracketOpenBracketRange.Parse("(2.0, 3.1.0)");
+            ComparatorSet<NuGetv2> cs = NuGetv2.Grammar.OpenBracketOpenBracketRange.Parse("(2.0, 3.1.0)");
             Assert.Equal(cs.Count, 2);
         }
     }
