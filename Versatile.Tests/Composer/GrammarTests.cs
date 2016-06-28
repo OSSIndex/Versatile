@@ -19,8 +19,9 @@ namespace Versatile.Tests
             Assert.Equal(c1.Major, 3);
             Assert.Equal(c2.Major, 0);
             Assert.Equal(c1.PreRelease.ToString(), "dev");
-            Assert.Throws<ParseException>(() => NuGetv2.Grammar.NuGetv2Version.Parse("A.2.3"));
-            Assert.Throws<ParseException>(() => NuGetv2.Grammar.NuGetv2Version.Parse("3.2.3.X"));
+            //Assert.Throws<ParseException>(() => Composer.Grammar.ComposerVersion.Parse("A.2.3"));
+            //Assert.Throws<ParseException>(() => Composer.Grammar.ComposerVersion.Parse("3.2.3.X"));
+            //Assert.Throws<ParseException>(() => Composer.Grammar.ComposerVersion.Parse("1.2.3-foo"));
         }
 
         [Fact]
@@ -52,30 +53,15 @@ namespace Versatile.Tests
             Assert.Equal(cs[1].Operator, ExpressionType.LessThan);
             Assert.Equal(cs[1].Version, new Composer(1, 5, 0));
         }
-        /*
-        [Fact]
-        public void GrammarCanParseLessThan()
-        {
-            Comparator<NuGetv2> c = NuGetv2.Grammar.Comparator.Parse("<1.5.4");
-            Assert.Equal(c.Operator, ExpressionType.LessThan);
-            Assert.Equal(c.Version.Version.Major, 1);
-            Assert.Equal(c.Version.Version.Minor, 5);
-            c = NuGetv2.Grammar.Comparator.Parse("<1.0");
-            Assert.Equal(c.Operator, ExpressionType.LessThan);
-            Assert.Equal(c.Version.Version.Major, 1);
-            Assert.Equal(c.Version.Version.Minor, 0);
-            c = NuGetv2.Grammar.Comparator.Parse("<1.0.0-alpha");
-            Assert.Equal(c.Operator, ExpressionType.LessThan);
-            Assert.Equal(c.Version.Version.Major, 1);
-            Assert.Equal(c.Version.Version.Minor, 0);
-            Assert.Equal(c.Version.SpecialVersion.ToString(), "alpha");
-        }*/
 
         [Fact]
-        public void GrammarCanParseOpenBracketsOpenBrackets()
+        public void GrammarCanParseHyphenRange()
         {
-            ComparatorSet<NuGetv2> cs = NuGetv2.Grammar.OpenBracketOpenBracketRange.Parse("(2.0, 3.1.0)");
-            Assert.Equal(cs.Count, 2);
+            ComparatorSet<Composer> cs = Composer.Grammar.HyphenRange.Parse("11.3 - 20");
+            Assert.Equal(cs[0].Operator, ExpressionType.GreaterThanOrEqual);
+            Assert.Equal(cs[0].Version, new Composer(11, 3));
+            Assert.Equal(cs[1].Operator, ExpressionType.LessThanOrEqual);
+            Assert.Equal(cs[1].Version, new Composer(20));
         }
     }
 }

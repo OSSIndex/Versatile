@@ -55,7 +55,7 @@ namespace Versatile
             {
                 this.Patch = patch;
             }
-            if (!string.IsNullOrEmpty(v[3]))
+            if (v.Count() > 3 && !string.IsNullOrEmpty(v[3]))
             {
                 this.PreRelease = (ComposerPreRelease) Grammar.PreRelease.Parse("-" + v[3]);
             }

@@ -57,6 +57,9 @@ namespace Versatile.Tests
             Assert.True(Composer.RangeIntersect("<5", "4.1"));
             Assert.True(Composer.RangeIntersect("<5", "<4.1"));
             Assert.False(Composer.RangeIntersect(">5", "<4.1"));
+            Assert.True(Composer.RangeIntersect(">=5", "5"));
+            Assert.True(Composer.RangeIntersect(">1", "1.*"));
+            Assert.True(Composer.RangeIntersect("4 - 9.3", "9"));
         }
     }
 

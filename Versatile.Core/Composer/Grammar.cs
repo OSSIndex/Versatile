@@ -128,6 +128,18 @@ namespace Versatile
                 }
             } //<valid semver> ::= <version core> | <version core> "-" <pre-release> | <version core> "+" <build> | <version core> "-" <pre-release> "+" <build>
 
+            public static Parser<List<string>> CoreVersionIdentifier
+            {
+                get
+                {
+                    return
+                        Major
+                        .Then(major => Minor.XOr(Parse.Return(string.Empty)).Select(minor => major + "|" + minor))
+                        .Then(minor => Patch.XOr(Parse.Return(string.Empty)).Select(patch => (minor + "|" + patch)))
+                        .Select(v => v.Split('|').ToList());
+                }
+            }
+
             public static Parser<Composer> ComposerVersion
             {
                 get
@@ -490,8 +502,8 @@ namespace Versatile
 
                         select new ComparatorSet<Composer>
                         {
-                        new Comparator<Composer>(ExpressionType.GreaterThanOrEqual, new Composer(major, minor, patch)),
-                        new Comparator<Composer>(ExpressionType.LessThan, new Composer(major + 1))
+                            new Comparator<Composer>(ExpressionType.GreaterThanOrEqual, new Composer(major, minor, patch)),
+                            new Comparator<Composer>(ExpressionType.LessThan, new Composer(major + 1))
                         };
 
                 }
@@ -520,8 +532,8 @@ namespace Versatile
                         })
                         select new ComparatorSet<Composer>
                         {
-                        new Comparator<Composer>(ExpressionType.GreaterThanOrEqual, new Composer(major, minor, patch)),
-                        new Comparator<Composer>(ExpressionType.LessThan, new Composer(major, minor  + 1))
+                            new Comparator<Composer>(ExpressionType.GreaterThanOrEqual, new Composer(major, minor, patch)),
+                            new Comparator<Composer>(ExpressionType.LessThan, new Composer(major, minor  + 1))
                         };
 
                 }
@@ -545,8 +557,8 @@ namespace Versatile
                         })
                         select new ComparatorSet<Composer>
                         {
-                        new Comparator<Composer>(ExpressionType.GreaterThanOrEqual, new Composer(major, minor, patch)),
-                        new Comparator<Composer>(ExpressionType.LessThan, new Composer(major, minor, patch + 1))
+                            new Comparator<Composer>(ExpressionType.GreaterThanOrEqual, new Composer(major, minor, patch)),
+                            new Comparator<Composer>(ExpressionType.LessThan, new Composer(major, minor, patch + 1))
                         };
 
                 }
@@ -560,11 +572,27 @@ namespace Versatile
                 }
             }
 
+            public static Parser<ComparatorSet<Composer>> HyphenRange
+            {
+                get
+                {
+                    return
+                    from l in CoreVersionIdentifier
+                    from dash in Parse.Char('-').Token()
+                    from r in CoreVersionIdentifier
+                    select new ComparatorSet<Composer>
+                        {
+                            new Comparator<Composer>(ExpressionType.GreaterThanOrEqual,  new Composer(l)),
+                            new Comparator<Composer>(ExpressionType.LessThanOrEqual, new Composer(r))
+                        };
+                }
+            }
+
             public static Parser<ComparatorSet<Composer>> Range
             {
                 get
                 {
-                    return OneSidedRange.Or(XRange).Or(TildeRange).Or(CaretRange);
+                    return OneSidedRange.Or(XRange).Or(TildeRange).Or(CaretRange).Or(HyphenRange);
                 }
             }
         }
