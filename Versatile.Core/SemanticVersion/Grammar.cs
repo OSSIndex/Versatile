@@ -231,16 +231,47 @@ namespace Versatile
             {
                 get
                 {
-                    return Parse.String("<").Once().Token().Return(ExpressionType.LessThan);
+                    return Sprache.Parse.String("<").Once().Token().Return(ExpressionType.LessThan);
                 }
             }
+
+            public static Parser<ComparatorSet<SemanticVersion>> LessThanRange
+            {
+                get
+                {
+                    return
+                        from o in LessThan
+                        from v in SemanticVersion
+                        select new ComparatorSet<SemanticVersion>
+                        {
+                            new Comparator<SemanticVersion> (ExpressionType.GreaterThan, Versatile.SemanticVersion.MIN),
+                            new Comparator<SemanticVersion> (ExpressionType.LessThan, v)
+                        };
+                }
+            }
+
 
             public static Parser<ExpressionType> LessThanOrEqual
             {
                 get
                 {
 
-                    return Parse.String("<=").Once().Token().Return(ExpressionType.LessThanOrEqual);
+                    return Sprache.Parse.String("<=").Once().Token().Return(ExpressionType.LessThanOrEqual);
+                }
+            }
+
+            public static Parser<ComparatorSet<SemanticVersion>> LessThanOrEqualRange
+            {
+                get
+                {
+                    return
+                        from o in LessThanOrEqual
+                        from v in SemanticVersion
+                        select new ComparatorSet<SemanticVersion>
+                        {
+                            new Comparator<SemanticVersion> (ExpressionType.GreaterThan, Versatile.SemanticVersion.MIN),
+                            new Comparator<SemanticVersion> (ExpressionType.LessThanOrEqual, v)
+                        };
                 }
             }
 
@@ -248,7 +279,7 @@ namespace Versatile
             {
                 get
                 {
-                    return Parse.String(">").Once().Token().Return(ExpressionType.GreaterThan);
+                    return Sprache.Parse.String(">").Once().Token().Return(ExpressionType.GreaterThan);
                 }
             }
 
@@ -256,45 +287,55 @@ namespace Versatile
             {
                 get
                 {
-
-                    return Parse.String(">=").Once().Token().Return(ExpressionType.GreaterThanOrEqual);
+                    return Sprache.Parse.String(">=").Once().Token().Return(ExpressionType.GreaterThanOrEqual);
                 }
             }
 
-            public static Parser<ExpressionType> Equal
+            public static Parser<ComparatorSet<SemanticVersion>> GreaterThanRange
             {
                 get
                 {
-
-                    return Parse.String("=").Once().Token().Return(ExpressionType.LessThanOrEqual);
+                    return
+                        from o in GreaterThan
+                        from v in SemanticVersion
+                        select new ComparatorSet<SemanticVersion>
+                        {
+                            new Comparator<SemanticVersion> (ExpressionType.LessThan, Versatile.SemanticVersion.MAX),
+                            new Comparator<SemanticVersion> (ExpressionType.GreaterThan, v)
+                        };
                 }
             }
 
-            public static Parser<ExpressionType> Tilde
+            public static Parser<ComparatorSet<SemanticVersion>> GreaterThanOrEqualRange
             {
                 get
                 {
-
-                    return Parse.String("~").Token().Return(ExpressionType.OnesComplement);
+                    return
+                        from o in GreaterThanOrEqual
+                        from v in SemanticVersion
+                        select new ComparatorSet<SemanticVersion>
+                        {
+                            new Comparator<SemanticVersion> (ExpressionType.LessThan, Versatile.SemanticVersion.MAX),
+                            new Comparator<SemanticVersion> (ExpressionType.GreaterThanOrEqual, v)
+                        };
                 }
             }
 
-            public static Parser<ExpressionType> VersionOperator
+            public static Parser<ExpressionType> OneSidedRangeOperator
             {
                 get
                 {
-                    return LessThanOrEqual.Or(GreaterThanOrEqual).Or(LessThan).Or(GreaterThan).Or(Equal).Or(Tilde);
+                    return LessThanOrEqual.Or(GreaterThanOrEqual).Or(LessThan).Or(GreaterThan);
                 }
             }
 
 
-            public static Parser<Comparator<SemanticVersion>> Comparator
+            public static Parser<ComparatorSet<SemanticVersion>> OneSidedRange
             {
                 get
                 {
-                    return VersionOperator.Then(o =>
-                        SemanticVersion.Select(version=> new Comparator<SemanticVersion>(o, version)))
-                            .Or(SemanticVersion.Select(s => new Comparator<SemanticVersion>(ExpressionType.Equal, s)));
+                    return LessThanRange.Or(LessThanOrEqualRange).Or(GreaterThanRange).Or(GreaterThanOrEqualRange)
+                        .Or(SemanticVersion.Select(s => new ComparatorSet<SemanticVersion> { new Comparator<SemanticVersion>(ExpressionType.Equal, s) }));
                 }
             }
 
@@ -417,8 +458,8 @@ namespace Versatile
                         })
                         select new ComparatorSet<SemanticVersion>
                         {
-                        new Comparator<SemanticVersion>(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor)),
-                        new Comparator<SemanticVersion>(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
+                            new Comparator<SemanticVersion>(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor)),
+                            new Comparator<SemanticVersion>(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
                         };
 
                 }
@@ -600,6 +641,14 @@ namespace Versatile
                 get
                 {
                     return MajorMinorPatchCaretRange.Or(MinorPatchCaretRange).Or(PatchCaretRange);
+                }
+            }
+
+            public static Parser<ComparatorSet<SemanticVersion>> Range
+            {
+                get
+                {
+                    return OneSidedRange.Or(XRange).Or(TildeRange).Or(CaretRange);
                 }
             }
         }

@@ -38,6 +38,7 @@ namespace Versatile.Tests
             Assert.Equal("alpha", re.Version.PreRelease.ToString());
         }
 
+        /*
         [Fact]
         public void GrammarCanParseLessThan()
         {
@@ -54,7 +55,7 @@ namespace Versatile.Tests
             Assert.Equal(c.Version.Version.Major, 1);
             Assert.Equal(c.Version.Version.Minor, 0);
             Assert.Equal(c.Version.SpecialVersion.ToString(), "alpha");
-        }
+        }*/
 
         [Fact]
         public void GrammarCanParseOpenBracketsOpenBrackets()

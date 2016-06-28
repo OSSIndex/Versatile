@@ -27,42 +27,37 @@ namespace Versatile.Tests
         }
 
         [Fact]
-        public void GrammarCanParseComparator()
+        public void GrammarCanParseOneSidedRange()
         {
-            Comparator<NuGetv2> re = NuGetv2.Grammar.Comparator.Parse("<10.3.4");
+            Comparator<NuGetv2> re = NuGetv2.Grammar.OneSidedRange.Parse("<10.3.4").Last();
             Assert.Equal(ExpressionType.LessThan, re.Operator);
             Assert.Equal(10, re.Version.Version.Major);
             Assert.Equal(3, re.Version.Version.Minor);
             Assert.Equal(4, re.Version.Version.Build);
-            re = NuGetv2.Grammar.Comparator.Parse("<=0.0.4-alpha");
+            re = NuGetv2.Grammar.OneSidedRange.Parse("<=0.0.4-alpha").Last();
             Assert.Equal(ExpressionType.LessThanOrEqual, re.Operator);
             Assert.Equal(0, re.Version.Version.Major);
             Assert.Equal(4, re.Version.Version.Build);
             Assert.Equal("alpha", re.Version.SpecialVersion.ToString());
-            re = NuGetv2.Grammar.Comparator.Parse(">10.0.100-beta");
+            re = NuGetv2.Grammar.OneSidedRange.Parse(">10.0.100-beta").Last();
             Assert.Equal(ExpressionType.GreaterThan, re.Operator);
             Assert.Equal(10, re.Version.Version.Major);
             Assert.Equal(100, re.Version.Version.Build);
             Assert.Equal("beta", re.Version.SpecialVersion.ToString());
-            re = NuGetv2.Grammar.Comparator.Parse("10.6");
+            re = NuGetv2.Grammar.OneSidedRange.Parse("10.6").Last();
             Assert.Equal(ExpressionType.Equal, re.Operator);
             Assert.Equal(10, re.Version.Version.Major);
             Assert.Equal(6, re.Version.Version.Minor);
             Assert.Equal(string.Empty, re.Version.SpecialVersion);
-        }
-
-        [Fact]
-        public void GrammarCanParseLessThan()
-        {
-            Comparator<NuGetv2> c = NuGetv2.Grammar.Comparator.Parse("<1.5.4");
+            Comparator<NuGetv2> c = NuGetv2.Grammar.OneSidedRange.Parse("<1.5.4").Last();
             Assert.Equal(c.Operator, ExpressionType.LessThan);
             Assert.Equal(c.Version.Version.Major, 1);
             Assert.Equal(c.Version.Version.Minor, 5);
-            c = NuGetv2.Grammar.Comparator.Parse("<1.0");
+            c = NuGetv2.Grammar.OneSidedRange.Parse("<1.0").Last();
             Assert.Equal(c.Operator, ExpressionType.LessThan);
             Assert.Equal(c.Version.Version.Major, 1);
             Assert.Equal(c.Version.Version.Minor, 0);
-            c = NuGetv2.Grammar.Comparator.Parse("<1.0.0-alpha");
+            c = NuGetv2.Grammar.OneSidedRange.Parse("<1.0.0-alpha").Last();
             Assert.Equal(c.Operator, ExpressionType.LessThan);
             Assert.Equal(c.Version.Version.Major, 1);
             Assert.Equal(c.Version.Version.Minor, 0);

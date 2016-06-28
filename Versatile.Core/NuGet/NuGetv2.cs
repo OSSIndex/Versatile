@@ -25,6 +25,7 @@ namespace Versatile
         private readonly string _originalString;
         private string _normalizedVersionString;
 
+        #region Constructors
         public NuGetv2(string version)
             : this(Parse(version))
         {
@@ -72,7 +73,7 @@ namespace Versatile
             Version = semVer.Version;
             SpecialVersion = semVer.SpecialVersion;
         }
-
+        #endregion
         /// <summary>
         /// Gets the normalized version portion.
         /// </summary>
@@ -383,147 +384,26 @@ namespace Versatile
             return hashCode;
         }
 
-        /*
-        public static BinaryExpression GetBinaryExpression(NuGetv2 left, NuGetv2 right)
+        public static NuGetv2 MIN
         {
-            if (right.GetOriginalVersionComponents().Length == 0)
+            get
             {
-                return GetBinaryExpression(ExpressionType.Equal, left, left);
-            }
-            else
-            {
-                BinaryExpression c = null;
-                foreach (Comparator r in right)
-                {
-                    if (c == null)
-                    {
-                        c = GetBinaryExpression(r.Operator, left, r.Version);
-                    }
-                    else
-                    {
-                        c = Expression.AndAlso(c, GetBinaryExpression(r.Operator, left, r.Version));
-                    }
-                }
-                return c;
-            }
-        }
-        */
-        public static BinaryExpression GetBinaryExpression(ExpressionType et, NuGetv2 left, NuGetv2 right)
-        {
-            return Expression.MakeBinary(et, Expression.Constant(left, typeof(NuGetv2)), Expression.Constant(right, typeof(NuGetv2)));
-        }
-
-        public static bool InvokeBinaryExpression(BinaryExpression be)
-        {
-            return Expression.Lambda<Func<bool>>(be).Compile().Invoke();
-        }
-
-        public static bool RangeIntersect(ExpressionType left_operator, NuGetv2 left, ExpressionType right_operator, NuGetv2 right)
-        {
-            if (left_operator != ExpressionType.LessThan && left_operator != ExpressionType.LessThanOrEqual &&
-                    left_operator != ExpressionType.GreaterThan && left_operator != ExpressionType.GreaterThanOrEqual
-                    && left_operator != ExpressionType.Equal)
-                throw new ArgumentException("Unsupported left operator expression type " + left_operator.ToString() + ".");
-            if (right_operator != ExpressionType.LessThan && right_operator != ExpressionType.LessThanOrEqual &&
-                   right_operator != ExpressionType.GreaterThan && right_operator != ExpressionType.GreaterThanOrEqual
-                   && right_operator != ExpressionType.Equal)
-                throw new ArgumentException("Unsupported left operator expression type " + left_operator.ToString() + ".");
-
-            if (left_operator == ExpressionType.Equal)
-            {
-                return InvokeBinaryExpression(GetBinaryExpression(right_operator, left, right));
-            }
-            else if (right_operator == ExpressionType.Equal)
-            {
-                return InvokeBinaryExpression(GetBinaryExpression(left_operator, right, left));
-            }
-
-            if ((left_operator == ExpressionType.LessThan || left_operator == ExpressionType.LessThanOrEqual)
-                && (right_operator == ExpressionType.LessThan || right_operator == ExpressionType.LessThanOrEqual))
-            {
-                return true;
-            }
-            else if ((left_operator == ExpressionType.GreaterThan || left_operator == ExpressionType.GreaterThanOrEqual)
-                && (right_operator == ExpressionType.GreaterThan || right_operator == ExpressionType.GreaterThanOrEqual))
-            {
-                return true;
-            }
-
-            else if ((left_operator == ExpressionType.LessThanOrEqual) && (right_operator == ExpressionType.GreaterThanOrEqual))
-            {
-                return right <= left;
-            }
-
-            else if ((left_operator == ExpressionType.GreaterThanOrEqual) && (right_operator == ExpressionType.LessThanOrEqual))
-            {
-                return right >= left;
-            }
-
-
-            else if ((left_operator == ExpressionType.LessThan || left_operator == ExpressionType.LessThanOrEqual)
-                && (right_operator == ExpressionType.GreaterThan || right_operator == ExpressionType.GreaterThanOrEqual))
-            {
-                return right < left;
-            }
-
-            else
-            {
-                return right > left;
+                return new NuGetv2(0, 0, 0, 0);
             }
         }
 
-        public static BinaryExpression GetBinaryExpression(NuGetv2 left, ComparatorSet<NuGetv2> right)
+        public static NuGetv2 MAX
         {
-            if (right.Count == 0)
+            get
             {
-                return GetBinaryExpression(ExpressionType.Equal, left, left);
-            }
-            else
-            {
-                BinaryExpression c = null;
-                foreach (Comparator<NuGetv2> r in right)
-                {
-                    if (c == null)
-                    {
-                        c = GetBinaryExpression(r.Operator, left, r.Version);
-                    }
-                    else
-                    {
-                        c = Expression.AndAlso(c, GetBinaryExpression(r.Operator, left, r.Version));
-                    }
-                }
-                return c;
+                return new NuGetv2(100000, 100000, 100000, 100000);
             }
         }
 
         public static bool RangeIntersect(string left, string right)
         {
-            Comparator<NuGetv2> l = Grammar.Comparator.Parse(left);
-            Comparator<NuGetv2> r = Grammar.Comparator.Parse(right);
-            return RangeIntersect(l.Operator, l.Version, r.Operator, r.Version);
+            return Range<NuGetv2>.Intersect(Grammar.Range.Parse(left), Grammar.Range.Parse(right));
         }
 
-        public static bool Satisfies(NuGetv2 v, ComparatorSet<NuGetv2> s)
-        {
-            return InvokeBinaryExpression(GetBinaryExpression(v, s));
-        }
-
-        public static Interval<NuGetv2> ComparatorSetToInterval(ComparatorSet<NuGetv2> cs)
-        {
-            if (cs.Count != 2) throw new ArgumentOutOfRangeException("cs", "The comparator set size must be 2.");
-            if ((cs[0].Operator == ExpressionType.LessThan || cs[0].Operator == ExpressionType.LessThanOrEqual) &&
-                (cs[1].Operator == ExpressionType.GreaterThan || cs[1].Operator == ExpressionType.GreaterThanOrEqual))
-            {// first comparator has the endpoint, 2nd the startpoint
-                return new Interval<NuGetv2>(cs[1].Version, cs[1].Operator == ExpressionType.GreaterThan ? false : true,
-                    cs[0].Version, cs[0].Operator == ExpressionType.LessThan ? false : true);
-            }
-            else if ((cs[0].Operator == ExpressionType.GreaterThan || cs[0].Operator == ExpressionType.GreaterThanOrEqual) &&
-                        (cs[1].Operator == ExpressionType.LessThan || cs[1].Operator == ExpressionType.LessThanOrEqual))
-            {// 2nd comparator has the endpoint, first the sta
-                return new Interval<NuGetv2>(cs[0].Version, cs[0].Operator == ExpressionType.GreaterThan ? false : true,
-                    cs[1].Version, cs[1].Operator == ExpressionType.LessThan ? false : true);
-            }
-            else throw new ArgumentOutOfRangeException("cs", "Cannot convert comparator expressions: + " + cs.ToString() + ".");
-        }       
     }
 }

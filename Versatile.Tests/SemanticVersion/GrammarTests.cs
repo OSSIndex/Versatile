@@ -90,42 +90,37 @@ namespace Versatile.Tests
         }
 
         [Fact]
-        public void GrammarCanParseComparator()
+        public void GrammarCanParseOneSidedRange()
         {
-            Comparator<SemanticVersion> re = SemanticVersion.Grammar.Comparator.Parse("<10.3.4");
+            Comparator<SemanticVersion> re = SemanticVersion.Grammar.OneSidedRange.Parse("<10.3.4").First();
             Assert.Equal(ExpressionType.LessThan, re.Operator);
             Assert.Equal(10, re.Version.Major);
             Assert.Equal(3, re.Version.Minor);
             Assert.Equal(4, re.Version.Patch);
-            re = SemanticVersion.Grammar.Comparator.Parse("<=0.0.4-alpha");
+            re = SemanticVersion.Grammar.OneSidedRange.Parse("<=0.0.4-alpha").First();
             Assert.Equal(ExpressionType.LessThanOrEqual, re.Operator);
             Assert.Equal(0, re.Version.Major);
             Assert.Equal(4, re.Version.Patch);
             Assert.Equal("alpha.0", re.Version.PreRelease.ToString());
-            re = SemanticVersion.Grammar.Comparator.Parse(">10.0.100-beta.0");
+            re = SemanticVersion.Grammar.OneSidedRange.Parse(">10.0.100-beta.0").First();
             Assert.Equal(ExpressionType.GreaterThan, re.Operator);
             Assert.Equal(10, re.Version.Major);
             Assert.Equal(100, re.Version.Patch);
             Assert.Equal("beta.0", re.Version.PreRelease.ToString());
-            re = SemanticVersion.Grammar.Comparator.Parse("10.6");
+            re = SemanticVersion.Grammar.OneSidedRange.Parse("10.6").First();
             Assert.Equal(ExpressionType.Equal, re.Operator);
             Assert.Equal(10, re.Version.Major);
             Assert.Equal(6, re.Version.Minor);
             Assert.Equal(null, re.Version.PreRelease);
-        }
-
-        [Fact]
-        public void GrammarCanParseLessThan()
-        {
-            Comparator<SemanticVersion> c = SemanticVersion.Grammar.Comparator.Parse("<1.5.4");
+            Comparator<SemanticVersion> c = SemanticVersion.Grammar.OneSidedRange.Parse("<1.5.4").First();
             Assert.Equal(c.Operator, ExpressionType.LessThan);
             Assert.Equal(c.Version.Major, 1);
             Assert.Equal(c.Version.Minor, 5);
-            c = SemanticVersion.Grammar.Comparator.Parse("<1.0");
+            c = SemanticVersion.Grammar.OneSidedRange.Parse("<1.0").First();
             Assert.Equal(c.Operator, ExpressionType.LessThan);
             Assert.Equal(c.Version.Major, 1);
             Assert.Equal(c.Version.Minor, 0);
-            c = SemanticVersion.Grammar.Comparator.Parse("<1.0.0-alpha.1.0");
+            c = SemanticVersion.Grammar.OneSidedRange.Parse("<1.0.0-alpha.1.0").First();
             Assert.Equal(c.Operator, ExpressionType.LessThan);
             Assert.Equal(c.Version.Major, 1);
             Assert.Equal(c.Version.Minor, 0);

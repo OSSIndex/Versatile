@@ -176,27 +176,6 @@ namespace Versatile
                 }
             }
 
-            /*
-            public static Parser<NuGetv2> NuGetv2Version2
-            {
-                get
-                {
-                    return Sprache.Parse.AnyChar.Many().Token().Text().Select(s =>
-                    {
-                        NuGetv2 v;
-                        if (NuGetv2.TryParse(s, out v))
-                        {
-                            return v;
-                        }
-                        else
-                        {
-                            throw new ParseException(string.Format("Could not parse {0} as NuGetv2 version.", s));
-                        }
-                    });
-                }
-            }
-            */
-
             public static Parser<ExpressionType> LessThan
             {
                 get
@@ -205,12 +184,43 @@ namespace Versatile
                 }
             }
 
+            public static Parser<ComparatorSet<NuGetv2>> LessThanRange
+            {
+                get
+                {
+                    return
+                        from o in LessThan
+                        from v in NuGetv2Version
+                        select new ComparatorSet<NuGetv2>
+                        {
+                            new Comparator<NuGetv2> (ExpressionType.GreaterThan, NuGetv2.MIN),
+                            new Comparator<NuGetv2> (ExpressionType.LessThan, v)
+                        };
+                }
+            }
+     
+
             public static Parser<ExpressionType> LessThanOrEqual
             {
                 get
                 {
 
                     return Sprache.Parse.String("<=").Once().Token().Return(ExpressionType.LessThanOrEqual);
+                }
+            }
+
+            public static Parser<ComparatorSet<NuGetv2>> LessThanOrEqualRange
+            {
+                get
+                {
+                    return
+                        from o in LessThanOrEqual
+                        from v in NuGetv2Version
+                        select new ComparatorSet<NuGetv2>
+                        {
+                            new Comparator<NuGetv2> (ExpressionType.GreaterThan, NuGetv2.MIN),
+                            new Comparator<NuGetv2> (ExpressionType.LessThanOrEqual, v)
+                        };
                 }
             }
 
@@ -226,11 +236,39 @@ namespace Versatile
             {
                 get
                 {
-
                     return Sprache.Parse.String(">=").Once().Token().Return(ExpressionType.GreaterThanOrEqual);
                 }
             }
 
+            public static Parser<ComparatorSet<NuGetv2>> GreaterThanRange
+            {
+                get
+                {
+                    return
+                        from o in GreaterThan
+                        from v in NuGetv2Version
+                        select new ComparatorSet<NuGetv2>
+                        {
+                            new Comparator<NuGetv2> (ExpressionType.LessThan, NuGetv2.MAX),
+                            new Comparator<NuGetv2> (ExpressionType.GreaterThan, v)
+                        };
+                }
+            }
+
+            public static Parser<ComparatorSet<NuGetv2>> GreaterThanOrEqualRange
+            {
+                get
+                {
+                    return
+                        from o in GreaterThanOrEqual
+                        from v in NuGetv2Version
+                        select new ComparatorSet<NuGetv2>
+                        {
+                            new Comparator<NuGetv2> (ExpressionType.LessThan, NuGetv2.MAX),
+                            new Comparator<NuGetv2> (ExpressionType.GreaterThanOrEqual, v)
+                        };
+                }
+            }
             public static Parser<ExpressionType> Equal
             {
                 get
@@ -249,21 +287,21 @@ namespace Versatile
                 }
             }
 
-            public static Parser<ExpressionType> VersionOperator
+            public static Parser<ExpressionType> OneSidedRangeOperator
             {
                 get
                 {
-                    return LessThanOrEqual.Or(GreaterThanOrEqual).Or(LessThan).Or(GreaterThan).Or(Equal).Or(Tilde);
+                    return LessThanOrEqual.Or(GreaterThanOrEqual).Or(LessThan).Or(GreaterThan).Or(Equal);
                 }
             }
 
 
-            public static Parser<Comparator<NuGetv2>> Comparator
+            public static Parser<ComparatorSet<NuGetv2>> OneSidedRange
             {
                 get
                 {
-                    return VersionOperator.Then(o => NuGetv2Version.Select(version => new Comparator<NuGetv2>(o, version)))
-                        .Or(NuGetv2Version.Select(s => new Comparator<NuGetv2>(ExpressionType.Equal, s)));
+                    return LessThanRange.Or(LessThanOrEqualRange).Or(GreaterThanRange).Or(GreaterThanOrEqualRange)
+                        .Or(NuGetv2Version.Select(s => new ComparatorSet<NuGetv2> { new Comparator<NuGetv2>(ExpressionType.Equal, s) }));
                 }
             }
 
@@ -487,15 +525,14 @@ namespace Versatile
                         select x;
                 }
             }
-            public static Parser<Interval<NuGetv2>> BracketRangeInterval
+
+            public static Parser<ComparatorSet<NuGetv2>> Range
             {
                 get
                 {
-                    return ClosedBracketClosedBracketRange.Or(ClosedBracketOpenBracketRange).Or(OpenBracketClosedBracketRange).Or(OpenBracketOpenBracketRange)
-                        .Select(cs => NuGetv2.ComparatorSetToInterval(cs));
+                    return OneSidedRange.Or(ClosedBracketClosedBracketRange).Or(ClosedBracketOpenBracketRange).Or(OpenBracketClosedBracketRange).Or(OpenBracketOpenBracketRange);
                 }
             }
-
         }
     }
 }

@@ -352,105 +352,25 @@ namespace Versatile
             }
         }
 
-        public static BinaryExpression GetBinaryExpression(ExpressionType et, SemanticVersion left, SemanticVersion right)
+        public static SemanticVersion MIN
         {
-            return Expression.MakeBinary(et, Expression.Constant(left, typeof(SemanticVersion)), Expression.Constant(right, typeof(SemanticVersion)));
+            get
+            {
+                return new SemanticVersion(0, 0, 0);
+            }
         }
 
-        public static BinaryExpression GetBinaryExpression(SemanticVersion left, ComparatorSet<SemanticVersion> right)
+        public static SemanticVersion MAX
         {
-            if (right.Count() == 0)
+            get
             {
-                return GetBinaryExpression(ExpressionType.Equal, left, left);
-            }
-            else
-            {
-                BinaryExpression c = null;
-                foreach (Comparator<SemanticVersion> r in right)
-                {
-                    if (c == null)
-                    {
-                        c = GetBinaryExpression(r.Operator, left, r.Version);
-                    }
-                    else
-                    {
-                        c = Expression.AndAlso(c, GetBinaryExpression(r.Operator, left, r.Version));
-                    }
-                }
-                return c;
+                return new SemanticVersion(100000, 100000, 100000);
             }
         }
-    
-        public static bool InvokeBinaryExpression(BinaryExpression be)
-        {
-            return Expression.Lambda<Func<bool>>(be).Compile().Invoke();
-        }
 
-        public static bool RangeIntersect(ExpressionType left_operator, SemanticVersion left, ExpressionType right_operator, SemanticVersion right)
-        {
-            if (left_operator != ExpressionType.LessThan && left_operator != ExpressionType.LessThanOrEqual &&
-                    left_operator != ExpressionType.GreaterThan && left_operator != ExpressionType.GreaterThanOrEqual
-                    && left_operator != ExpressionType.Equal)
-                throw new ArgumentException("Unsupported left operator expression type " + left_operator.ToString() + ".");
-            if (right_operator != ExpressionType.LessThan && right_operator != ExpressionType.LessThanOrEqual &&
-                   right_operator != ExpressionType.GreaterThan && right_operator != ExpressionType.GreaterThanOrEqual
-                   && right_operator != ExpressionType.Equal)
-                throw new ArgumentException("Unsupported left operator expression type " + left_operator.ToString() + ".");
-
-            if (left_operator == ExpressionType.Equal)
-            {
-                return InvokeBinaryExpression(GetBinaryExpression(right_operator, left, right));
-            }
-            else if (right_operator == ExpressionType.Equal)
-            {
-                return InvokeBinaryExpression(GetBinaryExpression(left_operator, right, left));
-            }
-
-            if ((left_operator == ExpressionType.LessThan || left_operator == ExpressionType.LessThanOrEqual)
-                && (right_operator == ExpressionType.LessThan || right_operator == ExpressionType.LessThanOrEqual))
-            {
-                return true;
-            }
-            else if ((left_operator == ExpressionType.GreaterThan || left_operator == ExpressionType.GreaterThanOrEqual)
-                && (right_operator == ExpressionType.GreaterThan || right_operator == ExpressionType.GreaterThanOrEqual))
-            {
-                return true;
-            }
-
-            else if ((left_operator == ExpressionType.LessThanOrEqual) && (right_operator == ExpressionType.GreaterThanOrEqual))
-            {
-                return right <= left;
-            }
-
-            else if ((left_operator == ExpressionType.GreaterThanOrEqual) && (right_operator == ExpressionType.LessThanOrEqual))
-            {
-                return right >= left;
-            }
-
-
-            else if ((left_operator == ExpressionType.LessThan || left_operator == ExpressionType.LessThanOrEqual)
-                && (right_operator == ExpressionType.GreaterThan || right_operator == ExpressionType.GreaterThanOrEqual))
-            {
-                return right < left;
-            }
-
-            else
-            {
-                return right > left;
-            }
-        }
-       
         public static bool RangeIntersect(string left, string right)
         {
-            Comparator<SemanticVersion> l = Grammar.Comparator.Parse(left);
-            Comparator<SemanticVersion> r = Grammar.Comparator.Parse(right);
-            return RangeIntersect(l.Operator, l.Version, r.Operator, r.Version);
+            return Range<SemanticVersion>.Intersect(Grammar.Range.Parse(left), Grammar.Range.Parse(right));
         }
-
-        public static bool Satisfies(SemanticVersion v, ComparatorSet<SemanticVersion> s)
-        {
-            return InvokeBinaryExpression(GetBinaryExpression(v, s));
-        }
-
     }
 }

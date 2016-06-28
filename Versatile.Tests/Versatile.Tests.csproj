@@ -72,9 +72,9 @@
     <Compile Include="Composer\GrammarTests.cs" />
     <Compile Include="Composer\ModelTests.cs" />
     <Compile Include="Composer\SatisfiesTests.cs" />
-    <Compile Include="NuGetv2\IntervalTests.cs" />
+    <Compile Include="NuGetv2\RangeTests.cs" />
     <Compile Include="NuGetv2\SatisfiesTests.cs" />
-    <Compile Include="NuGetv2\CompareTests.cs" />
+    <Compile Include="NuGetv2\ModelTests.cs" />
     <Compile Include="NuGetv2\GrammarTests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

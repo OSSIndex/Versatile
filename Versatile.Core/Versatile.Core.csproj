@@ -60,6 +60,7 @@
     <Compile Include="SemanticVersion\PreReleaseVersion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SemanticVersion\SemanticVersion.cs" />
+    <Compile Include="Range.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

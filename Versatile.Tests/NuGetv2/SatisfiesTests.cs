@@ -36,44 +36,44 @@ namespace Versatile.Tests
         [Fact]
         public void CanSatisfyLessThan()
         {
-            BinaryExpression e = NuGetv2.GetBinaryExpression(ExpressionType.LessThan, v1, v2);
+            BinaryExpression e = Range<NuGetv2>.GetBinaryExpression(ExpressionType.LessThan, v1, v2);
             Assert.NotNull(e);
-            BinaryExpression e2 = NuGetv2.GetBinaryExpression(ExpressionType.LessThan, v000a2, v090a1);
-            e2 = NuGetv2.GetBinaryExpression(ExpressionType.LessThan, v000a1, v010a1);
-            Assert.True(NuGetv2.InvokeBinaryExpression(e2)); 
-            Assert.True(NuGetv2.InvokeBinaryExpression(NuGetv2.GetBinaryExpression(ExpressionType.LessThan, v202a, v202)));
-            Assert.True(NuGetv2.InvokeBinaryExpression(NuGetv2.GetBinaryExpression(ExpressionType.LessThan, v090a1, v090b2)));
-            Assert.False(NuGetv2.InvokeBinaryExpression(NuGetv2.GetBinaryExpression(ExpressionType.LessThan, v000a1, v000a0)));
-            Assert.True(NuGetv2.InvokeBinaryExpression(NuGetv2.GetBinaryExpression(ExpressionType.LessThan, v090b1, v090b2)));
-            Assert.True(NuGetv2.InvokeBinaryExpression(NuGetv2.GetBinaryExpression(ExpressionType.LessThan, v090a1, v090b2)));
-            Assert.True(NuGetv2.InvokeBinaryExpression(NuGetv2.GetBinaryExpression(ExpressionType.LessThan, v090a2, v090b1)));
+            BinaryExpression e2 = Range<NuGetv2>.GetBinaryExpression(ExpressionType.LessThan, v000a2, v090a1);
+            e2 = Range<NuGetv2>.GetBinaryExpression(ExpressionType.LessThan, v000a1, v010a1);
+            Assert.True(Range<NuGetv2>.InvokeBinaryExpression(e2)); 
+            Assert.True(Range<NuGetv2>.InvokeBinaryExpression(Range<NuGetv2>.GetBinaryExpression(ExpressionType.LessThan, v202a, v202)));
+            Assert.True(Range<NuGetv2>.InvokeBinaryExpression(Range<NuGetv2>.GetBinaryExpression(ExpressionType.LessThan, v090a1, v090b2)));
+            Assert.False(Range<NuGetv2>.InvokeBinaryExpression(Range<NuGetv2>.GetBinaryExpression(ExpressionType.LessThan, v000a1, v000a0)));
+            Assert.True(Range<NuGetv2>.InvokeBinaryExpression(Range<NuGetv2>.GetBinaryExpression(ExpressionType.LessThan, v090b1, v090b2)));
+            Assert.True(Range<NuGetv2>.InvokeBinaryExpression(Range<NuGetv2>.GetBinaryExpression(ExpressionType.LessThan, v090a1, v090b2)));
+            Assert.True(Range<NuGetv2>.InvokeBinaryExpression(Range<NuGetv2>.GetBinaryExpression(ExpressionType.LessThan, v090a2, v090b1)));
         }
 
         [Fact]
         public void CanSatisfyLessThanOrEqual()
         {
-            BinaryExpression e = NuGetv2.GetBinaryExpression(ExpressionType.LessThanOrEqual, v1, v1);
+            BinaryExpression e = Range<NuGetv2>.GetBinaryExpression(ExpressionType.LessThanOrEqual, v1, v1);
             Assert.NotNull(e);
-            Assert.True(NuGetv2.InvokeBinaryExpression(e));
-            BinaryExpression e2 = NuGetv2.GetBinaryExpression(ExpressionType.LessThanOrEqual, v090a1, v090);
-            Assert.True(NuGetv2.InvokeBinaryExpression(e2));
-            e2 = NuGetv2.GetBinaryExpression(ExpressionType.LessThanOrEqual, v000a1, v010a1);
-            Assert.True(NuGetv2.InvokeBinaryExpression(e2)); 
-            e2 = NuGetv2.GetBinaryExpression(ExpressionType.LessThanOrEqual, v000a0, v000a1);
-            Assert.True(NuGetv2.InvokeBinaryExpression(e2));
-            Assert.True(NuGetv2.InvokeBinaryExpression(NuGetv2.GetBinaryExpression(ExpressionType.LessThanOrEqual, v090, v186)));
+            Assert.True(Range<NuGetv2>.InvokeBinaryExpression(e));
+            BinaryExpression e2 = Range<NuGetv2>.GetBinaryExpression(ExpressionType.LessThanOrEqual, v090a1, v090);
+            Assert.True(Range<NuGetv2>.InvokeBinaryExpression(e2));
+            e2 = Range<NuGetv2>.GetBinaryExpression(ExpressionType.LessThanOrEqual, v000a1, v010a1);
+            Assert.True(Range<NuGetv2>.InvokeBinaryExpression(e2)); 
+            e2 = Range<NuGetv2>.GetBinaryExpression(ExpressionType.LessThanOrEqual, v000a0, v000a1);
+            Assert.True(Range<NuGetv2>.InvokeBinaryExpression(e2));
+            Assert.True(Range<NuGetv2>.InvokeBinaryExpression(Range<NuGetv2>.GetBinaryExpression(ExpressionType.LessThanOrEqual, v090, v186)));
         }
 
 
         [Fact]
         public void CanSatisfyRangeIntersect()
         {
-            Assert.True(NuGetv2.RangeIntersect(ExpressionType.LessThan, v1, ExpressionType.LessThan, v11));
-            Assert.False(NuGetv2.RangeIntersect(ExpressionType.LessThan, v1, ExpressionType.GreaterThan, v11));
-            Assert.True(NuGetv2.RangeIntersect(ExpressionType.GreaterThan, v11, ExpressionType.GreaterThan, v11));
-            Assert.False(NuGetv2.RangeIntersect(ExpressionType.LessThan, v090b1, ExpressionType.GreaterThan, v11));
-            Assert.True(NuGetv2.RangeIntersect(ExpressionType.LessThan, v090b1, ExpressionType.GreaterThan, v090a2));
-            Assert.True(NuGetv2.RangeIntersect(ExpressionType.GreaterThan, v090a2, ExpressionType.LessThan, v186));
+            Assert.True(Range<NuGetv2>.Intersect(ExpressionType.LessThan, v1, ExpressionType.LessThan, v11));
+            Assert.False(Range<NuGetv2>.Intersect(ExpressionType.LessThan, v1, ExpressionType.GreaterThan, v11));
+            Assert.True(Range<NuGetv2>.Intersect(ExpressionType.GreaterThan, v11, ExpressionType.GreaterThan, v11));
+            Assert.False(Range<NuGetv2>.Intersect(ExpressionType.LessThan, v090b1, ExpressionType.GreaterThan, v11));
+            Assert.True(Range<NuGetv2>.Intersect(ExpressionType.LessThan, v090b1, ExpressionType.GreaterThan, v090a2));
+            Assert.True(Range<NuGetv2>.Intersect(ExpressionType.GreaterThan, v090a2, ExpressionType.LessThan, v186));
         }
     }
 
