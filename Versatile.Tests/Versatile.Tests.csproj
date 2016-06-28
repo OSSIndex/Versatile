@@ -71,7 +71,7 @@
     <Compile Include="AssemblyVersionTests.cs" />
     <Compile Include="Composer\GrammarTests.cs" />
     <Compile Include="Composer\ModelTests.cs" />
-    <Compile Include="Composer\SatisfiesTests.cs" />
+    <Compile Include="Composer\RangeTests.cs" />
     <Compile Include="NuGetv2\RangeTests.cs" />
     <Compile Include="NuGetv2\SatisfiesTests.cs" />
     <Compile Include="NuGetv2\ModelTests.cs" />
@@ -80,7 +80,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SemanticVersion\GrammarTests.cs" />
     <Compile Include="SemanticVersion\PreReleaseModelTests.cs" />
-    <Compile Include="SemanticVersion\SatisfiesTests.cs" />
+    <Compile Include="SemanticVersion\RangeTests.cs" />
     <Compile Include="SemanticVersion\ModelTests.cs" />
   </ItemGroup>
   <ItemGroup>

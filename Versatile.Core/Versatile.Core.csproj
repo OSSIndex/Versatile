@@ -47,8 +47,6 @@
     <Compile Include="AssemblyVersion\Grammar.cs" />
     <Compile Include="Comparator.cs" />
     <Compile Include="ComparatorSet.cs" />
-    <Compile Include="Composer\Comparator.cs" />
-    <Compile Include="Composer\ComparatorSet.cs" />
     <Compile Include="Composer\Grammar.cs" />
     <Compile Include="Composer\Composer.cs" />
     <Compile Include="Composer\PreReleaseVersion.cs" />

@@ -13,7 +13,7 @@ namespace Versatile.Tests
        
 
         [Fact]
-        public void CanSatisfyLessThan()
+        public void CanExpressLessThan()
         {
 
             BinaryExpression e = Range<SemanticVersion>.GetBinaryExpression(ExpressionType.LessThan, v1, v2);
@@ -30,7 +30,7 @@ namespace Versatile.Tests
         }
 
         [Fact]
-        public void CanSatisfyLessThanOrEqual()
+        public void CanExpressLessThanOrEqual()
         {
             BinaryExpression e = Range<SemanticVersion>.GetBinaryExpression(ExpressionType.LessThanOrEqual, v1, v1);
             Assert.NotNull(e);

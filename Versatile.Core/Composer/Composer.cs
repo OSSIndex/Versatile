@@ -14,6 +14,7 @@ namespace Versatile
         public int? Major { get; set; } = null;
         public int? Minor { get; set; } = null;
         public int? Patch { get; set; } = null;
+        public Version Version { get; set; } = null;
         public ComposerPreRelease PreRelease { get; set; } = null;
 
         #region Constructors
@@ -30,6 +31,8 @@ namespace Versatile
             {
                 this.PreRelease = (ComposerPreRelease) Grammar.PreRelease.Parse("-" + prerelease);
             }
+            this.Version = new Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0
+            , this.Patch.HasValue ? this.Patch.Value : 0);
         }
 
         public Composer(List<string> v)
@@ -44,27 +47,20 @@ namespace Versatile
             {
                 throw new ArgumentNullException("Could not parse major component or major component cannot be null.");
             }
-            if (Int32.TryParse(v[1], out minor))
+            if (!string.IsNullOrEmpty(v[1]) && Int32.TryParse(v[1], out minor))
             {
                 this.Minor = minor;
             }
-            else
-            {
-                throw new ArgumentNullException("Could not parse minor component or minor component cannot be null.");
-            }
-            if (Int32.TryParse(v[2], out patch))
+            if (!string.IsNullOrEmpty(v[2]) && Int32.TryParse(v[2], out patch))
             {
                 this.Patch = patch;
-            }
-            else
-            {
-                throw new ArgumentNullException("Could not parse major component or major component cannot be null.");
             }
             if (!string.IsNullOrEmpty(v[3]))
             {
                 this.PreRelease = (ComposerPreRelease) Grammar.PreRelease.Parse("-" + v[3]);
             }
-
+            this.Version = new Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0
+            , this.Patch.HasValue ? this.Patch.Value : 0);
         }
 
         public Composer(string v) : this(Grammar.ComposerVersionIdentifier.Parse(v)) { }
@@ -326,106 +322,25 @@ namespace Versatile
             }
         }
 
-        public static BinaryExpression GetBinaryExpression(ExpressionType et, Composer left, Composer right)
+        public static Composer MIN
         {
-            return Expression.MakeBinary(et, Expression.Constant(left, typeof(Composer)), 
-                Expression.Constant(right, typeof(Composer)));
+            get
+            {
+                return new Composer(0, 0, 0);
+            }
         }
 
-        public static BinaryExpression GetBinaryExpression(Composer left, ComparatorSet right)
+        public static Composer MAX
         {
-            if (right.Count() == 0)
+            get
             {
-                return GetBinaryExpression(ExpressionType.Equal, left, left);
-            }
-            else
-            {
-                BinaryExpression c = null;
-                foreach (Comparator r in right)
-                {
-                    if (c == null)
-                    {
-                        c = GetBinaryExpression(r.Operator, left, r.Version);
-                    }
-                    else
-                    {
-                        c = Expression.AndAlso(c, GetBinaryExpression(r.Operator, left, r.Version));
-                    }
-                }
-                return c;
+                return new Composer(1000000, 1000000, 1000000);
             }
         }
-    
-        public static bool InvokeBinaryExpression(BinaryExpression be)
-        {
-            return Expression.Lambda<Func<bool>>(be).Compile().Invoke();
-        }
 
-        public static bool RangeIntersect(ExpressionType left_operator, Composer left, ExpressionType right_operator, Composer right)
-        {
-            if (left_operator != ExpressionType.LessThan && left_operator != ExpressionType.LessThanOrEqual &&
-                    left_operator != ExpressionType.GreaterThan && left_operator != ExpressionType.GreaterThanOrEqual
-                    && left_operator != ExpressionType.Equal)
-                throw new ArgumentException("Unsupported left operator expression type " + left_operator.ToString() + ".");
-            if (right_operator != ExpressionType.LessThan && right_operator != ExpressionType.LessThanOrEqual &&
-                   right_operator != ExpressionType.GreaterThan && right_operator != ExpressionType.GreaterThanOrEqual
-                   && right_operator != ExpressionType.Equal)
-                throw new ArgumentException("Unsupported left operator expression type " + left_operator.ToString() + ".");
-
-            if (left_operator == ExpressionType.Equal)
-            {
-                return InvokeBinaryExpression(GetBinaryExpression(right_operator, left, right));
-            }
-            else if (right_operator == ExpressionType.Equal)
-            {
-                return InvokeBinaryExpression(GetBinaryExpression(left_operator, right, left));
-            }
-
-            if ((left_operator == ExpressionType.LessThan || left_operator == ExpressionType.LessThanOrEqual)
-                && (right_operator == ExpressionType.LessThan || right_operator == ExpressionType.LessThanOrEqual))
-            {
-                return true;
-            }
-            else if ((left_operator == ExpressionType.GreaterThan || left_operator == ExpressionType.GreaterThanOrEqual)
-                && (right_operator == ExpressionType.GreaterThan || right_operator == ExpressionType.GreaterThanOrEqual))
-            {
-                return true;
-            }
-
-            else if ((left_operator == ExpressionType.LessThanOrEqual) && (right_operator == ExpressionType.GreaterThanOrEqual))
-            {
-                return right <= left;
-            }
-
-            else if ((left_operator == ExpressionType.GreaterThanOrEqual) && (right_operator == ExpressionType.LessThanOrEqual))
-            {
-                return right >= left;
-            }
-
-
-            else if ((left_operator == ExpressionType.LessThan || left_operator == ExpressionType.LessThanOrEqual)
-                && (right_operator == ExpressionType.GreaterThan || right_operator == ExpressionType.GreaterThanOrEqual))
-            {
-                return right < left;
-            }
-
-            else
-            {
-                return right > left;
-            }
-        }
-       
         public static bool RangeIntersect(string left, string right)
         {
-            Comparator l = Grammar.Comparator.Parse(left);
-            Comparator r = Grammar.Comparator.Parse(right);
-            return RangeIntersect(l.Operator, l.Version, r.Operator, r.Version);
+            return Range<Composer>.Intersect(Grammar.Range.Parse(left), Grammar.Range.Parse(right));
         }
-
-        public static bool Satisfies(Composer v, ComparatorSet s)
-        {
-            return InvokeBinaryExpression(GetBinaryExpression(v, s));
-        }
-
     }
 }

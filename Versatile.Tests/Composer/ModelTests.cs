@@ -8,9 +8,26 @@ using Xunit;
 
 namespace Versatile.Tests
 {
-
     public partial class ComposerTests
     {
+        Composer v1 = new Composer(1, 0, 0);
+        Composer v11 = new Composer(1, 1, 0);
+        Composer v2 = new Composer(2, 0, 0);
+        Composer v202 = new Composer(2, 0, 2);
+        Composer v202a = new Composer(2, 0, 2, "alpha");
+        Composer v310p234 = new Composer(3, 1, 0, "patch234");
+        Composer v000a1 = new Composer(0, 0, 0, "alpha1");
+        Composer v000b1 = new Composer(0, 0, 0, "beta1");
+        Composer v000a2 = new Composer(0, 0, 0, "alpha2");
+        Composer v000a0 = new Composer(0, 0, 0, "alpha");
+        Composer v090 = new Composer(0, 9, 0);
+        Composer v186 = new Composer(1, 8, 6);
+        Composer v090p1 = new Composer(0, 9, 0, "patch1");
+        Composer v010p1 = new Composer(0, 10, 0, "patch11");
+        Composer v090a2 = new Composer(0, 9, 0, "alpha2");
+        Composer v090b1 = new Composer(0, 9, 0, "beta1");
+        Composer v090b2 = new Composer(0, 9, 0, "beta2");
+
         [Fact]
         public void CanConstruct()
         {

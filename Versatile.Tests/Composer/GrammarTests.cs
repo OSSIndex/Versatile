@@ -24,20 +24,34 @@ namespace Versatile.Tests
         }
 
         [Fact]
-        public void GrammarCanParseComparator()
+        public void GrammarCanParseOneSidedRange()
         {
-            Composer.Comparator re = Composer.Grammar.Comparator.Parse("<10.3.4");
+            Comparator<Composer> re = Composer.Grammar.OneSidedRange.Parse("<10.3.4").Last();
             Assert.Equal(ExpressionType.LessThan, re.Operator);
             Assert.Equal(10, re.Version.Major);
             Assert.Equal(3, re.Version.Minor);
             Assert.Equal(4, re.Version.Patch);
-            re = Composer.Grammar.Comparator.Parse("<=0.0.4-alpha");
+            re = Composer.Grammar.OneSidedRange.Parse("<=0.0.4-alpha").Last();
             Assert.Equal(ExpressionType.LessThanOrEqual, re.Operator);
             Assert.Equal(0, re.Version.Major);
             Assert.Equal(4, re.Version.Patch);
             Assert.Equal("alpha", re.Version.PreRelease.ToString());
         }
 
+        [Fact]
+        public void GrammarCanParseXRange()
+        {
+            ComparatorSet<Composer> cs = Composer.Grammar.XRange.Parse("1.*");
+            Assert.Equal(cs[0].Operator, ExpressionType.GreaterThanOrEqual);
+            Assert.Equal(cs[0].Version, new Composer(1));
+            Assert.Equal(cs[1].Operator, ExpressionType.LessThan);
+            Assert.Equal(cs[1].Version, new Composer(2));
+            cs = Composer.Grammar.XRange.Parse("1.4.*");
+            Assert.Equal(cs[0].Operator, ExpressionType.GreaterThanOrEqual);
+            Assert.Equal(cs[0].Version, new Composer(1, 4, 0));
+            Assert.Equal(cs[1].Operator, ExpressionType.LessThan);
+            Assert.Equal(cs[1].Version, new Composer(1, 5, 0));
+        }
         /*
         [Fact]
         public void GrammarCanParseLessThan()
