@@ -37,6 +37,10 @@ namespace Versatile.Tests
             Assert.Equal(0, re.Version.Major);
             Assert.Equal(4, re.Version.Patch);
             Assert.Equal("alpha", re.Version.PreRelease.ToString());
+            ComparatorSet<Composer> r = Composer.Grammar.OneSidedRange.Parse(">1.13.4-beta7");
+            Assert.Equal(r.Count, 2);
+            Assert.Equal(r[0].Operator, ExpressionType.LessThan);
+            Assert.Equal(r[0].Version, Composer.MAX);
         }
 
         [Fact]

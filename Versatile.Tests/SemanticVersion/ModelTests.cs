@@ -149,17 +149,18 @@ namespace Versatile.Tests
         [Fact]
         public void CanRangeIntersect()
         {
-            Assert.True(SemanticVersion.RangeIntersect("<10.3.2.alpha.1", "<11.0"));
-            Assert.True(SemanticVersion.RangeIntersect("<10.3.2.alpha.1", ">1.3"));
-            Assert.True(SemanticVersion.RangeIntersect(">=1.2.2", ">1.2.0-alpha.0"));
-            Assert.False(SemanticVersion.RangeIntersect(">=1.2.0-alpha.0", "<1.2.0-alpha.0"));
-            Assert.True(SemanticVersion.RangeIntersect(">=1.2.0-alpha.0", "<=1.2.0-alpha.0"));
-            Assert.True(SemanticVersion.RangeIntersect(">1.4.0-alpha.0", "<=1.7.0"));
-            Assert.True(SemanticVersion.RangeIntersect("1.4.0", "<=1.7.0"));
-            Assert.False(SemanticVersion.RangeIntersect("10.4", "<=1.7.0.alpha.1"));
-            Assert.True(SemanticVersion.RangeIntersect("1.7.0-alpha.1", "<1.7.0"));
-            Assert.True(SemanticVersion.RangeIntersect(">1.9.0-beta.0", "1.9.0-beta.1"));
-            Assert.True(SemanticVersion.RangeIntersect(">=10", "11.9.0-beta.0"));
+            string e;
+            Assert.True(SemanticVersion.RangeIntersect("<10.3.2.alpha.1", "<11.0", out e));
+            Assert.True(SemanticVersion.RangeIntersect("<10.3.2.alpha.1", ">1.3", out e));
+            Assert.True(SemanticVersion.RangeIntersect(">=1.2.2", ">1.2.0-alpha.0", out e));
+            Assert.False(SemanticVersion.RangeIntersect(">=1.2.0-alpha.0", "<1.2.0-alpha.0", out e));
+            Assert.True(SemanticVersion.RangeIntersect(">=1.2.0-alpha.0", "<=1.2.0-alpha.0", out e));
+            Assert.True(SemanticVersion.RangeIntersect(">1.4.0-alpha.0", "<=1.7.0", out e));
+            Assert.True(SemanticVersion.RangeIntersect("1.4.0", "<=1.7.0", out e));
+            Assert.False(SemanticVersion.RangeIntersect("10.4", "<=1.7.0.alpha.1", out e));
+            Assert.True(SemanticVersion.RangeIntersect("1.7.0-alpha.1", "<1.7.0", out e));
+            Assert.True(SemanticVersion.RangeIntersect(">1.9.0-beta.0", "1.9.0-beta.1", out e));
+            Assert.True(SemanticVersion.RangeIntersect(">=10", "11.9.0-beta.0", out e));
         }
 
     }

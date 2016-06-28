@@ -140,13 +140,26 @@ namespace Versatile
                 }
             }
 
+            public static Parser<List<string>> PreReleaseOnlyIdentifier
+            {
+                get
+                {
+                    return
+  
+                        from s in Parse.String("dev").Or(Parse.String("patch")).Or(Parse.String("alpha")).Or(Parse.String("beta")).Or(Parse.String("RC")).Token().Text()
+                        from d in NumericIdentifier.Optional().Select(o => o.GetOrElse(string.Empty))
+                        select new List<string> {string.Empty, string.Empty, string.Empty, s, d };
+                }
+            }
+
+
             public static Parser<Composer> ComposerVersion
             {
                 get
                 {
                     return 
                         from v in Parse.Char('v').Optional()
-                        from c in ComposerVersionIdentifier
+                        from c in ComposerVersionIdentifier.XOr(PreReleaseOnlyIdentifier)
                         select new Composer(c);
                 }
             }

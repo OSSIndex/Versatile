@@ -54,12 +54,15 @@ namespace Versatile.Tests
             Assert.False(Range<Composer>.Intersect(ExpressionType.LessThan, v090b1, ExpressionType.GreaterThan, v11));
             Assert.True(Range<Composer>.Intersect(ExpressionType.LessThan, v090b1, ExpressionType.GreaterThan, v090a2));
             Assert.True(Range<Composer>.Intersect(ExpressionType.GreaterThan, v090a2, ExpressionType.LessThan, v186));
-            Assert.True(Composer.RangeIntersect("<5", "4.1"));
-            Assert.True(Composer.RangeIntersect("<5", "<4.1"));
-            Assert.False(Composer.RangeIntersect(">5", "<4.1"));
-            Assert.True(Composer.RangeIntersect(">=5", "5"));
-            Assert.True(Composer.RangeIntersect(">1", "1.*"));
-            Assert.True(Composer.RangeIntersect("4 - 9.3", "9"));
+            string e;
+            Assert.True(Composer.RangeIntersect("<5", "4.1", out e));
+            Assert.True(Composer.RangeIntersect("<5", "<4.1", out e));
+            Assert.False(Composer.RangeIntersect(">5", "<4.1", out e));
+            Assert.True(Composer.RangeIntersect(">=5", "5", out e));
+            Assert.True(Composer.RangeIntersect(">1", "1.*", out e));
+            Assert.False(Composer.RangeIntersect(">X.4.2", "*.3", out e));
+            Assert.True(!string.IsNullOrEmpty(e));
+            Assert.True(Composer.RangeIntersect("4 - 9.3", "9", out e));
         }
     }
 

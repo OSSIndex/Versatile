@@ -396,13 +396,29 @@ namespace Versatile
         {
             get
             {
-                return new NuGetv2(100000, 100000, 100000, 100000);
+                return new NuGetv2(1000000, 1000000, 1000000, 1000000);
             }
         }
 
-        public static bool RangeIntersect(string left, string right)
+        public static bool RangeIntersect(string left, string right, out string exception_message)
         {
-            return Range<NuGetv2>.Intersect(Grammar.Range.Parse(left), Grammar.Range.Parse(right));
+            IResult<ComparatorSet<NuGetv2>> l = Grammar.Range.TryParse(left);
+            IResult<ComparatorSet<NuGetv2>> r = Grammar.Range.TryParse(right);
+            if (!l.WasSuccessful)
+            {
+                exception_message = string.Format("Failed parsing version string {0}: {1}. ", left, l.Message);
+                return false;
+            }
+            else if (!r.WasSuccessful)
+            {
+                exception_message = string.Format("Failed parsing version string {0}: {1}.", right, r.Message);
+                return false;
+            }
+            else
+            {
+                exception_message = string.Empty;
+                return Range<NuGetv2>.Intersect(l.Value, r.Value);
+            }
         }
 
     }

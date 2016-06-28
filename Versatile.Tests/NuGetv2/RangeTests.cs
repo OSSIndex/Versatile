@@ -36,13 +36,14 @@ namespace Versatile.Tests
         [Fact]
         public void CanRangeIntersect()
         {
-            Assert.True(NuGetv2.RangeIntersect("4.5.7", "(2.4, 6.1.3-alpha5]"));
-            Assert.False(NuGetv2.RangeIntersect("4.5.7", "(4.5.7, 6.1.3-alpha5]"));
-            Assert.True(NuGetv2.RangeIntersect("4.5.7", "[4.5.7, 6.1.3-alpha5]"));
-            Assert.True(NuGetv2.RangeIntersect("(5.5,]", "(2.4, 6.1.3-alpha5]"));
-            Assert.True(NuGetv2.RangeIntersect("(11, 11.9)", "(11, 11.3.0-beta7]"));
-            Assert.True(NuGetv2.RangeIntersect("(11, 13.3.0-beta7]", "12"));
-            Assert.False(NuGetv2.RangeIntersect("(11, 13.3.0-beta7]", "13.4"));
+            string e;
+            Assert.True(NuGetv2.RangeIntersect("4.5.7", "(2.4, 6.1.3-alpha5]", out e));
+            Assert.False(NuGetv2.RangeIntersect("4.5.7", "(4.5.7, 6.1.3-alpha5]", out e));
+            Assert.True(NuGetv2.RangeIntersect("4.5.7", "[4.5.7, 6.1.3-alpha5]", out e));
+            Assert.True(NuGetv2.RangeIntersect("(5.5,]", "(2.4, 6.1.3-alpha5]", out e));
+            Assert.True(NuGetv2.RangeIntersect("(11, 11.9)", "(11, 11.3.0-beta7]", out e));
+            Assert.True(NuGetv2.RangeIntersect("(11, 13.3.0-beta7]", "12", out e));
+            Assert.False(NuGetv2.RangeIntersect("(11, 13.3.0-beta7]", "13.4", out e));
         }
     }
 }
