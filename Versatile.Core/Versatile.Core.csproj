@@ -56,10 +56,8 @@
     <Compile Include="NuGet\Grammar.cs" />
     <Compile Include="NuGet\NuGetv2.cs" />
     <Compile Include="NuGet\NuGetv2TypeConverter.cs" />
-    <Compile Include="SemanticVersion\Comparator.cs" />
-    <Compile Include="SemanticVersion\ComparatorSet.cs" />
     <Compile Include="SemanticVersion\Grammar.cs" />
-    <Compile Include="SemanticVersion\PreReleaseModel.cs" />
+    <Compile Include="SemanticVersion\PreReleaseVersion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SemanticVersion\SemanticVersion.cs" />
   </ItemGroup>

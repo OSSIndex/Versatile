@@ -92,7 +92,7 @@ namespace Versatile.Tests
         [Fact]
         public void GrammarCanParseComparator()
         {
-            SemanticVersion.Comparator re = SemanticVersion.Grammar.Comparator.Parse("<10.3.4");
+            Comparator<SemanticVersion> re = SemanticVersion.Grammar.Comparator.Parse("<10.3.4");
             Assert.Equal(ExpressionType.LessThan, re.Operator);
             Assert.Equal(10, re.Version.Major);
             Assert.Equal(3, re.Version.Minor);
@@ -117,7 +117,7 @@ namespace Versatile.Tests
         [Fact]
         public void GrammarCanParseLessThan()
         {
-            SemanticVersion.Comparator c = SemanticVersion.Grammar.Comparator.Parse("<1.5.4");
+            Comparator<SemanticVersion> c = SemanticVersion.Grammar.Comparator.Parse("<1.5.4");
             Assert.Equal(c.Operator, ExpressionType.LessThan);
             Assert.Equal(c.Version.Major, 1);
             Assert.Equal(c.Version.Minor, 5);
@@ -135,13 +135,13 @@ namespace Versatile.Tests
         [Fact]
         public void GrammarCanParseXRangeExpression()
         {
-            SemanticVersion.ComparatorSet xr1 = SemanticVersion.Grammar.MajorXRange.Parse("4.x");
+            ComparatorSet<SemanticVersion> xr1 = SemanticVersion.Grammar.MajorXRange.Parse("4.x");
             Assert.NotNull(xr1);
             Assert.Equal(xr1[0].Operator, ExpressionType.GreaterThanOrEqual);
             Assert.Equal(xr1[0].Version, new SemanticVersion(4));
             Assert.Equal(xr1[1].Operator, ExpressionType.LessThan);
             Assert.Equal(xr1[1].Version, new SemanticVersion(5));
-            SemanticVersion.ComparatorSet xr2 = SemanticVersion.Grammar.MajorMinorXRange.Parse("4.3.x");
+            ComparatorSet<SemanticVersion> xr2 = SemanticVersion.Grammar.MajorMinorXRange.Parse("4.3.x");
             Assert.NotNull(xr1);
             Assert.Equal(xr1[0].Operator, ExpressionType.GreaterThanOrEqual);
             Assert.Throws(typeof(Sprache.ParseException), () => SemanticVersion.Grammar.MajorXRange.Parse("*"));
@@ -151,9 +151,9 @@ namespace Versatile.Tests
         [Fact]
         public void GrammarCanParseTildeRangeExpression()
         {
-            SemanticVersion.ComparatorSet tr1 = SemanticVersion.Grammar.MajorTildeRange.Parse("~4");
-            SemanticVersion.ComparatorSet tr2 = SemanticVersion.Grammar.MajorTildeRange.Parse("~14.4");
-            SemanticVersion.ComparatorSet tr3 = SemanticVersion.Grammar.MajorTildeRange.Parse("~7.0.1");
+            ComparatorSet<SemanticVersion> tr1 = SemanticVersion.Grammar.MajorTildeRange.Parse("~4");
+            ComparatorSet<SemanticVersion> tr2 = SemanticVersion.Grammar.MajorTildeRange.Parse("~14.4");
+            ComparatorSet<SemanticVersion> tr3 = SemanticVersion.Grammar.MajorTildeRange.Parse("~7.0.1");
             Assert.NotNull(tr1);
             Assert.NotNull(tr2);
             Assert.NotNull(tr3);

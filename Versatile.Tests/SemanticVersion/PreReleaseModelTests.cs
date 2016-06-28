@@ -8,11 +8,11 @@ using Xunit;
 
 namespace Versatile.Tests
 {
-    public class SemanticVersionPreReleaseModelTests
+    public partial class SemanticVersionTests
     {
 
         [Fact]
-        public void CanConstruct()
+        public void PreReleaseCanConstruct()
         {
             SemanticVersion v1 = new SemanticVersion(1, 2, 3, "alpha.1");
             Assert.NotNull(v1.PreRelease);
@@ -28,7 +28,7 @@ namespace Versatile.Tests
         }
 
         [Fact]
-        public void CanConvertToString()
+        public void PreReleaseCanConvertToString()
         {
             SemanticVersion v1 = new SemanticVersion(1, 2, 3, "alpha.bravo.1");
             SemanticVersion v2 = new SemanticVersion(1, 2, 3, "alpha.decker.3.6.mafia");
@@ -39,7 +39,7 @@ namespace Versatile.Tests
         }
 
         [Fact]
-        public void CanCompareEqual()
+        public void PreReleaseCanCompareEqual()
         {
             SemanticVersion v1 = new SemanticVersion(1, 0, 0, "alpha2");
             SemanticVersion v2 = new SemanticVersion(3, 5, 0, "alpha2");
@@ -47,7 +47,7 @@ namespace Versatile.Tests
         }
 
         [Fact]
-        public void CanCompareLessThan()
+        public void PreReleaseCanCompareLessThan()
         {
             SemanticVersion v100a = new SemanticVersion(1, 0, 0, "alpha");
             SemanticVersion v100a1 = new SemanticVersion(1, 0, 0, "alpha.1");
@@ -63,7 +63,7 @@ namespace Versatile.Tests
         }
 
         [Fact]
-        public void CanIncrement()
+        public void PreReleaseCanIncrement()
         {
             SemanticVersion v1 = new SemanticVersion(1, 0, 0, "alpha.1");
             SemanticVersion v2 = new SemanticVersion(1, 3, 4, "alpha.2.0");
@@ -86,7 +86,7 @@ namespace Versatile.Tests
         }
 
         [Fact]
-        public void CanDecrement()
+        public void PreReleaseCanDecrement()
         {
             SemanticVersion v1 = new SemanticVersion(1, 0, 0, "alpha.1");
             SemanticVersion v2 = new SemanticVersion(1, 3, 4, "alpha.2.0");

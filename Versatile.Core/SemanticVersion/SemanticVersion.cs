@@ -9,11 +9,12 @@ using Sprache;
 
 namespace Versatile
 {
-    public partial class SemanticVersion
+    public partial class SemanticVersion : IComparable, IComparable<SemanticVersion>, IEquatable<SemanticVersion>
     {
         public int? Major { get; set; } = null;
         public int? Minor { get; set; } = null;
         public int? Patch { get; set; } = null;
+        public Version Version { get; set; } 
         public PreReleaseVersion PreRelease { get; set; } = null;
         public IEnumerable<string> Build { get; set; } = null;
 
@@ -27,6 +28,8 @@ namespace Versatile
             this.Major = major;
             this.Minor = minor;
             this.Patch = patch;
+            this.Version = new Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0
+                , this.Patch.HasValue ? this.Patch.Value : 0);
             if (!string.IsNullOrEmpty(prerelease))
             {                
                 if (Grammar.PreRelease.Parse(prerelease).Count() > 0)
@@ -74,6 +77,8 @@ namespace Versatile
             }
             if (Int32.TryParse(v[1], out minor)) this.Minor = minor;
             if (Int32.TryParse(v[2], out patch)) this.Patch = patch;
+            this.Version = new Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0
+                , this.Patch.HasValue ? this.Patch.Value : 0);
             if (!string.IsNullOrEmpty(v[3]))
             {                
                 if (Grammar.PreRelease.Parse(v[3]).Count() > 0)
@@ -95,16 +100,20 @@ namespace Versatile
 
             if (!string.IsNullOrEmpty(v[4]))
             {
-                if (Grammar.PreRelease.Parse(v[4]).Count() > 0)
+                if (Grammar.Build.Parse(v[4]).Count() > 0)
                 {
-                    this.Build = Grammar.PreRelease.Parse(v[4]);
+                    this.Build = Grammar.Build.Parse(v[4]);
                 }
                 else throw new ArgumentException("The build identifier is not valid: " + v[4] + ".");
             }
 
         }
         
-        public SemanticVersion(string v) : this(Grammar.SemanticVersionIdentifier.Parse(v)) { }
+        public SemanticVersion(string v) : this(Grammar.SemanticVersionIdentifier.Parse(v))
+        {
+            this.Version = new Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0, 
+                this.Patch.HasValue ? this.Patch.Value : 0);
+        }
 
         #endregion
 
@@ -152,85 +161,50 @@ namespace Versatile
             return aComps.Length.CompareTo(bComps.Length);
         }
 
-
-        public static bool operator == (SemanticVersion left, SemanticVersion right)
+        public int CompareTo(object obj)
         {
-            return Expression.Lambda<Func<bool>>(GetBinaryExpression(ExpressionType.Equal, left, right)).Compile().Invoke();
+            if (Object.ReferenceEquals(obj, null))
+            {
+                return 1;
+            }
+            SemanticVersion other = obj as SemanticVersion;
+            if (other == null)
+            {
+                throw new ArgumentException("Must be a Semantic Version.", "obj");
+            }
+            return CompareTo(other);
         }
 
-        public static bool operator !=(SemanticVersion left, SemanticVersion right)
+        public int CompareTo(SemanticVersion other)
         {
-            return Expression.Lambda<Func<bool>>(GetBinaryExpression(ExpressionType.NotEqual, left, right)).Compile().Invoke();
-        }
+            if (Object.ReferenceEquals(other, null))
+            {
+                return 1;
+            }
 
-        public static bool operator <(SemanticVersion left, SemanticVersion right)
-        {
-            return Expression.Lambda<Func<bool>>(GetBinaryExpression(ExpressionType.LessThan, left, right)).Compile().Invoke();
-        }
-       
 
-        public static bool operator >(SemanticVersion left, SemanticVersion right)
-        {
-            return Expression.Lambda<Func<bool>>(GetBinaryExpression(ExpressionType.GreaterThan, left, right)).Compile().Invoke();
-        }
+            int result = this.Version.CompareTo(other.Version);
 
-             
-        public static bool operator <=(SemanticVersion left, SemanticVersion right)
-        {
-            return Expression.Lambda<Func<bool>>(GetBinaryExpression(ExpressionType.LessThanOrEqual, left, right)).Compile().Invoke();
-        }
+            if (result != 0)
+            {
+                return result;
+            }
 
-        public static bool operator >=(SemanticVersion left, SemanticVersion right)
-        {
-            return Expression.Lambda<Func<bool>>(GetBinaryExpression(ExpressionType.GreaterThanOrEqual, left, right)).Compile().Invoke();
-        }
-
-        public static SemanticVersion operator ++(SemanticVersion s)
-        {
-            if (s.PreRelease != null && s.PreRelease.Count > 0)
+            bool empty = ReferenceEquals(PreRelease, null);
+            bool otherEmpty = ReferenceEquals(other.PreRelease, null); ;
+            if (empty && otherEmpty)
             {
-                ++s.PreRelease;
-                return s;
+                return 0;
             }
-            else if (s.Patch.HasValue)
+            else if (empty)
             {
-                ++s.Patch;
-                return s;
+                return 1;
             }
-            else if (s.Minor.HasValue)
+            else if (otherEmpty)
             {
-                ++s.Minor;
-                return s;
+                return -1;
             }
-            else
-            {
-                ++s.Major;
-                return s;
-            }
-        }
-
-        public static SemanticVersion operator -- (SemanticVersion s)
-        {
-            if (s.PreRelease != null && s.PreRelease.Count > 0)
-            {
-                --s.PreRelease;
-                return s;
-            }
-            else if (s.Patch.HasValue)
-            {
-                --s.Patch;
-                return s;
-            }
-            else if (s.Minor.HasValue)
-            {
-                --s.Minor;
-                return s;
-            }
-            else
-            {
-                --s.Major;
-                return s;
-            }
+            else return PreReleaseVersion.ComparePreRelease(PreRelease, other.PreRelease);
         }
 
         public override bool Equals(object obj)
@@ -239,7 +213,12 @@ namespace Versatile
                 return false;
             if (ReferenceEquals(this, obj))
                 return true;
-            return Expression.Lambda<Func<bool>>(GetBinaryExpression(ExpressionType.Equal, (SemanticVersion)obj, this)).Compile().Invoke();
+            return this.CompareTo((SemanticVersion) obj) == 0;
+        }
+
+        public bool Equals(SemanticVersion other)
+        {
+            return !ReferenceEquals(null, other) && (ReferenceEquals(this, other) || this.CompareTo(other) == 0);
         }
 
         public override string ToString()
@@ -293,113 +272,92 @@ namespace Versatile
                 return result;
             }
         }
+        public static bool operator == (SemanticVersion left, SemanticVersion right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(SemanticVersion left, SemanticVersion right)
+        {
+            return !left.Equals(right);
+        }
+
+        public static bool operator <(SemanticVersion left, SemanticVersion right)
+        {
+            return left.CompareTo(right) == -1;
+        }
+       
+
+        public static bool operator >(SemanticVersion left, SemanticVersion right)
+        {
+            return left.CompareTo(right) > 0;
+        }
+
+             
+        public static bool operator <=(SemanticVersion left, SemanticVersion right)
+        {
+            return left.CompareTo(right) <= 0;
+        }
+
+        public static bool operator >=(SemanticVersion left, SemanticVersion right)
+        {
+            return left.CompareTo(right) >= 0; ;
+        }
+
+        public static SemanticVersion operator ++(SemanticVersion s)
+        {
+            if (s.PreRelease != null && s.PreRelease.Count > 0)
+            {
+                ++s.PreRelease;
+                return s;
+            }
+            else if (s.Patch.HasValue)
+            {
+                ++s.Patch;
+                return s;
+            }
+            else if (s.Minor.HasValue)
+            {
+                ++s.Minor;
+                return s;
+            }
+            else
+            {
+                ++s.Major;
+                return s;
+            }
+        }
+
+        public static SemanticVersion operator -- (SemanticVersion s)
+        {
+            if (s.PreRelease != null && s.PreRelease.Count > 0)
+            {
+                --s.PreRelease;
+                return s;
+            }
+            else if (s.Patch.HasValue)
+            {
+                --s.Patch;
+                return s;
+            }
+            else if (s.Minor.HasValue)
+            {
+                --s.Minor;
+                return s;
+            }
+            else
+            {
+                --s.Major;
+                return s;
+            }
+        }
 
         public static BinaryExpression GetBinaryExpression(ExpressionType et, SemanticVersion left, SemanticVersion right)
         {
-            if (ReferenceEquals(right, null)) throw new ArgumentNullException("Right operand cannot be null.");
-            if (ReferenceEquals(left, null)) throw new ArgumentNullException("Left operand cannot be null.");
-            ConstantExpression zero = Expression.Constant(0, typeof(int));
-            ConstantExpression l = Expression.Constant(left, typeof(SemanticVersion));
-            ConstantExpression r = Expression.Constant(right, typeof(SemanticVersion));
-            ConstantExpression l_major = Expression.Constant(left.Major, typeof(int));
-            ConstantExpression l_minor = left.Minor.HasValue ? Expression.Constant(left.Minor, typeof(int)) : Expression.Constant(0, typeof(int));
-            ConstantExpression l_patch = left.Patch.HasValue ? Expression.Constant(left.Patch, typeof(int)) : Expression.Constant(0, typeof(int));
-            ConstantExpression l_prerelease = Expression.Constant(left.PreRelease, typeof(PreReleaseVersion));
-            ConstantExpression r_major = Expression.Constant(right.Major, typeof(int));
-            ConstantExpression r_minor = right.Minor.HasValue ? Expression.Constant(right.Minor, typeof(int)) : zero;
-            ConstantExpression r_patch = right.Patch.HasValue ? Expression.Constant(right.Patch, typeof(int)) : zero;
-            ConstantExpression r_prerelease = Expression.Constant(right.PreRelease, typeof(PreReleaseVersion));
-            BinaryExpression a = Expression.MakeBinary(et, l_major, r_major);
-            BinaryExpression b = Expression.MakeBinary(et, l_minor, r_minor);
-            BinaryExpression c = Expression.MakeBinary(et, l_patch, r_patch);
-            BinaryExpression d = Expression.MakeBinary(et, l_prerelease, r_prerelease);
-            if (et == ExpressionType.Equal || et == ExpressionType.NotEqual)
-            {
-                return Expression.AndAlso(Expression.AndAlso(a, Expression.AndAlso(b, c)), d);
-            }
-            else if (et == ExpressionType.LessThan || et == ExpressionType.GreaterThan)
-            {
-                if (!ReferenceEquals(right.PreRelease, null) && !ReferenceEquals(left.PreRelease, null))//Major + minor + patch + prerelease
-                {
-                    return Expression.AndAlso(Expression.AndAlso(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major),
-                        Expression.MakeBinary(ExpressionType.Equal, l_minor, r_minor)), Expression.MakeBinary(ExpressionType.Equal, l_patch, r_patch)), d);
-                }
-                else
-                {
-                    return Expression.OrElse(a,
-                                Expression.OrElse(//  or major = major and b
-                                    Expression.OrElse(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major), b),
-                                        Expression.AndAlso(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major),
-                                        Expression.MakeBinary(ExpressionType.Equal, l_minor, r_minor)), c)),
-                                    Expression.AndAlso(Expression.AndAlso(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major),
-                                    Expression.MakeBinary(ExpressionType.Equal, l_minor, r_minor)), Expression.MakeBinary(ExpressionType.Equal, l_patch, r_patch)), d))
-                            );
-                }
-                /*
-                if (!right.Minor.HasValue) //Major only
-                {
-                    return a;
-                }
-                else if (!right.Patch.HasValue) //Major + minor
-                {
-                    return Expression.OrElse(a,
-                        Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major), b));
-                }
-
-                else if (ReferenceEquals(right.PreRelease, null) && ReferenceEquals(left.PreRelease, null))//Major + minor + patch only
-                {
-                    return Expression.OrElse(a,
-                            Expression.OrElse(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major), b),
-                                Expression.AndAlso(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major), 
-                                Expression.MakeBinary(ExpressionType.Equal, l_minor, r_minor)), c)
-                            ));
-                }
-
-                else if (!ReferenceEquals(right.PreRelease, null) && !ReferenceEquals(left.PreRelease, null))//Major + minor + patch + prerelease
-                {
-                    return Expression.AndAlso(Expression.AndAlso(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major),
-                        Expression.MakeBinary(ExpressionType.Equal, l_minor, r_minor)), Expression.MakeBinary(ExpressionType.Equal, l_patch, r_patch)), d);
-                }
-
-                else //Major + minor + patch + 1 preonly
-                {
-                    return Expression.OrElse(a,
-                            Expression.OrElse(//  or major = major and b
-                                Expression.OrElse(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major), b),
-                                    Expression.AndAlso(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major), 
-                                    Expression.MakeBinary(ExpressionType.Equal, l_minor, r_minor)), c)),         
-                                Expression.AndAlso(Expression.AndAlso(Expression.AndAlso(Expression.MakeBinary(ExpressionType.Equal, l_major, r_major),
-                                Expression.MakeBinary(ExpressionType.Equal, l_minor, r_minor)), Expression.MakeBinary(ExpressionType.Equal, l_patch, r_patch)), d))
-                        );
-                }
-                //                left.Major > right.Major ||
-                //                    (left.Major == right.Major) && (left.Minor > right.Minor) ||
-                //                    (left.Major == right.Major) && (left.Minor == right.Minor) && (left.Patch > right.Patch);
-                */
- 
-            }
-
-            else if (et == ExpressionType.LessThanOrEqual)
-            {
-                return Expression.OrElse(GetBinaryExpression(ExpressionType.LessThan, left, right), GetBinaryExpression(ExpressionType.Equal, left, right));
-            }
-
-            else if (et == ExpressionType.GreaterThanOrEqual)
-            {
-                return Expression.OrElse(GetBinaryExpression(ExpressionType.GreaterThan, left, right), GetBinaryExpression(ExpressionType.Equal, left, right));
-            }
-
-
-            else if (et == ExpressionType.OnesComplement)
-            {
-                return Expression.AndAlso(Expression.MakeBinary(ExpressionType.GreaterThan, l, r),
-                    Expression.MakeBinary(ExpressionType.LessThanOrEqual, l, Expression.MakeUnary(ExpressionType.OnesComplement, r, null)));
-            }
-                       
-            else throw new ArgumentException("Unimplemented expression type: " + et.ToString() + ".");
+            return Expression.MakeBinary(et, Expression.Constant(left, typeof(SemanticVersion)), Expression.Constant(right, typeof(SemanticVersion)));
         }
 
-        public static BinaryExpression GetBinaryExpression(SemanticVersion left, ComparatorSet right)
+        public static BinaryExpression GetBinaryExpression(SemanticVersion left, ComparatorSet<SemanticVersion> right)
         {
             if (right.Count() == 0)
             {
@@ -408,7 +366,7 @@ namespace Versatile
             else
             {
                 BinaryExpression c = null;
-                foreach (Comparator r in right)
+                foreach (Comparator<SemanticVersion> r in right)
                 {
                     if (c == null)
                     {
@@ -484,12 +442,12 @@ namespace Versatile
        
         public static bool RangeIntersect(string left, string right)
         {
-            Comparator l = Grammar.Comparator.Parse(left);
-            Comparator r = Grammar.Comparator.Parse(right);
+            Comparator<SemanticVersion> l = Grammar.Comparator.Parse(left);
+            Comparator<SemanticVersion> r = Grammar.Comparator.Parse(right);
             return RangeIntersect(l.Operator, l.Version, r.Operator, r.Version);
         }
 
-        public static bool Satisfies(SemanticVersion v, ComparatorSet s)
+        public static bool Satisfies(SemanticVersion v, ComparatorSet<SemanticVersion> s)
         {
             return InvokeBinaryExpression(GetBinaryExpression(v, s));
         }

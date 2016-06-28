@@ -10,6 +10,23 @@ namespace Versatile.Tests
 {
     public partial class SemanticVersionTests
     {
+        SemanticVersion v1 = new SemanticVersion(1);
+        SemanticVersion v11 = new SemanticVersion(1, 1);
+        SemanticVersion v2 = new SemanticVersion(2);
+        SemanticVersion v202 = new SemanticVersion(2, 0, 2);
+        SemanticVersion v202a = new SemanticVersion(2, 0, 2, "alpha");
+        SemanticVersion v310ab = new SemanticVersion(3, 1, 0, "alpha.beta");
+        SemanticVersion v000a1 = new SemanticVersion(0, 0, 0, "alpha.1");
+        SemanticVersion v000b1 = new SemanticVersion(0, 0, 0, "beta.1");
+        SemanticVersion v000a2 = new SemanticVersion(0, 0, 0, "alpha.2");
+        SemanticVersion v000a0 = new SemanticVersion(0, 0, 0, "alpha.0");
+        SemanticVersion v090 = new SemanticVersion(0, 9, 0);
+        SemanticVersion v186 = new SemanticVersion(1, 8, 6);
+        SemanticVersion v090a1 = new SemanticVersion(0, 9, 0, "alpha.1");
+        SemanticVersion v010a1 = new SemanticVersion(0, 10, 0, "alpha.1");
+        SemanticVersion v090a2 = new SemanticVersion(0, 9, 0, "alpha.2");
+        SemanticVersion v090b1 = new SemanticVersion(0, 9, 0, "beta.1");
+        SemanticVersion v090b2 = new SemanticVersion(0, 9, 0, "beta.2");
 
         [Fact]
         public void CanConstruct()
@@ -67,12 +84,16 @@ namespace Versatile.Tests
             Assert.True(v1 < v134);
             Assert.True(v134 < v3);
             Assert.True(v009 < v079);
+            Assert.True(v009 < v1);
+            Assert.True(v13 < v134);
+            Assert.True(v1 < v11);
             SemanticVersion v100a1 = new SemanticVersion(1, 0, 0, "alpha.1");
             SemanticVersion v100a4 = new SemanticVersion(1, 0, 0, "alpha.4");
             SemanticVersion v130b = new SemanticVersion(1, 3, 0, "beta");
             SemanticVersion v130bx = new SemanticVersion(1, 3, 0, "beta.x");
             Assert.True(v100a1 < v100a4); //Compare on pre-release
-            Assert.False(v100a1 < v130b); //False, pre-release doesn't match
+            Assert.True(v100a1 < v130b); //Compare on pre-release
+            Assert.True(v130b < v130bx);
             Assert.True(v130b < v3); //Only one identifier has pre-release so do normal compare
         }
         
@@ -82,6 +103,7 @@ namespace Versatile.Tests
             SemanticVersion v1 = new SemanticVersion(3, 5, 0, "alpha.1");
             SemanticVersion v2 = new SemanticVersion(3, 5, 0, "alpha.2");
             Assert.NotNull(v1);
+            Assert.True(v1 < v2);
         }
 
         [Fact]

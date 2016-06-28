@@ -288,13 +288,13 @@ namespace Versatile
             }
 
 
-            public static Parser<Comparator> Comparator
+            public static Parser<Comparator<SemanticVersion>> Comparator
             {
                 get
                 {
                     return VersionOperator.Then(o =>
-                        SemanticVersion.Select(version=> new Comparator(o, version)))
-                            .Or(SemanticVersion.Select(s => new Comparator(ExpressionType.Equal, s)));
+                        SemanticVersion.Select(version=> new Comparator<SemanticVersion>(o, version)))
+                            .Or(SemanticVersion.Select(s => new Comparator<SemanticVersion>(ExpressionType.Equal, s)));
                 }
             }
 
@@ -308,15 +308,15 @@ namespace Versatile
             }
 
 
-            public static Parser<ComparatorSet> AllXRange
+            public static Parser<ComparatorSet<SemanticVersion>> AllXRange
             {
                 get
                 {
-                    return XIdentifier.Return(new ComparatorSet());
+                    return XIdentifier.Return(new ComparatorSet<SemanticVersion>());
                 }
             }
 
-            public static Parser<ComparatorSet> MajorXRange
+            public static Parser<ComparatorSet<SemanticVersion>> MajorXRange
             {
                 get
                 {
@@ -330,15 +330,15 @@ namespace Versatile
                         })
                         from dot in Parse.Char('.').Once().Text().Token()
                         from x in XIdentifier
-                        select new ComparatorSet
+                        select new ComparatorSet<SemanticVersion>
                         {
-                        new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major)),
-                        new Comparator(ExpressionType.LessThan, new SemanticVersion(major + 1))
+                            new Comparator<SemanticVersion>(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major)),
+                            new Comparator<SemanticVersion>(ExpressionType.LessThan, new SemanticVersion(major + 1))
                         };
                 }
             }
 
-            public static Parser<ComparatorSet> MajorMinorXRange
+            public static Parser<ComparatorSet<SemanticVersion>> MajorMinorXRange
             {
                 get
                 {
@@ -359,15 +359,15 @@ namespace Versatile
                         })
                         from dot in Parse.Char('.').Once().Text().Token()
                         from x in XIdentifier
-                        select new ComparatorSet
+                        select new ComparatorSet<SemanticVersion>
                         {
-                            new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor)),
-                            new Comparator(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
+                            new Comparator<SemanticVersion>(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor)),
+                            new Comparator<SemanticVersion>(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
                         };
                 }
             }
 
-            public static Parser<ComparatorSet> XRange
+            public static Parser<ComparatorSet<SemanticVersion>> XRange
             {
                 get
                 {
@@ -375,7 +375,7 @@ namespace Versatile
                 }
             }
 
-            public static Parser<ComparatorSet> MajorTildeRange
+            public static Parser<ComparatorSet<SemanticVersion>> MajorTildeRange
             {
                 get
                 {
@@ -387,16 +387,16 @@ namespace Versatile
                             Int32.TryParse(m.ToString(), out num);
                             return num;
                         })
-                        select new ComparatorSet
+                        select new ComparatorSet<SemanticVersion>
                         {
-                        new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major)),
-                        new Comparator(ExpressionType.LessThan, new SemanticVersion(major + 1))
+                        new Comparator<SemanticVersion>(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major)),
+                        new Comparator<SemanticVersion>(ExpressionType.LessThan, new SemanticVersion(major + 1))
                         };
 
                 }
             }
 
-            public static Parser<ComparatorSet> MajorMinorTildeRange
+            public static Parser<ComparatorSet<SemanticVersion>> MajorMinorTildeRange
             {
                 get
                 {
@@ -415,16 +415,16 @@ namespace Versatile
                             return num;
 
                         })
-                        select new ComparatorSet
+                        select new ComparatorSet<SemanticVersion>
                         {
-                        new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor)),
-                        new Comparator(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
+                        new Comparator<SemanticVersion>(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor)),
+                        new Comparator<SemanticVersion>(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
                         };
 
                 }
             }
 
-            public static Parser<ComparatorSet> MajorMinorPatchTildeRange
+            public static Parser<ComparatorSet<SemanticVersion>> MajorMinorPatchTildeRange
             {
                 get
                 {
@@ -451,16 +451,16 @@ namespace Versatile
 
                         })
 
-                        select new ComparatorSet
+                        select new ComparatorSet<SemanticVersion>
                         {
-                        new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor, patch)),
-                        new Comparator(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
+                            new Comparator<SemanticVersion>(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor, patch)),
+                            new Comparator<SemanticVersion>(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
                         };
 
                 }
             }
 
-            public static Parser<ComparatorSet> MajorMinorPatchPreReleaseTildeRange
+            public static Parser<ComparatorSet<SemanticVersion>> MajorMinorPatchPreReleaseTildeRange
             {
                 get
                 {
@@ -487,16 +487,16 @@ namespace Versatile
 
                         })
                         from prerelease in PreReleaseSuffix
-                        select new ComparatorSet
+                        select new ComparatorSet<SemanticVersion>
                         {
-                        new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor, patch, prerelease)),
-                        new Comparator(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
+                            new Comparator<SemanticVersion>(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor, patch, prerelease)),
+                            new Comparator<SemanticVersion>(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
                         };
 
                 }
             }
 
-            public static Parser<ComparatorSet> TildeRange
+            public static Parser<ComparatorSet<SemanticVersion>> TildeRange
             {
                 get
                 {
@@ -504,7 +504,7 @@ namespace Versatile
                 }
             }
 
-            public static Parser<ComparatorSet> MajorMinorPatchCaretRange
+            public static Parser<ComparatorSet<SemanticVersion>> MajorMinorPatchCaretRange
             {
                 get
                 {
@@ -531,16 +531,16 @@ namespace Versatile
 
                         })
 
-                        select new ComparatorSet
+                        select new ComparatorSet<SemanticVersion>
                         {
-                        new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor, patch)),
-                        new Comparator(ExpressionType.LessThan, new SemanticVersion(major + 1))
+                            new Comparator<SemanticVersion>(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor, patch)),
+                            new Comparator<SemanticVersion>(ExpressionType.LessThan, new SemanticVersion(major + 1))
                         };
 
                 }
             }
 
-            public static Parser<ComparatorSet> MinorPatchCaretRange
+            public static Parser<ComparatorSet<SemanticVersion>> MinorPatchCaretRange
             {
                 get
                 {
@@ -561,16 +561,16 @@ namespace Versatile
                             return num;
 
                         })
-                        select new ComparatorSet
+                        select new ComparatorSet<SemanticVersion>
                         {
-                        new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor, patch)),
-                        new Comparator(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
+                            new Comparator<SemanticVersion>(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor, patch)),
+                            new Comparator<SemanticVersion>(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
                         };
 
                 }
             }
 
-            public static Parser<ComparatorSet> PatchCaretRange
+            public static Parser<ComparatorSet<SemanticVersion>> PatchCaretRange
             {
                 get
                 {
@@ -586,16 +586,16 @@ namespace Versatile
                             return num;
 
                         })
-                        select new ComparatorSet
+                        select new ComparatorSet<SemanticVersion>
                         {
-                        new Comparator(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor, patch)),
-                        new Comparator(ExpressionType.LessThan, new SemanticVersion(major, minor, patch + 1))
+                            new Comparator<SemanticVersion>(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor, patch)),
+                            new Comparator<SemanticVersion>(ExpressionType.LessThan, new SemanticVersion(major, minor, patch + 1))
                         };
 
                 }
             }
 
-            public static Parser<ComparatorSet> CaretRange
+            public static Parser<ComparatorSet<SemanticVersion>> CaretRange
             {
                 get
                 {

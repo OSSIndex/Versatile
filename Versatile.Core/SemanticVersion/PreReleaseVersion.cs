@@ -8,7 +8,7 @@ namespace Versatile
 {
     public partial class SemanticVersion
     {
-        public class PreReleaseVersion : SortedList<int, string>
+        public class PreReleaseVersion : SortedList<int, string>, IComparable, IComparable<PreReleaseVersion>, IEquatable<PreReleaseVersion>
         {
             public override bool Equals(object obj)
             {
@@ -21,12 +21,41 @@ namespace Versatile
 
             }
 
+            public bool Equals(PreReleaseVersion other)
+            {
+                return !Object.ReferenceEquals(null, other) && ComparePreRelease(this, other) == 0;
+            }
+
             public override int GetHashCode()
             {
                 unchecked
                 {
                     return this.ToString().GetHashCode();
                 }
+            }
+
+            public int CompareTo(object obj)
+            {
+                if (Object.ReferenceEquals(obj, null))
+                {
+                    return 1;
+                }
+                PreReleaseVersion other = obj as PreReleaseVersion;
+                if (other == null)
+                {
+                    throw new ArgumentException("Must be a PreRelease Version.", "obj");
+                }
+                return CompareTo(other);
+            }
+
+            public int CompareTo(PreReleaseVersion other)
+            {
+                if (Object.ReferenceEquals(other, null))
+                {
+                    return 1;
+                }
+                return PreReleaseVersion.ComparePreRelease(this, other);
+
             }
 
             public static bool operator ==(PreReleaseVersion left, PreReleaseVersion right)
