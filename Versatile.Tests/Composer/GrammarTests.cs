@@ -67,5 +67,41 @@ namespace Versatile.Tests
             Assert.Equal(cs[1].Operator, ExpressionType.LessThanOrEqual);
             Assert.Equal(cs[1].Version, new Composer(20));
         }
+
+        [Fact]
+        public void GrammarCanParseTwoSidedIntervalRange()
+        {
+            ComparatorSet<Composer> cs = Composer.Grammar.TwoSidedIntervalRange.Parse(">= 2.0.0 < 2.4.8");
+            Assert.Equal(cs.Count, 2);
+            Assert.Equal(cs[0].Operator, ExpressionType.GreaterThanOrEqual);
+            Assert.Equal(cs[0].Version, new Composer(2));
+            Assert.Equal(cs[1].Operator, ExpressionType.LessThan);
+            Assert.Equal(cs[1].Version, new Composer(2, 4, 8));
+        }
+
+        [Fact]
+        public void GrammarCanParseRange()
+        {
+            List<ComparatorSet<Composer>> cs01 = Composer.Grammar.Range.Parse("<= 2.4.8");
+            Assert.Equal(cs01.Count, 1);
+            Assert.Equal(cs01[0].Count, 2);
+            List<ComparatorSet<Composer>> csl0 = Composer.Grammar.Range.Parse(">= 2.0.0 < 2.4.8");
+            Assert.Equal(csl0[0][0].Operator, ExpressionType.GreaterThanOrEqual);
+            Assert.Equal(csl0[0][0].Version, new Composer(2));
+            Assert.Equal(csl0[0][1].Operator, ExpressionType.LessThan);
+            Assert.Equal(csl0[0][1].Version, new Composer(2, 4, 8));
+            List<ComparatorSet<Composer>> csl1 = Composer.Grammar.Range.Parse(">= 2.0.0 < 2.4.8 || >= 2.4.0 < 4.4.8");
+            Assert.Equal(csl1.Count, 2);
+            Assert.Equal(csl1[0][0].Operator, ExpressionType.GreaterThanOrEqual);
+            Assert.Equal(csl1[0][0].Version, new Composer(2));
+            Assert.Equal(csl1[0][1].Operator, ExpressionType.LessThan);
+            Assert.Equal(csl1[0][1].Version, new Composer(2, 4, 8));
+            Assert.Equal(csl1[1][0].Operator, ExpressionType.GreaterThanOrEqual);
+            Assert.Equal(csl1[1][0].Version, new Composer(2, 4, 0));
+            Assert.Equal(csl1[1][1].Operator, ExpressionType.LessThan);
+            Assert.Equal(csl1[1][1].Version, new Composer(4, 4, 8));
+            List<ComparatorSet<Composer>> csl3 = Composer.Grammar.Range.Parse("4.* || >= 2.4.0 < 4.4.8 || <= 3");
+            Assert.Equal(csl3.Count, 3);
+        }
     }
 }

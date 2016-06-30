@@ -133,6 +133,20 @@ namespace Versatile
 
         }
 
+        public static bool Intersect(ComparatorSet<T> left, List<ComparatorSet<T>> right)
+        {
+            bool result = false;
+            right.ForEach(r => result |= Intersect(left, r));
+            return result;
+        }
+
+        public static bool Intersect(List<ComparatorSet<T>> left, List<ComparatorSet<T>> right)
+        {
+            bool result = false;
+            left.ForEach(l => right.ForEach(r => result |= Intersect(l, r)));
+            return result;
+        }
+
         public static bool Satisfies(T v, ComparatorSet<T> s)
         {
             return InvokeBinaryExpression(GetBinaryExpression(v, s));

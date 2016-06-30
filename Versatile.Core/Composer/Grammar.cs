@@ -262,7 +262,7 @@ namespace Versatile
             {
                 get
                 {
-                    return LessThanRange.Or(LessThanOrEqualRange).Or(GreaterThanRange).Or(GreaterThanOrEqualRange)
+                    return LessThanOrEqualRange.Or(GreaterThanOrEqualRange).Or(LessThanRange).Or(GreaterThanRange)
                         .Or(ComposerVersion.Select(s => new ComparatorSet<Composer> { new Comparator<Composer>(ExpressionType.Equal, s) }));
                 }
             }
@@ -577,23 +577,124 @@ namespace Versatile
                 }
             }
 
+            public static Parser<ComparatorSet<Composer>> MajorMinorCaretRange
+            {
+                get
+                {
+                    return
+                        from caret in Parse.Char('^')
+                        from major in Major.Select(m =>
+                        {
+                            int num;
+                            Int32.TryParse(m.ToString(), out num);
+                            return num;
+
+                        })
+                        from minor in Minor.Select(m =>
+                        {
+                            int num;
+                            Int32.TryParse(m.ToString(), out num);
+                            return num;
+
+                        })
+                        select new ComparatorSet<Composer>
+                        {
+                            new Comparator<Composer>(ExpressionType.GreaterThanOrEqual, new Composer(major, minor, 0)),
+                            new Comparator<Composer>(ExpressionType.LessThan, new Composer(major + 1))
+                        };
+
+                }
+            }
+
+
             public static Parser<ComparatorSet<Composer>> CaretRange
             {
                 get
                 {
-                    return MajorMinorPatchCaretRange.Or(MinorPatchCaretRange).Or(PatchCaretRange);
+                    return MajorMinorPatchCaretRange.Or(MajorMinorCaretRange).Or(MinorPatchCaretRange).Or(PatchCaretRange);
                 }
             }
+
+            /*
+            public static Parser<ComparatorSet<Composer>> PatchCaretRange
+            {
+                get
+                {
+                    return
+                        from caret in Parse.Char('^')
+                        from version in ComposerVersion.Select(v =>
+                        {
+                            if (v.Major.HasValue  && v.Minor.HasValue && v.Patch.HasValue)
+                            {
+                                int major = v.Major.Value;
+                                int minor = v.Minor.Value;
+                                int patch = v.Patch.Value;
+                                if (major > 0)
+                                {
+                                    return new ComparatorSet<Composer>
+                                    {
+                                        new Comparator<Composer>(ExpressionType.GreaterThanOrEqual, new Composer(v.m)),
+                                        new Comparator<Composer>(ExpressionType.LessThan, new Composer(major + 1))
+                                    };
+                                }
+                                else if (minor > 0)
+                                {
+                                    return new ComparatorSet<Composer>
+                                    {
+                                        new Comparator<Composer>(ExpressionType.GreaterThanOrEqual,
+                                            new Composer(major, v.Minor.Value, v.Patch.Value)),
+                                        new Comparator<Composer>(ExpressionType.LessThan, new Composer(0, v.Minor.Value + 1))
+                                    };
+
+                                }
+                                else if (patch > 0)
+                                {
+                                    return new ComparatorSet<Composer>
+                                    {
+                                        new Comparator<Composer>(ExpressionType.GreaterThanOrEqual,
+                                            new Composer(major, v.Minor.Value, v.Patch.Value)),
+                                        new Comparator<Composer>(ExpressionType.LessThan, new Composer(0, 0, patch + 1))
+                                    };
+
+                                }
+                                else
+                                {
+                                    return new ComparatorSet<Composer>
+                                    {
+                                        new Comparator<Composer>(ExpressionType.GreaterThanOrEqual,
+                                            new Composer(major, v.Minor.Value, v.Patch.Value)),
+                                        new Comparator<Composer>(ExpressionType.LessThan, new Composer(0,1)
+                                    };
+
+                                }
+                            }
+                            else if (v.Major.HasValue && v.Minor.HasValue && v.Patch.HasValue)
+                            {
+                                return new ComparatorSet<Composer>
+                                {
+                                    new Comparator<Composer>(ExpressionType.GreaterThanOrEqual, new Composer(v.Major.Value, v.Minor.Value, v.Patch.Value)),
+                                    new Comparator<Composer>(ExpressionType.LessThan, new Composer(v.Major.Value + 1))
+                                };
+                            }
+
+
+                            else return new ComparatorSet<Composer>();
+                        })
+                        select version; 
+                    
+                }
+            }
+            */
 
             public static Parser<ComparatorSet<Composer>> HyphenRange
             {
                 get
                 {
                     return
-                    from l in CoreVersionIdentifier
-                    from dash in Parse.Char('-').Token()
-                    from r in CoreVersionIdentifier
-                    select new ComparatorSet<Composer>
+                        from l in CoreVersionIdentifier
+                        from dash in Parse.Char('-').Token()
+                        from r in CoreVersionIdentifier
+                        select new ComparatorSet<Composer>
                         {
                             new Comparator<Composer>(ExpressionType.GreaterThanOrEqual,  new Composer(l)),
                             new Comparator<Composer>(ExpressionType.LessThanOrEqual, new Composer(r))
@@ -601,13 +702,48 @@ namespace Versatile
                 }
             }
 
-            public static Parser<ComparatorSet<Composer>> Range
+            public static Parser<ComparatorSet<Composer>> TwoSidedIntervalRange
             {
                 get
                 {
-                    return OneSidedRange.Or(XRange).Or(TildeRange).Or(CaretRange).Or(HyphenRange);
+                    return
+                        from le in LessThanOrEqual.Or(GreaterThanOrEqual).Or(LessThan).Or(GreaterThan)
+                        from l in ComposerVersion.Token()
+                        from a in Parse.Char(',').Optional()
+                        from re in LessThan.Or(LessThanOrEqual).Or(GreaterThan).Or(GreaterThanOrEqual)
+                        from r in ComposerVersion.Token()
+                        select new ComparatorSet<Composer>
+                        {
+                            new Comparator<Composer>(le,  l),
+                            new Comparator<Composer>(re, r)
+                        };
                 }
             }
+
+            public static Parser<ComparatorSet<Composer>> OneOrTwoSidedRange
+            {
+                get
+                {
+                    return TwoSidedIntervalRange.Or(XRange).Or(TildeRange).Or(CaretRange).Or(HyphenRange).Or(OneSidedRange);
+                }
+            }
+
+            public static Parser<List<ComparatorSet<Composer>>> Range
+            {
+                get
+                {
+                    return OneOrTwoSidedRange.Token().DelimitedBy(Parse.String("||").Token()).Select(u => u.ToList());
+                }
+            }
+
+            public static Parser<List<ComparatorSet<Composer>>> RangeIntersection
+            {
+                get
+                {
+                    return OneOrTwoSidedRange.DelimitedBy(Parse.WhiteSpace.Or(Parse.Char(',').Token())).Select(u => u.ToList());
+                }
+            }
+
         }
     }
 }
