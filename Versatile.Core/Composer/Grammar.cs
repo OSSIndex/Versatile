@@ -101,7 +101,9 @@ namespace Versatile
                         from dash in Parse.Char('-')
                         from s in Parse.String("dev").Or(Parse.String("patch")).Or(Parse.String("alpha")).Or(Parse.String("beta")).Or(Parse.String("RC")).Token().Text()
                         from d in NumericIdentifier.Optional().Select(o => o.GetOrElse(string.Empty))
-                        select new List<string> { s, d };
+                        from v in AlphaNumericIdentifier.DelimitedBy(Parse.Char('-')).Select(vo => string.Join("-", vo))
+                        .Optional().Select(vos => vos.GetOrElse(string.Empty))
+                        select new List<string> { s, d + v };
                 }
             }
 
@@ -145,13 +147,13 @@ namespace Versatile
                 get
                 {
                     return
-  
                         from s in Parse.String("dev").Or(Parse.String("patch")).Or(Parse.String("alpha")).Or(Parse.String("beta")).Or(Parse.String("RC")).Token().Text()
-                        from d in NumericIdentifier.Optional().Select(o => o.GetOrElse(string.Empty))
-                        select new List<string> {string.Empty, string.Empty, string.Empty, s, d };
+                        from dash in Parse.Char('-')
+                        from v in AlphaNumericIdentifier.DelimitedBy(Parse.Char('-'))
+                        let p = s + dash + v.Aggregate((p, n) => p + "-" + n)
+                        select new List<string> { "0", "0", "0", p };
                 }
             }
-
 
             public static Parser<Composer> ComposerVersion
             {

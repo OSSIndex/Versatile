@@ -19,6 +19,9 @@ namespace Versatile.Tests
             Assert.Equal(c1.Major, 3);
             Assert.Equal(c2.Major, 0);
             Assert.Equal(c1.PreRelease.ToString(), "dev");
+            Composer cp = Composer.Grammar.ComposerVersion.Parse("dev-silex-1");
+            Assert.Equal(0, cp.Major);
+            Assert.Equal(cp.PreRelease.ToString(), "dev-silex-1");
             //Assert.Throws<ParseException>(() => Composer.Grammar.ComposerVersion.Parse("A.2.3"));
             //Assert.Throws<ParseException>(() => Composer.Grammar.ComposerVersion.Parse("3.2.3.X"));
             //Assert.Throws<ParseException>(() => Composer.Grammar.ComposerVersion.Parse("1.2.3-foo"));

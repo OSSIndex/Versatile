@@ -48,5 +48,18 @@ namespace Versatile.Tests
             Assert.True(c023a11 < c3);
             Assert.True(c4 > c3);
         }
+
+        [Fact]
+        public void CanGetVersionType()
+        {
+            Composer.VersionStringType t = Composer.GetVersionType("2.6");
+            t = Composer.GetVersionType("^2.6");
+            Assert.Equal(t, Composer.VersionStringType.Range);
+            t = Composer.GetVersionType(">3.6 || 6");
+            Assert.Equal(t, Composer.VersionStringType.Range);
+            t = Composer.GetVersionType("foo.6.bar");
+            Assert.Equal(t, Composer.VersionStringType.Invalid);
+
+        }
     }
 }

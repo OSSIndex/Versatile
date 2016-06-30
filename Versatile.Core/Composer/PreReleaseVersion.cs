@@ -19,11 +19,7 @@ namespace Versatile
 
         public ComposerPreRelease(List<string> p)
         {
-            this.Add(p[0]);
-            if (p.Count == 2 && !string.IsNullOrEmpty(p[1]))
-            {
-                this.Add(p[1]);
-            }
+            p.ForEach(e => { if (!string.IsNullOrEmpty(e)) this.Add(e); });
         }
 
         public override bool Equals(object obj)

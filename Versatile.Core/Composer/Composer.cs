@@ -57,7 +57,12 @@ namespace Versatile
             }
             if (v.Count() > 3 && !string.IsNullOrEmpty(v[3]))
             {
-                this.PreRelease = (ComposerPreRelease) Grammar.PreRelease.Parse("-" + v[3]);
+                IResult<List<string>> pro = Grammar.PreReleaseOnlyIdentifier.TryParse(v[3]);
+                if (pro.WasSuccessful)
+                {
+                    this.PreRelease = new ComposerPreRelease(v[3], "");
+                }
+                else this.PreRelease = (ComposerPreRelease) Grammar.PreRelease.Parse("-" + v[3]);
             }
             this.Version = new Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0
             , this.Patch.HasValue ? this.Patch.Value : 0);
@@ -357,6 +362,28 @@ namespace Versatile
                 exception_message = string.Empty;
                 return Range<Composer>.Intersect(l.Value, r.Value);
             }
+        }
+
+        public static VersionStringType GetVersionType(string version)
+        {
+            IResult<Composer> v = Grammar.ComposerVersion.TryParse(version);
+            if (v.WasSuccessful)
+            {
+                return VersionStringType.Version;
+            }
+            IResult<List<ComparatorSet<Composer>>> r = Grammar.Range.TryParse(version);
+            if (r.WasSuccessful)
+            {
+                return VersionStringType.Range;
+            }
+            else return VersionStringType.Invalid;
+        }
+
+        public enum VersionStringType
+        {
+            Invalid,
+            Version,
+            Range,
         }
     }
 }
