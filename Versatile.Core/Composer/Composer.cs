@@ -14,7 +14,7 @@ namespace Versatile
         public int? Major { get; set; } = null;
         public int? Minor { get; set; } = null;
         public int? Patch { get; set; } = null;
-        public Version Version { get; set; } = null;
+        public System.Version Version { get; set; } = null;
         public ComposerPreRelease PreRelease { get; set; } = null;
 
         #region Constructors
@@ -31,7 +31,7 @@ namespace Versatile
             {
                 this.PreRelease = (ComposerPreRelease) Grammar.PreRelease.Parse("-" + prerelease);
             }
-            this.Version = new Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0
+            this.Version = new System.Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0
             , this.Patch.HasValue ? this.Patch.Value : 0);
         }
 
@@ -64,7 +64,7 @@ namespace Versatile
                 }
                 else this.PreRelease = (ComposerPreRelease) Grammar.PreRelease.Parse("-" + v[3]);
             }
-            this.Version = new Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0
+            this.Version = new System.Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0
             , this.Patch.HasValue ? this.Patch.Value : 0);
         }
 

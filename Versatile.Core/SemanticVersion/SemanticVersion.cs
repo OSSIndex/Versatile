@@ -14,7 +14,7 @@ namespace Versatile
         public int? Major { get; set; } = null;
         public int? Minor { get; set; } = null;
         public int? Patch { get; set; } = null;
-        public Version Version { get; set; } 
+        public System.Version Version { get; set; } 
         public PreReleaseVersion PreRelease { get; set; } = null;
         public IEnumerable<string> Build { get; set; } = null;
 
@@ -28,7 +28,7 @@ namespace Versatile
             this.Major = major;
             this.Minor = minor;
             this.Patch = patch;
-            this.Version = new Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0
+            this.Version = new System.Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0
                 , this.Patch.HasValue ? this.Patch.Value : 0);
             if (!string.IsNullOrEmpty(prerelease))
             {                
@@ -77,7 +77,7 @@ namespace Versatile
             }
             if (Int32.TryParse(v[1], out minor)) this.Minor = minor;
             if (Int32.TryParse(v[2], out patch)) this.Patch = patch;
-            this.Version = new Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0
+            this.Version = new System.Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0
                 , this.Patch.HasValue ? this.Patch.Value : 0);
             if (!string.IsNullOrEmpty(v[3]))
             {                
@@ -111,7 +111,7 @@ namespace Versatile
         
         public SemanticVersion(string v) : this(Grammar.SemanticVersionIdentifier.Parse(v))
         {
-            this.Version = new Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0, 
+            this.Version = new System.Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0, 
                 this.Patch.HasValue ? this.Patch.Value : 0);
         }
 

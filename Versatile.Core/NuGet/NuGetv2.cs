@@ -35,28 +35,28 @@ namespace Versatile
         }
 
         public NuGetv2(int major, int minor, int build, int revision)
-            : this(new Version(major, minor, build, revision))
+            : this(new System.Version(major, minor, build, revision))
         {
         }
 
         public NuGetv2(int major, int minor, int build, string specialVersion)
-            : this(new Version(major, minor, build), specialVersion)
+            : this(new System.Version(major, minor, build), specialVersion)
         {
         }
 
-        public NuGetv2(Version version)
+        public NuGetv2(System.Version version)
             : this(version, String.Empty)
         {
         }
 
-        public NuGetv2(Version version, string specialVersion)
+        public NuGetv2(System.Version version, string specialVersion)
             : this(version, specialVersion, null)
         {
         }
 
         public NuGetv2() : this(0, 0, 0, 0) { }
 
-        private NuGetv2(Version version, string specialVersion, string originalString)
+        private NuGetv2(System.Version version, string specialVersion, string originalString)
         {
             if (version == null)
             {
@@ -77,7 +77,7 @@ namespace Versatile
         /// <summary>
         /// Gets the normalized version portion.
         /// </summary>
-        public Version Version
+        public System.Version Version
         {
             get;
             private set;
@@ -202,8 +202,8 @@ namespace Versatile
             }
 
             var match = regex.Match(version.Trim());
-            Version versionValue;
-            if (!match.Success || !Version.TryParse(match.Groups["Version"].Value, out versionValue))
+            System.Version versionValue;
+            if (!match.Success || !System.Version.TryParse(match.Groups["Version"].Value, out versionValue))
             {
                 return false;
             }
@@ -223,9 +223,9 @@ namespace Versatile
             return semVer;
         }
 
-        private static Version NormalizeVersionValue(Version version)
+        private static System.Version NormalizeVersionValue(System.Version version)
         {
-            return new Version(version.Major,
+            return new System.Version(version.Major,
                                 version.Minor,
                                 Math.Max(version.Build, 0),
                                 Math.Max(version.Revision, 0));
