@@ -18,6 +18,14 @@ namespace Versatile
             }
         }
 
+        public static Parser<char> Dash
+        {
+            get
+            {
+                return Parse.Char('-');
+            }
+        }
+
         public static Parser<string> Digits
         {
             get

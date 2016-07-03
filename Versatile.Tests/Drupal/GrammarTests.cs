@@ -12,13 +12,38 @@ namespace Versatile.Tests
     public partial class DrupalTests
     {
         [Fact]
-        public void CanParseDrupal5Identifier()
+        public void CanParseCoreIdentifier()
         {
-            List<string> d5 = Drupal.Grammar.CoreDrupal5Identifier.Parse("5.x");
-            Assert.Equal(3, d5.Count);
-            Assert.Equal("5", d5[0]);
-            d5 = Drupal.Grammar.CoreDrupal5Identifier.Parse("5.6");
-            Assert.Equal("6", d5[1]);
+            string d = Drupal.Grammar.CoreIdentifier.Parse("5.x");
+            Assert.Equal("5", d);
+            d = Drupal.Grammar.CoreIdentifier.Parse("6.x");
+            Assert.Equal("6", d);
+            Assert.Throws<ParseException>(() => Drupal.Grammar.CoreIdentifier.Parse("A.x"));
+        }
+
+        [Fact]
+        public void CanParseModuleIdentifier()
+        {
+            List<string> d = Drupal.Grammar.ContribIdentifier.Parse("6.x-2.0");
+            Assert.Equal(d.Count, 4);
+            d = Drupal.Grammar.ContribIdentifier.Parse("6.x-3.0-alpha1");
+            Assert.Equal(d.Count, 5);
+            Assert.Equal("6", d[0]);
+            Assert.Equal("3", d[1]);
+            Assert.Equal("0", d[3]);
+            Assert.Equal("alpha.1", d[4]);
+            Assert.Throws<ParseException>(() => Drupal.Grammar.ContribIdentifier.End().Parse("7.x-1.0-release1"));
+        }
+
+        [Fact]
+        public void CanParseDrupalModuleVersion()
+        {
+            Drupal v = Drupal.Grammar.DrupalVersion.Parse("6.x-3.4-beta2");
+            Assert.Equal(6, v.CoreCompatibility);
+            Assert.Equal(3, v.Major);
+            Assert.Equal(4, v.Patch);
+            Assert.Equal("beta.2", v.PreRelease.ToString());
+
         }
     }
 }

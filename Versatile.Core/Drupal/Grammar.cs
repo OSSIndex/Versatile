@@ -12,17 +12,56 @@ namespace Versatile
     {
         public class Grammar : Versatile.Grammar
         {
-           public static Parser<List<string>> CoreDrupal5Identifier
+            public static Parser<string> CoreIdentifier
             {
                 get
                 {
                     return
-                        from five in Parse.Char('5').Once().Text()
-                        from minor in Minor.Or(MinorX)
-                        let m = minor != "x" ? minor : string.Empty
-                        select new List<string> { five, m, "" };  
+                        from digits in Digits
+                        from minor in MinorX
+                        select digits;
+                          
                 }
-            } 
+            }
+
+            public static Parser<List<string>> PreReleaseIdentifier
+            {
+                get
+                {
+
+                    return
+                        from dash in Dash
+                        from s in Parse.String("dev").Or(Parse.String("unstable")).Or(Parse.String("alpha")).Or(Parse.String("beta")).Or(Parse.String("rc")).Text()
+                        from d in NumericIdentifier
+                        select new List<string> { s, d };
+                }
+            }
+
+            public static Parser<List<string>> ContribIdentifier
+            {
+                get
+                {
+                    return
+                        from c in CoreIdentifier
+                        from dash in Dash
+                        from major in Major
+                        from patch in Patch
+                        from pre in PreReleaseIdentifier.Optional().Select(p => p.GetOrElse(null))
+                        let has_pre = pre is List<string> 
+                        select has_pre ? new List<string> {c, major, "", patch, string.Join(".", pre) } : new List<string> {c, major, "", patch };
+                }
+            }
+
+            public static Parser<Drupal> DrupalVersion
+            {
+                get
+                {
+                    return
+                        from dv in ContribIdentifier
+                        select new Drupal(dv);
+                }
+            }
+             
         }
     }
 }

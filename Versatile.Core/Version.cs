@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Versatile
 {
-    public abstract class Version : List<string>, IComparable, IComparable<Version>, IEquatable<Version>
+    public abstract class Version : List<string>,IComparable, IComparable<Version>, IEquatable<Version>
     {
         public enum DefaultValue { Min, Max }
 
@@ -87,6 +87,9 @@ namespace Versatile
             this.Patch = patch;
             this.CoreVersion = new System.Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0
             ,this.Patch.HasValue ? this.Patch.Value : 0);
+            this.Add(major.HasValue ? major.Value.ToString() : "0");
+            this.Add(minor.HasValue ? minor.Value.ToString() : "0");
+            this.Add(patch.HasValue ? patch.Value.ToString() : "0");
         }
 
         public Version(List<string> v)
@@ -111,6 +114,9 @@ namespace Versatile
             }
             this.CoreVersion = new System.Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0
             , this.Patch.HasValue ? this.Patch.Value : 0);
+            this.Add(this.Major.HasValue ? this.Major.Value.ToString() : "0");
+            this.Add(this.Minor.HasValue ? this.Minor.Value.ToString() : "0");
+            this.Add(this.Patch.HasValue ? this.Patch.Value.ToString() : "0");
         }
         #endregion
 

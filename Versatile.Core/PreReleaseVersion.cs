@@ -8,16 +8,19 @@ namespace Versatile
 {
     public class PreReleaseVersion : List<string>
     {
-        public PreReleaseVersion(string s)
+        #region Constructors
+        public PreReleaseVersion(string prerelease)
         {
-            this.Add(s);
+            this.AddRange(prerelease.Split('.'));
         }
 
-        public PreReleaseVersion(List<string> p)
+        public PreReleaseVersion(List<string> prerelease)
         {
-            p.ForEach(e => { if (!string.IsNullOrEmpty(e)) this.Add(e); });
+            this.AddRange(prerelease.Where(p => !string.IsNullOrEmpty(p)));
         }
+        #endregion
 
+        #region Overriden methods
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(obj, null))
@@ -36,6 +39,14 @@ namespace Versatile
             }
         }
 
+        public override string ToString()
+        {
+            return string.Join(".", this);
+        }
+
+        #endregion
+
+        #region Operators
         public static bool operator ==(PreReleaseVersion left, PreReleaseVersion right)
         {
             return ComparePreRelease(left, right) == 0;
@@ -140,7 +151,9 @@ namespace Versatile
             p.RemoveAt(p.Count - 1);
             return p;
         }
+        #endregion
 
+        #region Public methods
         public static int ComparePreRelease(PreReleaseVersion left, PreReleaseVersion right)
         {
             //if (ReferenceEquals(left, null)) throw new ArgumentNullException("Left operand can't be null.");
@@ -181,19 +194,6 @@ namespace Versatile
                 }
             }
             return left.Count.CompareTo(right.Count);
-        }
-
-
-        public override string ToString()
-        {
-            if ((this.Count == 2) && !string.IsNullOrEmpty(this[1]))
-            {
-                return this[0] + "-" + this[1];
-            }
-            else
-            {
-                return this[0];
-            }
         }
 
         public static int CompareComponent(string a, string b, bool lower = false)
@@ -239,5 +239,6 @@ namespace Versatile
 
             return aComps.Length.CompareTo(bComps.Length);
         }
+        #endregion
     }
 }
