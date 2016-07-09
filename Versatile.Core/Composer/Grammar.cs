@@ -127,7 +127,7 @@ namespace Versatile
                         from v in ComposerVersion
                         select new ComparatorSet<Composer>
                         {
-                            new Comparator<Composer> (ExpressionType.LessThan, Composer.MAX),
+                            new Comparator<Composer> (ExpressionType.LessThan, V.Max()),
                             new Comparator<Composer> (ExpressionType.GreaterThan, v)
                         };
                 }
@@ -142,7 +142,7 @@ namespace Versatile
                         from v in ComposerVersion
                         select new ComparatorSet<Composer>
                         {
-                            new Comparator<Composer> (ExpressionType.LessThan, Composer.MAX),
+                            new Comparator<Composer> (ExpressionType.LessThan, V.Max()),
                             new Comparator<Composer> (ExpressionType.GreaterThanOrEqual, v)
                         };
                 }
@@ -173,7 +173,7 @@ namespace Versatile
                     return XIdentifier.Return(new ComparatorSet<Composer>
                     {
                         new Comparator<Composer>(ExpressionType.GreaterThanOrEqual, V.Min()),
-                        new Comparator<Composer>(ExpressionType.LessThan, Composer.MAX)
+                        new Comparator<Composer>(ExpressionType.LessThan, V.Max())
                     });
                 }
             }

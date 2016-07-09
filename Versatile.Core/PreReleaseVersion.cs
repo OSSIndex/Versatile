@@ -8,6 +8,24 @@ namespace Versatile
 {
     public class PreReleaseVersion : List<string>
     {
+        #region Abstract methods
+        public virtual string ToNormalizedString()
+        {
+            if (this.Count == 0)
+            {
+                return string.Empty;
+            }
+            else if (this.Count == 1)
+            {
+                return this[0];
+            }
+            else
+            {
+                return this.Aggregate((p, v) => p + "." + v);
+            }
+        }
+        #endregion
+
         #region Constructors
         public PreReleaseVersion(string prerelease)
         {
@@ -41,10 +59,7 @@ namespace Versatile
 
         public override string ToString()
         {
-            if (this.Count == 1)
-                return this[0];
-            else
-                return string.Join(".", this);
+            return string.Join("", this);
         }
 
         #endregion

@@ -93,7 +93,6 @@ namespace Versatile
         }
         #endregion
 
-
         #region Constructors
         public Composer() {}
         public Composer(int? major, int? minor = null, int? patch = null, string prerelease = "") : base (major, minor, patch)
@@ -154,7 +153,39 @@ namespace Versatile
 
         #endregion
 
+        #region Overriden methods
 
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int result = this.Major.GetHashCode();
+                if (this.Minor.HasValue)
+                {
+                    result = result * 31 + this.Minor.GetHashCode();
+                }
+                if (this.Patch.HasValue)
+                {
+                    result = result * 31 + this.Patch.GetHashCode();
+                }
+
+                if (this.PreRelease != null)
+                {
+                    result = result * 31 + this.PreRelease.GetHashCode();
+                }
+                if (this.Build == null)
+                {
+                    result = result * 31 + this.Build.GetHashCode();
+                }
+
+                return result;
+            }
+        }
         public override string ToNormalizedString()
         {
             StringBuilder s = new StringBuilder(5);
@@ -175,16 +206,9 @@ namespace Versatile
             }
             return s.ToString();
         }
-     
+        #endregion
 
-        public static Composer MAX
-        {
-            get
-            {
-                return new Composer(1000000, 1000000, 1000000);
-            }
-        }
-
+        #region Public static methods
         public static bool RangeIntersect(string left, string right, out string exception_message)
         {
             IResult<List<ComparatorSet<Composer>>> l = Grammar.Range.TryParse(left);
@@ -220,12 +244,15 @@ namespace Versatile
             }
             else return VersionStringType.Invalid;
         }
+        #endregion
 
+        #region Public enumerations
         public enum VersionStringType
         {
             Invalid,
             Version,
             Range,
         }
+        #endregion
     }
 }

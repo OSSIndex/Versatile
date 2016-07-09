@@ -43,7 +43,7 @@ namespace Versatile.Tests
             ComparatorSet<Composer> r = Composer.Grammar.OneSidedRange.Parse(">1.13.4-beta7");
             Assert.Equal(r.Count, 2);
             Assert.Equal(r[0].Operator, ExpressionType.LessThan);
-            Assert.Equal(r[0].Version, Composer.MAX);
+            Assert.Equal(r[0].Version, new Composer().Max());
         }
 
         [Fact]

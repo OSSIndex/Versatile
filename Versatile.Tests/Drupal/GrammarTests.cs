@@ -42,7 +42,7 @@ namespace Versatile.Tests
             Assert.Equal(6, v.CoreCompatibility);
             Assert.Equal(3, v.Major);
             Assert.Equal(4, v.Patch);
-            Assert.Equal("beta.2", v.PreRelease.ToString());
+            Assert.Equal("beta.2", v.PreRelease.ToNormalizedString());
             v = Drupal.Grammar.DrupalVersion.Parse("7.x-5.0-dev");
             Assert.Equal(7, v.CoreCompatibility);
             Assert.Equal(5, v.Major);

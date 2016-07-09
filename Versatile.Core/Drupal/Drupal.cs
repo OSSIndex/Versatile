@@ -35,7 +35,25 @@ namespace Versatile
         {
             return base.Equals(obj);
         }
-        
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int result = this.Major.GetHashCode() + this.CoreCompatibility.GetHashCode();
+                if (this.Patch.HasValue)
+                {
+                    result = result * 31 + this.Patch.GetHashCode();
+                }
+
+                if (this.PreRelease != null)
+                {
+                    result = result * 31 + this.PreRelease.GetHashCode();
+                }
+                return result;
+            }
+        }
+
         public override string ToNormalizedString()
         {
             return this.Aggregate((p, n) => p + "." + n);

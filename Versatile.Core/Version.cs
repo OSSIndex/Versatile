@@ -10,7 +10,7 @@ namespace Versatile
     {
         public enum DefaultValue { Min, Max }
 
-        #region abstract methods
+        #region Abstract methods
         public abstract string ToNormalizedString();
         #endregion
 
@@ -72,7 +72,7 @@ namespace Versatile
         public int? Patch { get; set; } = null;
         public int? Build { get; set; } = null;
         
-        public System.Version CoreVersion { get; set; }
+        public System.Version SystemVersion { get; set; }
         public PreReleaseVersion PreRelease { get; set; }
         #endregion
 
@@ -86,7 +86,7 @@ namespace Versatile
             this.Major = major;
             this.Minor = minor;
             this.Patch = patch;
-            this.CoreVersion = new System.Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0
+            this.SystemVersion = new System.Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0
             ,this.Patch.HasValue ? this.Patch.Value : 0);
             this.Add(major.HasValue ? major.Value.ToString() : "0");
             this.Add(minor.HasValue ? minor.Value.ToString() : "0");
@@ -113,7 +113,7 @@ namespace Versatile
             {
                 this.Patch = patch;
             }
-            this.CoreVersion = new System.Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0
+            this.SystemVersion = new System.Version(this.Major.HasValue ? this.Major.Value : 0, this.Minor.HasValue ? this.Minor.Value : 0
             , this.Patch.HasValue ? this.Patch.Value : 0);
             this.Add(this.Major.HasValue ? this.Major.Value.ToString() : "0");
             this.Add(this.Minor.HasValue ? this.Minor.Value.ToString() : "0");

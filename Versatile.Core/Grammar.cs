@@ -180,68 +180,7 @@ namespace Versatile
             }
         }
 
-        public static Parser<Tuple<int, int, int>> MajorMinorPatchCaret
-        {
-            get
-            {
-                return
-                    from c in Caret
-                    from major in Major.Select(m => Int32.Parse(m))
-                    from minor in Minor.Select(m => Int32.Parse(m))
-                    from patch in Patch.Select(m => Int32.Parse(m))
-                    select new Tuple<int, int, int>(major, minor, patch);
-            }
-        }
-
-        public static Parser<Tuple<int, int, int>> MajorMinorCaret
-        {
-            get
-            {
-                return
-                    from major in Major.Select(m => Int32.Parse(m))
-                    from minor in Minor.Select(m => Int32.Parse(m))
-                    from x in XOptional
-                    select new Tuple<int, int, int>(major, minor, -1);
-            }
-        }
-
-        public static Parser<Tuple<int, int, int>> MajorCaret
-        {
-            get
-            {
-                return
-                    from major in Major.Select(m => Int32.Parse(m))
-                    from x in XOptional
-                    select new Tuple<int, int, int>(major, -1, -1);
-            }
-        }
-
-        public static Parser<Tuple<int, int, int>> MinorPatchCaret
-        {
-            get
-            {
-                return
-                    from c in Caret
-                    from major in Parse.Char('0').Return(0)
-                    from minor in Minor.Except(Parse.Char('0')).Select(m => Int32.Parse(m))
-                    from patch in Patch.Except(Parse.Char('0')).Select(m => Int32.Parse(m))
-                    select new Tuple<int, int, int>(0, minor, patch);
-            }
-        }
-
-        public static Parser<int> PatchCaret
-        {
-            get
-            {
-                return
-                    from c in Caret
-                    from major in Parse.Char('0').Return(0)
-                    from minor in Parse.Char('0').Return(0)
-                    from patch in Patch.Except(Parse.Char('0')).Select(m => Int32.Parse(m))
-                    select patch;
-
-            }
-        }
+     
         public static Parser<Tuple<int, int, int>> CaretRangeIdentifier
         {
             get

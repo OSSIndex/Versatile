@@ -64,6 +64,16 @@ namespace Versatile
                 }
             }
 
+            public static Parser<Composer> DrupalToComposerVersion
+            {
+                get
+                {
+                    return
+                        from d in DrupalVersion
+                        select new Composer(d.Major, d.Minor, d.Patch, d.PreRelease.ToString());
+                }
+            }
+
             public static Parser<ComparatorSet<Drupal>> LessThanRange
             {
                 get
