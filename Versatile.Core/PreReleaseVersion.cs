@@ -41,7 +41,10 @@ namespace Versatile
 
         public override string ToString()
         {
-            return string.Join(".", this);
+            if (this.Count == 1)
+                return this[0];
+            else
+                return string.Join(".", this);
         }
 
         #endregion

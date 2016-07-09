@@ -73,6 +73,8 @@
     <Compile Include="Composer\ModelTests.cs" />
     <Compile Include="Composer\RangeTests.cs" />
     <Compile Include="Drupal\GrammarTests.cs" />
+    <Compile Include="Drupal\ModelTests.cs" />
+    <Compile Include="Drupal\RangeTests.cs" />
     <Compile Include="ModelTests.cs" />
     <Compile Include="NuGetv2\RangeTests.cs" />
     <Compile Include="NuGetv2\SatisfiesTests.cs" />

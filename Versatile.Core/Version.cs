@@ -10,7 +10,7 @@ namespace Versatile
     {
         public enum DefaultValue { Min, Max }
 
-        #region Virtual methods
+        #region abstract methods
         public abstract string ToNormalizedString();
         #endregion
 
@@ -36,7 +36,7 @@ namespace Versatile
         #endregion
 
         #region Public methods
-        public int CompareTo(object obj)
+        public virtual int CompareTo(object obj)
         {
             if (ReferenceEquals(obj, null))
             {
@@ -77,6 +77,7 @@ namespace Versatile
         #endregion
 
         #region Constructors
+        public Version() { }
         public Version(int? major, int? minor = null, int? patch = null, string prerelease = "")
         {
             if (!major.HasValue && minor.HasValue) throw new ArgumentNullException("Major component cannot be null if minor is non-null.");
@@ -202,10 +203,10 @@ namespace Versatile
         }
         #endregion
 
-        #region Static properties
+        #region Public static fields
         #endregion
 
-        #region Static methods
+        #region Public static methods
         public static int CompareComponent(string a, string b, bool lower = false)
         {
             var aEmpty = String.IsNullOrEmpty(a);
@@ -273,6 +274,8 @@ namespace Versatile
                 return aComps.Length.CompareTo(bComps.Length);
             }
         }
+
+
         #endregion
     }
 }

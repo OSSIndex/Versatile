@@ -11,87 +11,9 @@ namespace Versatile
 {
     public partial class Composer
     {
-        public class Grammar
+        public class Grammar : Grammar<Composer>
         {
-            public static Parser<string> Digits
-            {
-                get
-                {
-                    return Parse.Digit.AtLeastOnce().Text();
-                }
-            }
-
-            public static Parser<char> NonDigit
-            {
-                get
-                {
-                    return Parse.Letter;
-                }
-            }
-
-            public static Parser<char> PositiveDigit
-            {
-                get
-                {
-                    return Parse.Digit.Except(Parse.Char('0'));
-                }
-            }
-
-            public static Parser<string> NumericIdentifier
-            {
-                get
-                {
-                    return Digits;
-                }
-            }
-
-            public static Parser<char> AlphaNumericIdentifierChar
-            {
-                get
-                {
-                    return Parse.Digit.Or(NonDigit).Token();
-                }
-            }
-
-            public static Parser<string> AlphaNumericIdentifier
-            {
-                get
-                {
-                    return AlphaNumericIdentifierChar.AtLeastOnce().Token().Text();
-                }
-            }
-
-
-            public static Parser<string> Major
-            {
-                get
-                {
-                    return NumericIdentifier.Token();
-                }
-            }
-
-            public static Parser<string> Minor
-            {
-                get
-                {
-                    return
-                        from dot in Parse.Char('.')
-                        from m in NumericIdentifier.Token()
-                        select m;
-                }
-            }
-
-            public static Parser<string> Patch
-            {
-                get
-                {
-                    return
-                        from dot in Parse.Char('.')
-                        from m in NumericIdentifier.Token()
-                        select m;
-                }
-            }
-
+   
             public static Parser<List<string>> PreReleaseIdentifier
             {
                 get
@@ -166,14 +88,6 @@ namespace Versatile
                 }
             }
 
-            public static Parser<ExpressionType> LessThan
-            {
-                get
-                {
-                    return Sprache.Parse.String("<").Once().Token().Return(ExpressionType.LessThan);
-                }
-            }
-
             public static Parser<ComparatorSet<Composer>> LessThanRange
             {
                 get
@@ -183,19 +97,9 @@ namespace Versatile
                         from v in ComposerVersion
                         select new ComparatorSet<Composer>
                         {
-                            new Comparator<Composer> (ExpressionType.GreaterThan, Composer.MIN),
+                            new Comparator<Composer> (ExpressionType.GreaterThan, V.Min()),
                             new Comparator<Composer> (ExpressionType.LessThan, v)
                         };
-                }
-            }
-
-
-            public static Parser<ExpressionType> LessThanOrEqual
-            {
-                get
-                {
-
-                    return Sprache.Parse.String("<=").Once().Token().Return(ExpressionType.LessThanOrEqual);
                 }
             }
 
@@ -208,25 +112,9 @@ namespace Versatile
                         from v in ComposerVersion
                         select new ComparatorSet<Composer>
                         {
-                            new Comparator<Composer> (ExpressionType.GreaterThan, Composer.MIN),
+                            new Comparator<Composer> (ExpressionType.GreaterThan, V.Min()),
                             new Comparator<Composer> (ExpressionType.LessThanOrEqual, v)
                         };
-                }
-            }
-
-            public static Parser<ExpressionType> GreaterThan
-            {
-                get
-                {
-                    return Sprache.Parse.String(">").Once().Token().Return(ExpressionType.GreaterThan);
-                }
-            }
-
-            public static Parser<ExpressionType> GreaterThanOrEqual
-            {
-                get
-                {
-                    return Sprache.Parse.String(">=").Once().Token().Return(ExpressionType.GreaterThanOrEqual);
                 }
             }
 
@@ -278,23 +166,13 @@ namespace Versatile
                 }
             }
 
-            public static Parser<string> XIdentifier
-            {
-                get
-                {
-                    return
-                        Parse.Char('*').XOr(Parse.Char('x')).XOr(Parse.Char('X')).Once().Text().Token();
-                }
-            }
-
-
             public static Parser<ComparatorSet<Composer>> AllXRange
             {
                 get
                 {
                     return XIdentifier.Return(new ComparatorSet<Composer>
                     {
-                        new Comparator<Composer>(ExpressionType.GreaterThanOrEqual, Composer.MIN),
+                        new Comparator<Composer>(ExpressionType.GreaterThanOrEqual, V.Min()),
                         new Comparator<Composer>(ExpressionType.LessThan, Composer.MAX)
                     });
                 }
@@ -373,8 +251,8 @@ namespace Versatile
                         })
                         select new ComparatorSet<Composer>
                         {
-                        new Comparator<Composer>(ExpressionType.GreaterThanOrEqual, new Composer(major)),
-                        new Comparator<Composer>(ExpressionType.LessThan, new Composer(major + 1))
+                            new Comparator<Composer>(ExpressionType.GreaterThanOrEqual, new Composer(major)),
+                            new Comparator<Composer>(ExpressionType.LessThan, new Composer(major + 1))
                         };
 
                 }
@@ -488,6 +366,7 @@ namespace Versatile
                 }
             }
 
+            /*
             public static Parser<ComparatorSet<Composer>> MajorMinorPatchCaretRange
             {
                 get
@@ -524,6 +403,7 @@ namespace Versatile
                 }
             }
 
+            
             public static Parser<ComparatorSet<Composer>> MinorPatchCaretRange
             {
                 get
@@ -608,14 +488,6 @@ namespace Versatile
                 }
             }
 
-
-            public static Parser<ComparatorSet<Composer>> CaretRange
-            {
-                get
-                {
-                    return MajorMinorPatchCaretRange.Or(MajorMinorCaretRange).Or(MinorPatchCaretRange).Or(PatchCaretRange);
-                }
-            }
 
             /*
             public static Parser<ComparatorSet<Composer>> PatchCaretRange

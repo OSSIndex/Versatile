@@ -49,11 +49,12 @@
     <Compile Include="ComparatorSet.cs" />
     <Compile Include="Composer\Grammar.cs" />
     <Compile Include="Composer\Composer.cs" />
-    <Compile Include="Composer\PreReleaseVersion.cs" />
+    <Compile Include="Composer\ComposerPreRelease.cs" />
     <Compile Include="Drupal\Drupal.cs" />
     <Compile Include="Drupal\Grammar.cs" />
     <Compile Include="Grammar.cs" />
     <Compile Include="IntervalTree.cs" />
+    <Compile Include="IVersionFactory.cs" />
     <Compile Include="NuGet\Grammar.cs" />
     <Compile Include="NuGet\NuGetv2.cs" />
     <Compile Include="NuGet\NuGetv2TypeConverter.cs" />

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,7 +11,7 @@ namespace Versatile
 {
     public partial class Drupal
     {
-        public class Grammar : Versatile.Grammar
+        public class Grammar : Versatile.Grammar<Drupal>
         {
             public static Parser<string> CoreIdentifier
             {
@@ -32,8 +33,9 @@ namespace Versatile
                     return
                         from dash in Dash
                         from s in Parse.String("dev").Or(Parse.String("unstable")).Or(Parse.String("alpha")).Or(Parse.String("beta")).Or(Parse.String("rc")).Text()
-                        from d in NumericIdentifier
-                        select new List<string> { s, d };
+                        from d in NumericIdentifier.Optional().Select(o => o.GetOrElse(s == "dev"? string.Empty : "0"))
+                        let has_number = !string.IsNullOrEmpty(d)
+                        select has_number ? new List<string> { s, d } : new List<string> { s };
                 }
             }
 
@@ -61,7 +63,87 @@ namespace Versatile
                         select new Drupal(dv);
                 }
             }
-             
+
+            public static Parser<ComparatorSet<Drupal>> LessThanRange
+            {
+                get
+                {
+                    return
+                        from o in LessThan
+                        from v in DrupalVersion
+                        select new ComparatorSet<Drupal>
+                        {
+                            new Comparator<Drupal> (ExpressionType.GreaterThan, V.Min()),
+                            new Comparator<Drupal> (ExpressionType.LessThan, v)
+                        };
+                }
+            }
+
+
+            public static Parser<ComparatorSet<Drupal>> LessThanOrEqualRange
+            {
+                get
+                {
+                    return
+                        from o in LessThanOrEqual
+                        from v in DrupalVersion
+                        select new ComparatorSet<Drupal>
+                        {
+                            new Comparator<Drupal> (ExpressionType.GreaterThan, V.Min()),
+                            new Comparator<Drupal> (ExpressionType.LessThanOrEqual, v)
+                        };
+                }
+            }
+
+            public static Parser<ComparatorSet<Drupal>> GreaterThanRange
+            {
+                get
+                {
+                    return
+                        from o in GreaterThan
+                        from v in DrupalVersion
+                        select new ComparatorSet<Drupal>
+                        {
+                            new Comparator<Drupal> (ExpressionType.LessThan, V.Max()),
+                            new Comparator<Drupal> (ExpressionType.GreaterThan, v)
+                        };
+                }
+            }
+
+            public static Parser<ComparatorSet<Drupal>> GreaterThanOrEqualRange
+            {
+                get
+                {
+                    return
+                        from o in GreaterThanOrEqual
+                        from v in DrupalVersion
+                        select new ComparatorSet<Drupal>
+                        {
+                            new Comparator<Drupal> (ExpressionType.LessThan, V.Max()),
+                            new Comparator<Drupal> (ExpressionType.GreaterThanOrEqual, v)
+                        };
+                }
+            }
+
+            public static Parser<ComparatorSet<Drupal>> OneSidedRange
+            {
+                get
+                {
+                    return LessThanRange.Or(LessThanOrEqualRange).Or(GreaterThanRange).Or(GreaterThanOrEqualRange)
+                        .Or(DrupalVersion.Select(s => new ComparatorSet<Drupal> { new Comparator<Drupal>(ExpressionType.Equal, s) }));
+                }
+            }
+
+            public static Parser<ComparatorSet<Drupal>> Range
+            {
+                get
+                {
+                    return OneSidedRange;
+                }
+            }
+
+
+
         }
     }
 }

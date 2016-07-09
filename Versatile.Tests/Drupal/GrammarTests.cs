@@ -36,14 +36,19 @@ namespace Versatile.Tests
         }
 
         [Fact]
-        public void CanParseDrupalModuleVersion()
+        public void CanParseDrupalVersion()
         {
             Drupal v = Drupal.Grammar.DrupalVersion.Parse("6.x-3.4-beta2");
             Assert.Equal(6, v.CoreCompatibility);
             Assert.Equal(3, v.Major);
             Assert.Equal(4, v.Patch);
             Assert.Equal("beta.2", v.PreRelease.ToString());
-
+            v = Drupal.Grammar.DrupalVersion.Parse("7.x-5.0-dev");
+            Assert.Equal(7, v.CoreCompatibility);
+            Assert.Equal(5, v.Major);
+            Assert.Equal(0, v.Patch);
+            Assert.Equal("dev", v.PreRelease.ToString());
+            Assert.Throws<ParseException>(() => Drupal.Grammar.DrupalVersion.End().Parse("7.x-1.0-release1"));
         }
     }
 }
