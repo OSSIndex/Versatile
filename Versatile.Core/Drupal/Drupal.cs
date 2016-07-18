@@ -20,13 +20,39 @@ namespace Versatile
         {
             this.CoreCompatibility = Int32.Parse(d[0]);
             this.Insert(0, d[0]);
-            if (d.Count == 5) this.PreRelease = new PreReleaseVersion(d[4]);
+
+            if (d.Count == 5)
+            {
+                IResult<List<string>> pr = Grammar.PreReleaseIdentifier.TryParse("-" + d[4]);
+                if (pr.WasSuccessful)
+                {
+                    this.PreRelease = new PreReleaseVersion(d[4]);
+                    this.Add(this.PreRelease.ToNormalizedString());
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("The pre-release identifier is invalid.");
+                }
+            }
         }
 
         public Drupal(int core, int? major, int? minor, int? patch, string prerelease = "") : base(major, minor, patch, prerelease)
         {
             this.CoreCompatibility = core;
             this.Insert(0, core.ToString());
+            if (!string.IsNullOrEmpty(prerelease))
+            {
+                IResult<List<string>> pr = Grammar.PreReleaseIdentifier.TryParse("-" + prerelease);
+                if (pr.WasSuccessful)
+                {
+                    this.PreRelease = new PreReleaseVersion(prerelease);
+                    this.Add(this.PreRelease.ToNormalizedString());
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("The pre-release identifier is invalid.");
+                }
+            }
         }
         #endregion
 
@@ -61,8 +87,9 @@ namespace Versatile
 
         public override int CompareComponent(Version other)
         {
-            List<string> a = this.Take(3).ToList();
-            List<string> b = other.Take(3).ToList();
+
+            List<string> a = this.Take(4).ToList();
+            List<string> b = other.Take(4).ToList();
             int min = Math.Min(a.Count, b.Count);
             for (int i = 0; i < min; i++)
             {
@@ -87,11 +114,11 @@ namespace Versatile
                     if (r != 0) return r;
                 }
             }
-            if (this.Count == 3 && other.Count == 3)
+            if (this.Count == 4 && other.Count == 4)
             {
                 return 0;
             }
-            if (this.Count <= 3 && other.Count == 4) //b has prerelease so a > b
+            if (this.Count <= 4 && other.Count == 5) //b has prerelease so a > b
             {
                 if (other[3].StartsWith("patch"))
                 {
@@ -102,7 +129,7 @@ namespace Versatile
                     return 1;
                 }
             }
-            else if (other.Count <= 3 && this.Count == 4) //a has prerelease so a > b
+            else if (other.Count <= 4 && this.Count == 5) //a has prerelease so a > b
             {
                 if (this[3].StartsWith("patch"))
                 {
@@ -113,7 +140,7 @@ namespace Versatile
                     return -1;
                 }
             }
-            else return Version.CompareComponent(this[3].Split('.').ToList(), other[3].Split('.').ToList());
+            else return Version.CompareComponent(this[4].Split('.').ToList(), other[4].Split('.').ToList());
         }
         #endregion
 
