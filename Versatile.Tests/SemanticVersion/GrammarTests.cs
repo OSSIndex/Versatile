@@ -102,12 +102,12 @@ namespace Versatile.Tests
             Assert.Equal(ExpressionType.LessThanOrEqual, re.Operator);
             Assert.Equal(0, re.Version.Major);
             Assert.Equal(4, re.Version.Patch);
-            Assert.Equal("alpha.0", re.Version.PreRelease.ToString());
+            Assert.Equal("alpha.0", re.Version.PreRelease.ToNormalizedString());
             re = SemanticVersion.Grammar.OneSidedRange.Parse(">10.0.100-beta.0").Last();
             Assert.Equal(ExpressionType.GreaterThan, re.Operator);
             Assert.Equal(10, re.Version.Major);
             Assert.Equal(100, re.Version.Patch);
-            Assert.Equal("beta.0", re.Version.PreRelease.ToString());
+            Assert.Equal("beta.0", re.Version.PreRelease.ToNormalizedString());
             re = SemanticVersion.Grammar.OneSidedRange.Parse("10.6").First();
             Assert.Equal(ExpressionType.Equal, re.Operator);
             Assert.Equal(10, re.Version.Major);
@@ -125,7 +125,7 @@ namespace Versatile.Tests
             Assert.Equal(c.Operator, ExpressionType.LessThan);
             Assert.Equal(c.Version.Major, 1);
             Assert.Equal(c.Version.Minor, 0);
-            Assert.Equal(c.Version.PreRelease.ToString(), "alpha.1.0");
+            Assert.Equal(c.Version.PreRelease.ToNormalizedString(), "alpha.1.0");
         }
 
         [Fact]

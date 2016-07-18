@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Versatile
 {
-    public class Range<T> where T : IComparable, IComparable<T>, IEquatable<T>
+    public class Range<T> where T : Version, IComparable, IComparable<T>, IEquatable<T>
     {
         public static List<ExpressionType> ValidRangeOperators =
             new List<ExpressionType> { ExpressionType.LessThan, ExpressionType.LessThanOrEqual, ExpressionType.GreaterThan, ExpressionType.GreaterThanOrEqual };
@@ -79,24 +79,24 @@ namespace Versatile
 
             else if ((left_operator == ExpressionType.LessThanOrEqual) && (right_operator == ExpressionType.GreaterThanOrEqual))
             {
-                return right.CompareTo(left) <= 0; // right <= left;
+                return right <= left; // right <= left;
             }
 
             else if ((left_operator == ExpressionType.GreaterThanOrEqual) && (right_operator == ExpressionType.LessThanOrEqual))
             {
-                return right.CompareTo(left) >= 0;// right >= left;
+                return right >= left;// right >= left;
             }
 
 
             else if ((left_operator == ExpressionType.LessThan || left_operator == ExpressionType.LessThanOrEqual)
                 && (right_operator == ExpressionType.GreaterThan || right_operator == ExpressionType.GreaterThanOrEqual))
             {
-                return right.CompareTo(left) < 0; // right < left;
+                return right < left; // right < left;
             }
 
             else
             {
-                return right.CompareTo(left) > 0; // right > left;
+                return right > left; // right > left;
             }
         }
 

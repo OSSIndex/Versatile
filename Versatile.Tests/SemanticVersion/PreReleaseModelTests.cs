@@ -33,8 +33,8 @@ namespace Versatile.Tests
             SemanticVersion v1 = new SemanticVersion(1, 2, 3, "alpha.bravo.1");
             SemanticVersion v2 = new SemanticVersion(1, 2, 3, "alpha.decker.3.6.mafia");
             SemanticVersion v3 = new SemanticVersion(1, 2, 3, "1.bravo.alpha");
-            Assert.Equal("alpha.bravo.1", v1.PreRelease.ToString());
-            Assert.NotEqual(v3.PreRelease.ToString(), v1.PreRelease.ToString());
+            Assert.Equal("alpha.bravo.1", v1.PreRelease.ToNormalizedString());
+            Assert.NotEqual(v3.PreRelease.ToString(), v1.PreRelease.ToNormalizedString());
             Assert.NotEqual(v3.PreRelease.GetHashCode(), v1.PreRelease.GetHashCode());
         }
 
@@ -70,8 +70,8 @@ namespace Versatile.Tests
             SemanticVersion v3 = new SemanticVersion(0, 0, 0, "beta");
             SemanticVersion v4 = new SemanticVersion(0, 0, 0, "beta.x.0");
             SemanticVersion bx860new = new SemanticVersion(0, 0, 0, "beta.x86.0.new");
-            SemanticVersion.PreReleaseVersion v11 = ++(v1.PreRelease);
-            SemanticVersion.PreReleaseVersion v21 = ++(v2.PreRelease);
+            PreReleaseVersion v11 = ++(v1.PreRelease);
+            PreReleaseVersion v21 = ++(v2.PreRelease);
             Assert.Equal(v11.ToString(), "alpha.2");
             Assert.Equal(v11[1], "2");
             Assert.Equal(v21[1], "3");
@@ -92,8 +92,8 @@ namespace Versatile.Tests
             SemanticVersion v2 = new SemanticVersion(1, 3, 4, "alpha.2.0");
             SemanticVersion v3 = new SemanticVersion(0, 0, 0, "beta");
             SemanticVersion v4 = new SemanticVersion(0, 0, 0, "beta.x.0");
-            SemanticVersion.PreReleaseVersion v11 = --(v1.PreRelease);
-            SemanticVersion.PreReleaseVersion v21 = --(v2.PreRelease);
+            PreReleaseVersion v11 = --(v1.PreRelease);
+            PreReleaseVersion v21 = --(v2.PreRelease);
             Assert.Equal(v11.Count, 1);
             Assert.Equal(v11.ToString(), "alpha");
             Assert.Equal(v21.ToString(), "alpha.1");

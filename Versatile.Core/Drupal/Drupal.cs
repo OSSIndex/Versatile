@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Sprache;
 namespace Versatile
 {
-    public partial class Drupal : Version, IVersionFactory<Drupal>, IEquatable<Drupal>, IComparable<Drupal>
+    public partial class Drupal : Version, IVersionFactory<Drupal>, IEquatable<Drupal>, IComparable, IComparable<Drupal>
     {
         #region Public properties
         public int CoreCompatibility { get; set; }
@@ -58,6 +58,63 @@ namespace Versatile
         {
             return this.Aggregate((p, n) => p + "." + n);
         }
+
+        public override int CompareComponent(Version other)
+        {
+            List<string> a = this.Take(3).ToList();
+            List<string> b = other.Take(3).ToList();
+            int min = Math.Min(a.Count, b.Count);
+            for (int i = 0; i < min; i++)
+            {
+                var ac = a[i];
+                var bc = b[i];
+                int anum, bnum;
+                bool isanum = Int32.TryParse(ac, out anum);
+                bool isbnum = Int32.TryParse(bc, out bnum);
+                int r;
+                if (isanum && isbnum)
+                {
+                    r = anum.CompareTo(bnum);
+                    if (r != 0) return r;
+                }
+                else
+                {
+                    if (isanum)
+                        return -1;
+                    if (isbnum)
+                        return 1;
+                    r = String.CompareOrdinal(ac, bc);
+                    if (r != 0) return r;
+                }
+            }
+            if (this.Count == 3 && other.Count == 3)
+            {
+                return 0;
+            }
+            if (this.Count <= 3 && other.Count == 4) //b has prerelease so a > b
+            {
+                if (other[3].StartsWith("patch"))
+                {
+                    return -1;
+                }
+                else
+                {
+                    return 1;
+                }
+            }
+            else if (other.Count <= 3 && this.Count == 4) //a has prerelease so a > b
+            {
+                if (this[3].StartsWith("patch"))
+                {
+                    return 1;
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            else return Version.CompareComponent(this[3].Split('.').ToList(), other[3].Split('.').ToList());
+        }
         #endregion
 
         #region Public methods
@@ -73,7 +130,7 @@ namespace Versatile
             {
                 return 1;
             }
-            else return CompareComponent(this.ToNormalizedString(), other.ToNormalizedString());
+            else return CompareComponent(this, other);
         }
 
         public Drupal Construct(List<string> s)
@@ -93,12 +150,89 @@ namespace Versatile
 
         #endregion
 
-        #region Public static fields
-        
+        #region Operators
+        public static bool operator == (Drupal left, Drupal right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator != (Drupal left, Drupal right)
+        {
+            return !left.Equals(right);
+        }
+
+        public static bool operator < (Drupal left, Drupal right)
+        {
+            return CompareComponent(left, right) == -1;
+        }
+
+
+        public static bool operator >(Drupal left, Drupal right)
+        {
+            return CompareComponent(left, right) == 1;
+        }
+
+
+        public static bool operator <= (Drupal left, Drupal right)
+        {
+            return (new List<int> { 0, -1 }).Contains(CompareComponent(left, right));
+        }
+
+        public static bool operator >= (Drupal left, Drupal right)
+        {
+            return (new List<int> { 0, 1 }).Contains(CompareComponent(left, right));
+        }
+
+        public static Drupal operator ++ (Drupal s)
+        {
+            if (s.PreRelease != null && s.PreRelease.Count > 0)
+            {
+                ++s.PreRelease;
+                return s;
+            }
+            else if (s.Patch.HasValue)
+            {
+                ++s.Patch;
+                return s;
+            }
+            else if (s.Minor.HasValue)
+            {
+                ++s.Minor;
+                return s;
+            }
+            else
+            {
+                ++s.Major;
+                return s;
+            }
+        }
+
+        public static Drupal operator -- (Drupal s)
+        {
+            if (s.PreRelease != null && s.PreRelease.Count > 0)
+            {
+                --s.PreRelease;
+                return s;
+            }
+            else if (s.Patch.HasValue)
+            {
+                --s.Patch;
+                return s;
+            }
+            else if (s.Minor.HasValue)
+            {
+                --s.Minor;
+                return s;
+            }
+            else
+            {
+                --s.Major;
+                return s;
+            }
+        }
         #endregion
 
-        #region Public Static methods
-        
+        #region Public Static methods        
         public static bool RangeIntersect(string left, string right, out string exception_message)
         {
             IResult<ComparatorSet<Drupal>> l = Grammar.Range.TryParse(left);

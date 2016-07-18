@@ -11,69 +11,13 @@ namespace Versatile
 {
     public partial class SemanticVersion
     {
-        public class Grammar
+        public class Grammar : Grammar<SemanticVersion>
         {
-            public static Parser<string> Digits
-            {
-                get
-                {
-                    return Parse.Digit.AtLeastOnce().Text().Token();
-                }
-            }
-
-            public static Parser<char> NonDigit
+            public new static Parser<char> NonDigit
             {
                 get
                 {
                     return Parse.Letter.Or(Parse.Char('-')).Token();
-                }
-            }
-
-            public static Parser<char> PositiveDigit
-            {
-                get
-                {
-                    return Parse.Digit.Except(Parse.Char('0')).Token();
-                }
-            }
-
-            public static Parser<string> NumericIdentifier
-            {
-                get
-                {
-                    return Digits;
-                }
-            }
-
-            public static Parser<string> Major
-            {
-                get
-                {
-                    return NumericIdentifier;
-                }
-            }
-
-            public static Parser<string> Minor
-            {
-                get
-                {
-
-                    return
-                        from dot in Parse.Char('.')
-                        from m in NumericIdentifier
-                        select m;
-                }
-            }
-
-            public static Parser<string> Patch
-            {
-                get
-                {
-
-                    return
-                        from dot in Parse.Char('.')
-                        from m in NumericIdentifier
-                        select m;
                 }
             }
 
@@ -118,7 +62,7 @@ namespace Versatile
             }
 
 
-            public static Parser<string> AlphaNumericIdentifier
+            public new static Parser<string> AlphaNumericIdentifier
             {
                 get
                 {
@@ -227,14 +171,6 @@ namespace Versatile
                 }
             }
 
-            public static Parser<ExpressionType> LessThan
-            {
-                get
-                {
-                    return Sprache.Parse.String("<").Once().Token().Return(ExpressionType.LessThan);
-                }
-            }
-
             public static Parser<ComparatorSet<SemanticVersion>> LessThanRange
             {
                 get
@@ -244,19 +180,9 @@ namespace Versatile
                         from v in SemanticVersion
                         select new ComparatorSet<SemanticVersion>
                         {
-                            new Comparator<SemanticVersion> (ExpressionType.GreaterThan, Versatile.SemanticVersion.MIN),
+                            new Comparator<SemanticVersion> (ExpressionType.GreaterThan, V.Min()),
                             new Comparator<SemanticVersion> (ExpressionType.LessThan, v)
                         };
-                }
-            }
-
-
-            public static Parser<ExpressionType> LessThanOrEqual
-            {
-                get
-                {
-
-                    return Sprache.Parse.String("<=").Once().Token().Return(ExpressionType.LessThanOrEqual);
                 }
             }
 
@@ -269,25 +195,9 @@ namespace Versatile
                         from v in SemanticVersion
                         select new ComparatorSet<SemanticVersion>
                         {
-                            new Comparator<SemanticVersion> (ExpressionType.GreaterThan, Versatile.SemanticVersion.MIN),
+                            new Comparator<SemanticVersion> (ExpressionType.GreaterThan, V.Min()),
                             new Comparator<SemanticVersion> (ExpressionType.LessThanOrEqual, v)
                         };
-                }
-            }
-
-            public static Parser<ExpressionType> GreaterThan
-            {
-                get
-                {
-                    return Sprache.Parse.String(">").Once().Token().Return(ExpressionType.GreaterThan);
-                }
-            }
-
-            public static Parser<ExpressionType> GreaterThanOrEqual
-            {
-                get
-                {
-                    return Sprache.Parse.String(">=").Once().Token().Return(ExpressionType.GreaterThanOrEqual);
                 }
             }
 
@@ -300,7 +210,7 @@ namespace Versatile
                         from v in SemanticVersion
                         select new ComparatorSet<SemanticVersion>
                         {
-                            new Comparator<SemanticVersion> (ExpressionType.LessThan, Versatile.SemanticVersion.MAX),
+                            new Comparator<SemanticVersion> (ExpressionType.LessThan, V.Max()),
                             new Comparator<SemanticVersion> (ExpressionType.GreaterThan, v)
                         };
                 }
@@ -315,7 +225,7 @@ namespace Versatile
                         from v in SemanticVersion
                         select new ComparatorSet<SemanticVersion>
                         {
-                            new Comparator<SemanticVersion> (ExpressionType.LessThan, Versatile.SemanticVersion.MAX),
+                            new Comparator<SemanticVersion> (ExpressionType.LessThan, V.Max()),
                             new Comparator<SemanticVersion> (ExpressionType.GreaterThanOrEqual, v)
                         };
                 }
@@ -338,16 +248,6 @@ namespace Versatile
                         .Or(SemanticVersion.Select(s => new ComparatorSet<SemanticVersion> { new Comparator<SemanticVersion>(ExpressionType.Equal, s) }));
                 }
             }
-
-            public static Parser<string> XIdentifier
-            {
-                get
-                {
-                    return
-                        Parse.Char('*').XOr(Parse.Char('x')).XOr(Parse.Char('X')).Once().Text().Token();
-                }
-            }
-
 
             public static Parser<ComparatorSet<SemanticVersion>> AllXRange
             {
@@ -545,6 +445,7 @@ namespace Versatile
                 }
             }
 
+            /*
             public static Parser<ComparatorSet<SemanticVersion>> MajorMinorPatchCaretRange
             {
                 get
@@ -643,6 +544,7 @@ namespace Versatile
                     return MajorMinorPatchCaretRange.Or(MinorPatchCaretRange).Or(PatchCaretRange);
                 }
             }
+            */
 
             public static Parser<ComparatorSet<SemanticVersion>> Range
             {

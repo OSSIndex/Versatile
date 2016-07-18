@@ -30,5 +30,12 @@ namespace Versatile.Tests
             Assert.True(d6207 < d6407);
             Assert.True(d5207 < d6407);
         }
+
+        [Fact]
+        public void CanRangeIntersect()
+        {
+            string o;
+            Assert.True(Drupal.RangeIntersect("<6.x-2.0", "5.x-3.0", out o));
+        }
     }
 }

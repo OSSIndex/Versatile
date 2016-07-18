@@ -8,7 +8,7 @@ namespace Versatile
 {
     public class PreReleaseVersion : List<string>
     {
-        #region Abstract methods
+        #region Virtual methods
         public virtual string ToNormalizedString()
         {
             if (this.Count == 0)
@@ -59,8 +59,20 @@ namespace Versatile
 
         public override string ToString()
         {
-            return string.Join("", this);
-        }
+            if (this.Count == 0)
+            {
+                return string.Empty;
+            }
+            else if (this.Count == 1)
+            {
+                return this[0];
+            }
+            else
+            {
+                return this.Aggregate((p, v) => p + "." + v);
+            }
+        
+    }
 
         #endregion
 

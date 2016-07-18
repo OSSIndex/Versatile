@@ -36,17 +36,17 @@ namespace Versatile.Tests
             Assert.Equal(v1.Major, 3);
             Assert.Equal(v1.Minor, 5);
             Assert.Equal(v1.Patch, 0);
-            Assert.Equal(v1.PreRelease.ToString(), "alpha.1");
+            Assert.Equal(v1.PreRelease.ToNormalizedString(), "alpha.1");
             SemanticVersion v026a = new SemanticVersion("0.2.6-alpha");
             Assert.Equal(v026a.Major, 0);
             Assert.Equal(v026a.Minor, 2);
             Assert.Equal(v026a.Patch, 6);
-            Assert.Equal(v026a.PreRelease.ToString(), "alpha.0");
+            Assert.Equal(v026a.PreRelease.ToNormalizedString(), "alpha.0");
             SemanticVersion v1001b3 = new SemanticVersion("10.0.1-beta.3");
             Assert.Equal(v1001b3.Major, 10);
             Assert.Equal(v1001b3.Minor, 0);
             Assert.Equal(v1001b3.Patch, 1);
-            Assert.Equal(v1001b3.PreRelease.ToString(), "beta.3");
+            Assert.Equal(v1001b3.PreRelease.ToNormalizedString(), "beta.3");
 
         }
 
@@ -139,11 +139,11 @@ namespace Versatile.Tests
             SemanticVersion v090a1 = new SemanticVersion(0, 9, 0, "alpha.1");
             SemanticVersion v090b1 = new SemanticVersion(0, 9, 0, "beta.1");
             SemanticVersion v090b2 = new SemanticVersion(0, 9, 0, "beta.2");
-            Assert.Equal((--v1).ToString(), "0");
-            Assert.Equal((--v11).ToString(), "1.0");
-            Assert.Equal((--v202).ToString(), "2.0.1");
-            Assert.Equal((--v000a1).ToString(), "0.0.0.alpha");
-            Assert.Equal((--v090b2).ToString(), "0.9.0.beta.1");
+            Assert.Equal((--v1).ToNormalizedString(), "0");
+            Assert.Equal((--v11).ToNormalizedString(), "1.0");
+            Assert.Equal((--v202).ToNormalizedString(), "2.0.1");
+            Assert.Equal((--v000a1).ToNormalizedString(), "0.0.0.alpha");
+            Assert.Equal((--v090b2).ToNormalizedString(), "0.9.0.beta.1");
         }
 
         [Fact]

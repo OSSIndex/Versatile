@@ -6,12 +6,16 @@ using System.Threading.Tasks;
 
 namespace Versatile
 {
-    public abstract class Version : List<string>,IComparable, IComparable<Version>, IEquatable<Version>
+    public abstract class Version : List<string>, IComparable, IComparable<Version>, IEquatable<Version>
     {
         public enum DefaultValue { Min, Max }
 
         #region Abstract methods
         public abstract string ToNormalizedString();
+        public abstract int CompareComponent(Version other);
+        #endregion
+
+        #region Virtual methods
         #endregion
 
         #region Overriden methods
@@ -26,7 +30,7 @@ namespace Versatile
             {
                 throw new ArgumentException("Must be a Version.", "obj");
             }
-            return CompareComponent(this.ToNormalizedString(), other.ToNormalizedString()) == 0;
+            return CompareComponent(this, other) == 0;
         }
 
         public override int GetHashCode()
@@ -47,7 +51,7 @@ namespace Versatile
             {
                 throw new ArgumentException("Must be a Version", "obj");
             }
-            else return CompareComponent(this.ToNormalizedString(), other.ToNormalizedString());
+            else return CompareComponent(this, other);
         }
         
         public int CompareTo(Version other)
@@ -56,13 +60,13 @@ namespace Versatile
             {
                 return 1;
             }
-            else return CompareComponent(this.ToNormalizedString(), other.ToNormalizedString());
+            else return CompareComponent(this, other);
         }
 
         public bool Equals(Version other)
         {
             return !ReferenceEquals(null, other) &&
-                CompareComponent(this.ToNormalizedString(), other.ToNormalizedString()) == 0;
+                CompareComponent(this, other) == 0;
         }
         #endregion
 
@@ -70,8 +74,7 @@ namespace Versatile
         public int? Major { get; set; } = null;
         public int? Minor { get; set; } = null;
         public int? Patch { get; set; } = null;
-        public int? Build { get; set; } = null;
-        
+ 
         public System.Version SystemVersion { get; set; }
         public PreReleaseVersion PreRelease { get; set; }
         #endregion
@@ -122,7 +125,7 @@ namespace Versatile
         #endregion
 
         #region Operators
-        public static bool operator ==(Version left, Version right)
+        public static bool operator == (Version left, Version right)
         {
             return left.Equals(right);
         }
@@ -132,26 +135,26 @@ namespace Versatile
             return !left.Equals(right);
         }
 
-        public static bool operator <(Version left, Version right)
+        public static bool operator < (Version left, Version right)
         {
-            return CompareComponent(left.ToNormalizedString(), right.ToNormalizedString()) == -1;
+            return CompareComponent(left, right) == -1;
         }
 
 
         public static bool operator >(Version left, Version right)
         {
-            return CompareComponent(left.ToNormalizedString(), right.ToNormalizedString()) == 1;
+            return CompareComponent(left, right) == 1;
         }
 
 
         public static bool operator <=(Version left, Version right)
         {
-            return (new List<int> { 0, -1 }).Contains(CompareComponent(left.ToNormalizedString(), right.ToNormalizedString()));
+            return (new List<int> { 0, -1 }).Contains(CompareComponent(left, right));
         }
 
         public static bool operator >=(Version left, Version right)
         {
-            return (new List<int> { 0, 1 }).Contains(CompareComponent(left.ToNormalizedString(), right.ToNormalizedString()));
+            return (new List<int> { 0, 1 }).Contains(CompareComponent(left, right));
         }
 
         public static Version operator ++(Version s)
@@ -203,38 +206,32 @@ namespace Versatile
         }
         #endregion
 
-        #region Public static fields
-        #endregion
-
-        #region Public static methods
-        public static int CompareComponent(string a, string b, bool lower = false)
+        #region Public static methods 
+        public static int CompareComponent(Version a, Version b, bool lower = false)
         {
-            var aEmpty = String.IsNullOrEmpty(a);
-            var bEmpty = String.IsNullOrEmpty(b);
+            var aEmpty = ReferenceEquals(a, null) || a.Count == 0;
+            var bEmpty = ReferenceEquals(b, null) || b.Count == 0;
             if (aEmpty && bEmpty)
                 return 0;
-
             if (aEmpty)
                 return lower ? 1 : -1;
             if (bEmpty)
                 return lower ? -1 : 1;
-
-            var aComps = a.Split('.');
-            var bComps = b.Split('.');
-
-            var minLen = Math.Min(aComps.Length, bComps.Length);
-            for (int i = 0; i < minLen; i++)
+            return a.CompareComponent(b);
+            /*
+            int min = Math.Min(a.Count, b.Count);
+            for (int i = 0; i < min; i++)
             {
-                var ac = aComps[i];
-                var bc = bComps[i];
+                var ac = a[i];
+                var bc = b[i];
                 int anum, bnum;
-                var isanum = Int32.TryParse(ac, out anum);
-                var isbnum = Int32.TryParse(bc, out bnum);
+                bool isanum = Int32.TryParse(ac, out anum);
+                bool isbnum = Int32.TryParse(bc, out bnum);
                 int r;
                 if (isanum && isbnum)
                 {
                     r = anum.CompareTo(bnum);
-                    if (r != 0) return anum.CompareTo(bnum);
+                    if (r != 0) return r;
                 }
                 else
                 {
@@ -243,39 +240,48 @@ namespace Versatile
                     if (isbnum)
                         return 1;
                     r = String.CompareOrdinal(ac, bc);
-                    if (r != 0)
-                        return r;
+                    if (r != 0) return r;
                 }
             }
-            if (aComps.Length == 3 && bComps.Length > 3) // if a and b have equal components but b has a pre-release
-            {
-                if (bComps[3] != "patch")
-                {
-                    return 1;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            else if (bComps.Length == 3 && aComps.Length > 3)
-            {
-                if (aComps[3] != "patch")
-                {
-                    return -1;
-                }
-                else
-                {
-                    return 1;
-                }
-            }
-            else
-            {
-                return aComps.Length.CompareTo(bComps.Length);
-            }
+            return a.Count.CompareTo(b.Count);
+            */
         }
-
-
+        public static int CompareComponent(List<string> a, List<string> b, bool lower = false)
+        {
+            var aEmpty = ReferenceEquals(a, null) || a.Count == 0;
+            var bEmpty = ReferenceEquals(b, null) || b.Count == 0;
+            if (aEmpty && bEmpty)
+                return 0;
+            if (aEmpty)
+                return lower ? 1 : -1;
+            if (bEmpty)
+                return lower ? -1 : 1;
+            int min = Math.Min(a.Count, b.Count);
+            for (int i = 0; i < min; i++)
+            {
+                var ac = a[i];
+                var bc = b[i];
+                int anum, bnum;
+                bool isanum = Int32.TryParse(ac, out anum);
+                bool isbnum = Int32.TryParse(bc, out bnum);
+                int r;
+                if (isanum && isbnum)
+                {
+                    r = anum.CompareTo(bnum);
+                    if (r != 0) return r;
+                }
+                else
+                {
+                    if (isanum)
+                        return -1;
+                    if (isbnum)
+                        return 1;
+                    r = String.CompareOrdinal(ac, bc);
+                    if (r != 0) return r;
+                }
+            }
+            return a.Count.CompareTo(b.Count);
+        }
         #endregion
     }
 }

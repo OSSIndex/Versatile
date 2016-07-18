@@ -1,12 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
 
 using Sprache;
-
 
 namespace Versatile
 {
@@ -17,7 +18,7 @@ namespace Versatile
     /// </summary>
     [Serializable]
     [TypeConverter(typeof(NuGetv2TypeConverter))]
-    public sealed partial class NuGetv2 : IComparable, IComparable<NuGetv2>, IEquatable<NuGetv2>
+    public sealed partial class NuGetv2 : Version, IVersionFactory<NuGetv2>, IComparable, IComparable<NuGetv2>, IEquatable<NuGetv2>
     {
         private const RegexOptions _flags = RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture;
         private static readonly Regex _NuGetRegex = new Regex(@"^(?<Version>\d+(\s*\.\s*\d+){0,3})(?<Release>-[a-z][0-9a-z-]*)?$", _flags);
@@ -32,26 +33,31 @@ namespace Versatile
             // The constructor normalizes the version string so that it we do not need to normalize it every time we need to operate on it. 
             // The original string represents the original form in which the version is represented to be used when printing.
             _originalString = version;
+            
         }
 
         public NuGetv2(int major, int minor, int build, int revision)
             : this(new System.Version(major, minor, build, revision))
         {
+            this.Add(this.Major);
         }
 
         public NuGetv2(int major, int minor, int build, string specialVersion)
             : this(new System.Version(major, minor, build), specialVersion)
         {
+            this.Add(this.Major);
         }
 
         public NuGetv2(System.Version version)
             : this(version, String.Empty)
         {
+            this.Add(this.Major);
         }
 
         public NuGetv2(System.Version version, string specialVersion)
             : this(version, specialVersion, null)
         {
+            this.Add(this.Major);
         }
 
         public NuGetv2() : this(0, 0, 0, 0) { }
@@ -65,6 +71,7 @@ namespace Versatile
             Version = NormalizeVersionValue(version);
             SpecialVersion = specialVersion ?? String.Empty;
             _originalString = String.IsNullOrEmpty(originalString) ? version.ToString() + (!String.IsNullOrEmpty(specialVersion) ? '-' + specialVersion : null) : originalString;
+            this.Add(this.Major);
         }
 
         internal NuGetv2(NuGetv2 semVer)
@@ -72,8 +79,11 @@ namespace Versatile
             _originalString = semVer.ToString();
             Version = semVer.Version;
             SpecialVersion = semVer.SpecialVersion;
+            this.Add(this.Major);
         }
         #endregion
+
+        #region Public properties
         /// <summary>
         /// Gets the normalized version portion.
         /// </summary>
@@ -83,7 +93,7 @@ namespace Versatile
             private set;
         }
 
-        public string Major
+        public new string Major
         {
             get
             {
@@ -91,7 +101,7 @@ namespace Versatile
             }
         }
 
-        public string Minor
+        public new string Minor
         {
             get
             {
@@ -115,7 +125,9 @@ namespace Versatile
             get;
             private set;
         }
+        #endregion
 
+        #region Public methods
         public string[] GetOriginalVersionComponents()
         {
             if (!String.IsNullOrEmpty(_originalString))
@@ -142,6 +154,61 @@ namespace Versatile
             }
         }
 
+        public bool Equals(NuGetv2 other)
+        {
+            return !Object.ReferenceEquals(null, other) &&
+                    Version.Equals(other.Version) &&
+                    SpecialVersion.Equals(other.SpecialVersion, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public int CompareTo(NuGetv2 other)
+        {
+            if (Object.ReferenceEquals(other, null))
+            {
+                return 1;
+            }
+
+            int result = Version.CompareTo(other.Version);
+
+            if (result != 0)
+            {
+                return result;
+            }
+
+            bool empty = String.IsNullOrEmpty(SpecialVersion);
+            bool otherEmpty = String.IsNullOrEmpty(other.SpecialVersion);
+            if (empty && otherEmpty)
+            {
+                return 0;
+            }
+            else if (empty)
+            {
+                return 1;
+            }
+            else if (otherEmpty)
+            {
+                return -1;
+            }
+            return StringComparer.OrdinalIgnoreCase.Compare(SpecialVersion, other.SpecialVersion);
+        }
+
+        public NuGetv2 Construct(List<string> s)
+        {
+            return new NuGetv2(string.Join(".", s));
+        }
+
+        public NuGetv2 Max()
+        {
+            return new NuGetv2(1000000, 1000000, 1000000, 0);
+        }
+
+        public NuGetv2 Min()
+        {
+            return new NuGetv2(0, 0, 0, 0);
+        }
+        #endregion
+
+        #region Public static methods
         private static string[] SplitAndPadVersionString(string version)
         {
             string[] a = version.Split('.');
@@ -230,8 +297,10 @@ namespace Versatile
                                 Math.Max(version.Build, 0),
                                 Math.Max(version.Revision, 0));
         }
+        #endregion
 
-        public int CompareTo(object obj)
+        #region Overriden methods
+        public override int CompareTo(object obj)
         {
             if (Object.ReferenceEquals(obj, null))
             {
@@ -245,37 +314,75 @@ namespace Versatile
             return CompareTo(other);
         }
 
-        public int CompareTo(NuGetv2 other)
+        public override string ToString()
         {
-            if (Object.ReferenceEquals(other, null))
-            {
-                return 1;
-            }
-
-            int result = Version.CompareTo(other.Version);
-
-            if (result != 0)
-            {
-                return result;
-            }
-
-            bool empty = String.IsNullOrEmpty(SpecialVersion);
-            bool otherEmpty = String.IsNullOrEmpty(other.SpecialVersion);
-            if (empty && otherEmpty)
-            {
-                return 0;
-            }
-            else if (empty)
-            {
-                return 1;
-            }
-            else if (otherEmpty)
-            {
-                return -1;
-            }
-            return StringComparer.OrdinalIgnoreCase.Compare(SpecialVersion, other.SpecialVersion);
+            return _originalString;
         }
 
+        /// <summary>
+        /// Returns the normalized string representation of this instance of <see cref="NuGetv2"/>.
+        /// If the instance can be strictly parsed as a <see cref="NuGetv2"/>, the normalized version
+        /// string if of the format {major}.{minor}.{build}[-{special-version}]. If the instance has a non-zero
+        /// value for <see cref="Version.Revision"/>, the format is {major}.{minor}.{build}.{revision}[-{special-version}].
+        /// </summary>
+        /// <returns>The normalized string representation.</returns>
+        public override string ToNormalizedString()
+        {
+            if (_normalizedVersionString == null)
+            {
+                var builder = new StringBuilder();
+                builder
+                    .Append(Version.Major)
+                    .Append('.')
+                    .Append(Version.Minor)
+                    .Append('.')
+                    .Append(Math.Max(0, Version.Build));
+
+                if (Version.Revision > 0)
+                {
+                    builder.Append('.')
+                            .Append(Version.Revision);
+                }
+
+                if (!string.IsNullOrEmpty(SpecialVersion))
+                {
+                    builder.Append('-')
+                            .Append(SpecialVersion);
+                }
+
+                _normalizedVersionString = builder.ToString();
+            }
+
+            return _normalizedVersionString;
+        }
+
+        public override int CompareComponent(Version other)
+        {
+            NuGetv2 o = other as NuGetv2;
+            return this.CompareTo(o);
+        }
+
+
+        public override bool Equals(object obj)
+        {
+            NuGetv2 semVer = obj as NuGetv2;
+            return !Object.ReferenceEquals(null, semVer) && Equals(semVer);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = Version.GetHashCode();
+            if (SpecialVersion != null)
+            {
+                hashCode = hashCode * 4567 + SpecialVersion.GetHashCode();
+            }
+
+            return hashCode;
+        }
+
+        #endregion
+
+        #region Operators
         public static bool operator ==(NuGetv2 version1, NuGetv2 version2)
         {
             if (Object.ReferenceEquals(version1, null))
@@ -317,88 +424,7 @@ namespace Versatile
         {
             return (version1 == version2) || (version1 > version2);
         }
-
-        public override string ToString()
-        {
-            return _originalString;
-        }
-
-        /// <summary>
-        /// Returns the normalized string representation of this instance of <see cref="NuGetv2"/>.
-        /// If the instance can be strictly parsed as a <see cref="NuGetv2"/>, the normalized version
-        /// string if of the format {major}.{minor}.{build}[-{special-version}]. If the instance has a non-zero
-        /// value for <see cref="Version.Revision"/>, the format is {major}.{minor}.{build}.{revision}[-{special-version}].
-        /// </summary>
-        /// <returns>The normalized string representation.</returns>
-        public string ToNormalizedString()
-        {
-            if (_normalizedVersionString == null)
-            {
-                var builder = new StringBuilder();
-                builder
-                    .Append(Version.Major)
-                    .Append('.')
-                    .Append(Version.Minor)
-                    .Append('.')
-                    .Append(Math.Max(0, Version.Build));
-
-                if (Version.Revision > 0)
-                {
-                    builder.Append('.')
-                            .Append(Version.Revision);
-                }
-
-                if (!string.IsNullOrEmpty(SpecialVersion))
-                {
-                    builder.Append('-')
-                            .Append(SpecialVersion);
-                }
-
-                _normalizedVersionString = builder.ToString();
-            }
-
-            return _normalizedVersionString;
-        }
-
-        public bool Equals(NuGetv2 other)
-        {
-            return !Object.ReferenceEquals(null, other) &&
-                    Version.Equals(other.Version) &&
-                    SpecialVersion.Equals(other.SpecialVersion, StringComparison.OrdinalIgnoreCase);
-        }
-
-        public override bool Equals(object obj)
-        {
-            NuGetv2 semVer = obj as NuGetv2;
-            return !Object.ReferenceEquals(null, semVer) && Equals(semVer);
-        }
-
-        public override int GetHashCode()
-        {
-            int hashCode = Version.GetHashCode();
-            if (SpecialVersion != null)
-            {
-                hashCode = hashCode * 4567 + SpecialVersion.GetHashCode();
-            }
-
-            return hashCode;
-        }
-
-        public static NuGetv2 MIN
-        {
-            get
-            {
-                return new NuGetv2(0, 0, 0, 0);
-            }
-        }
-
-        public static NuGetv2 MAX
-        {
-            get
-            {
-                return new NuGetv2(1000000, 1000000, 1000000, 1000000);
-            }
-        }
+        #endregion
 
         public static bool RangeIntersect(string left, string right, out string exception_message)
         {

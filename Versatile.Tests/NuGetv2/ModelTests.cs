@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Versatile.Tests
 {
-   public partial class NuGetv2Tests
+    public partial class NuGetv2Tests
     {
         [Fact]
         public void CanCompare()
@@ -19,13 +19,17 @@ namespace Versatile.Tests
             NuGetv2 v3 = new NuGetv2("2.4.4");
             NuGetv2 v4 = new NuGetv2("3.3.3.4");
             NuGetv2 v4b = new NuGetv2("3.3.3.5");
+           
             Assert.True(v2 > v1);
             Assert.True(v4b > v4);
             Assert.True(v4 < v4b);
             Assert.Equal(v0, NuGetv2.Parse("0.7.0"));
             Assert.True(v3 > v2);
             Assert.True(v1 < v4);
-        }
+            Assert.True(v090b2 > v090a1);
+            Assert.True(v090a1 < v090b2);
 
+        }
     }
+      
 }
