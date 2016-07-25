@@ -180,7 +180,14 @@ namespace Versatile
             }
         }
 
-     
+        public static Parser<ExpressionType> OneSidedIntervalOperator
+        {
+            get
+            {
+                return LessThanOrEqual.Or(LessThan).Or(GreaterThanOrEqual).Or(GreaterThan);
+            }
+        }
+
         public static Parser<Tuple<int, int, int>> CaretRangeIdentifier
         {
             get
@@ -298,5 +305,7 @@ namespace Versatile
             }
             else throw new ArgumentOutOfRangeException("cv", "Invalid major,minor,match values.");
         }
+
+
     }
 }

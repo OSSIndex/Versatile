@@ -10,7 +10,7 @@ namespace Versatile.Tests
 {
     public partial class SemanticVersionTests
     {
-       
+
 
         [Fact]
         public void CanExpressLessThan()
@@ -79,10 +79,17 @@ namespace Versatile.Tests
         [Fact]
         public void CanSatisfyCaretRange()
         {
-            Assert.True(Range<SemanticVersion>.Satisfies(new SemanticVersion(1, 3), SemanticVersion.Grammar.CaretRange.Parse("^1.2.3")));
+           Assert.True(Range<SemanticVersion>.Satisfies(new SemanticVersion(1, 3), SemanticVersion.Grammar.CaretRange.Parse("^1.2.3")));
             Assert.True(Range<SemanticVersion>.Satisfies(new SemanticVersion(1, 4, 5), SemanticVersion.Grammar.CaretRange.Parse("^1.2.3")));
             Assert.False(Range<SemanticVersion>.Satisfies(new SemanticVersion(1, 2), SemanticVersion.Grammar.CaretRange.Parse("^1.2.3")));
             Assert.True(Range<SemanticVersion>.Satisfies(new SemanticVersion(0, 2, 5), SemanticVersion.Grammar.CaretRange.Parse("^0.2.3")));
+        }
+
+        [Fact]
+        public void CanSatisfyOneSidedOrred()
+        {
+           /* Assert.True(Range<SemanticVersion>.Satisfies(SemanticVersion.Grammar.SemanticVersion.Parse("7"), 
+                SemanticVersion.Grammar.Range.Parse("<3 || >=6")) */
         }
     }
 }

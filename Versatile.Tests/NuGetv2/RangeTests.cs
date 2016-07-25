@@ -44,6 +44,7 @@ namespace Versatile.Tests
             Assert.True(NuGetv2.RangeIntersect("(11, 11.9)", "(11, 11.3.0-beta7]", out e));
             Assert.True(NuGetv2.RangeIntersect("(11, 13.3.0-beta7]", "12", out e));
             Assert.False(NuGetv2.RangeIntersect("(11, 13.3.0-beta7]", "13.4", out e));
+            Assert.True(NuGetv2.RangeIntersect("3.4.0199", ">= 0.0.0", out e));
         }
     }
 }

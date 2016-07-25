@@ -239,15 +239,19 @@ namespace Versatile
                 }
             }
 
-
             public static Parser<ComparatorSet<SemanticVersion>> OneSidedRange
             {
                 get
                 {
                     return LessThanRange.Or(LessThanOrEqualRange).Or(GreaterThanRange).Or(GreaterThanOrEqualRange)
-                        .Or(SemanticVersion.Select(s => new ComparatorSet<SemanticVersion> { new Comparator<SemanticVersion>(ExpressionType.Equal, s) }));
+                        .Or(SemanticVersion
+                        .Select(v => new ComparatorSet<SemanticVersion>
+                            {
+                                new Comparator<SemanticVersion>(ExpressionType.Equal, v)
+                            }));
                 }
             }
+
 
             public static Parser<ComparatorSet<SemanticVersion>> AllXRange
             {
@@ -445,112 +449,61 @@ namespace Versatile
                 }
             }
 
-            /*
-            public static Parser<ComparatorSet<SemanticVersion>> MajorMinorPatchCaretRange
+            public static Parser<ComparatorSet<SemanticVersion>> HyphenRange
             {
                 get
                 {
                     return
-                        from caret in Parse.Char('^')
-                        from major in Major.Except(Parse.Char('0')).Select(m =>
-                        {
-                            int num;
-                            Int32.TryParse(m.ToString(), out num);
-                            return num;
-                        })
-                        from minor in Minor.Select(m =>
-                        {
-                            int num;
-                            Int32.TryParse(m.ToString(), out num);
-                            return num;
-
-                        })
-                        from patch in Patch.Select(m =>
-                        {
-                            int num;
-                            Int32.TryParse(m.ToString(), out num);
-                            return num;
-
-                        })
-
+                        from l in VersionCore.Select(c => new SemanticVersion(c.ToList()))
+                        from dash in Parse.Char('-').Token()
+                        from r in VersionCore.Select(c => new SemanticVersion(c.ToList()))
                         select new ComparatorSet<SemanticVersion>
                         {
-                            new Comparator<SemanticVersion>(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor, patch)),
-                            new Comparator<SemanticVersion>(ExpressionType.LessThan, new SemanticVersion(major + 1))
+                            new Comparator<SemanticVersion>(ExpressionType.GreaterThanOrEqual, l),
+                            new Comparator<SemanticVersion>(ExpressionType.LessThanOrEqual, r)
                         };
-
                 }
             }
 
-            public static Parser<ComparatorSet<SemanticVersion>> MinorPatchCaretRange
+            public static Parser<ComparatorSet<SemanticVersion>> TwoSidedIntervalRange
             {
                 get
                 {
                     return
-                        from caret in Parse.Char('^')
-                        from major in Parse.Char('0').Return(0)
-                        from minor in Minor.Select(m =>
-                        {
-                            int num;
-                            Int32.TryParse(m.ToString(), out num);
-                            return num;
-
-                        })
-                        from patch in Patch.Select(m =>
-                        {
-                            int num;
-                            Int32.TryParse(m.ToString(), out num);
-                            return num;
-
-                        })
+                        from le in OneSidedIntervalOperator
+                        from l in SemanticVersion.Token()
+                        from a in Parse.WhiteSpace.Or(Parse.Char(',')).Token().Optional()
+                        from re in OneSidedIntervalOperator
+                        from r in SemanticVersion.Token()
                         select new ComparatorSet<SemanticVersion>
                         {
-                            new Comparator<SemanticVersion>(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor, patch)),
-                            new Comparator<SemanticVersion>(ExpressionType.LessThan, new SemanticVersion(major, minor  + 1))
+                            new Comparator<SemanticVersion>(le,  l),
+                            new Comparator<SemanticVersion>(re, r)
                         };
-
                 }
             }
 
-            public static Parser<ComparatorSet<SemanticVersion>> PatchCaretRange
+            public static Parser<ComparatorSet<SemanticVersion>> OneOrTwoSidedRange
             {
                 get
                 {
-                    return
-                        from tilde in Parse.Char('^')
-                        from major in Parse.Char('0').Return(0)
-                        from d1 in Parse.Char('.')
-                        from minor in Parse.Char('0').Return(0)
-                        from patch in Patch.Select(m =>
-                        {
-                            int num;
-                            Int32.TryParse(m.ToString(), out num);
-                            return num;
-
-                        })
-                        select new ComparatorSet<SemanticVersion>
-                        {
-                            new Comparator<SemanticVersion>(ExpressionType.GreaterThanOrEqual, new SemanticVersion(major, minor, patch)),
-                            new Comparator<SemanticVersion>(ExpressionType.LessThan, new SemanticVersion(major, minor, patch + 1))
-                        };
-
+                    return TwoSidedIntervalRange.Or(HyphenRange).Or(XRange).Or(TildeRange).Or(CaretRange).Or(OneSidedRange);
                 }
             }
 
-            public static Parser<ComparatorSet<SemanticVersion>> CaretRange
+            public static Parser<List<ComparatorSet<SemanticVersion>>> Range
             {
                 get
                 {
-                    return MajorMinorPatchCaretRange.Or(MinorPatchCaretRange).Or(PatchCaretRange);
+                    return OneOrTwoSidedRange.Token().DelimitedBy(Parse.String("||").Token()).Select(u => u.ToList());
                 }
             }
-            */
 
-            public static Parser<ComparatorSet<SemanticVersion>> Range
+            public static Parser<List<ComparatorSet<SemanticVersion>>> RangeIntersection
             {
                 get
                 {
-                    return OneSidedRange.Or(XRange).Or(TildeRange).Or(CaretRange);
+                    return OneOrTwoSidedRange.DelimitedBy(Parse.WhiteSpace.Or(Parse.Char(',').Token())).Select(u => u.ToList());
                 }
             }
         }

@@ -154,6 +154,26 @@ namespace Versatile.Tests
             Assert.NotNull(tr2);
             Assert.NotNull(tr3);
         }
-        
+
+        [Fact]
+        public void GrammarCanParseTwoSidedIntervalRange()
+        {
+            ComparatorSet<SemanticVersion> cs = SemanticVersion.Grammar.TwoSidedIntervalRange.Parse("<3 >=5");
+        }
+
+        [Fact]
+        public void GrammarCanParseOneSidedRangeExpression()
+        {
+            List<ComparatorSet<SemanticVersion>> r = SemanticVersion.Grammar.Range.Parse("<6 || >=4.5");
+            Assert.Equal(r.Count, 2);
+        }
+
+        [Fact]
+        public void GrammarCanParseRange()
+        {
+            List<ComparatorSet<SemanticVersion>> lcs = SemanticVersion.Grammar.Range.Parse("<8 >5 || > 13 || 47.3.6-alpha1");
+            Assert.False(Range<SemanticVersion>.Intersect(lcs, SemanticVersion.Grammar.Range.Parse("5")));
+            Assert.True(Range<SemanticVersion>.Intersect(lcs, SemanticVersion.Grammar.Range.Parse("6")));
+        }
     }
 }

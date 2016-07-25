@@ -22,6 +22,8 @@ namespace Versatile.Tests
             Assert.Equal(n.SpecialVersion, "foo");
             Assert.Equal(n.Version.Minor, 2);
             Assert.Equal(n.Version.Build, 5);
+            n = NuGetv2.Grammar.NuGetv2Version.Parse("3.4.0199");
+
             //Assert.Throws<ParseException>(() => NuGetv2.Grammar.NuGetv2Version.Parse("A.2.3"));
             //Assert.Throws<ParseException>(() => NuGetv2.Grammar.NuGetv2Version.Parse("3.2.3.X"));
         }
@@ -62,6 +64,10 @@ namespace Versatile.Tests
             Assert.Equal(c.Version.Version.Major, 1);
             Assert.Equal(c.Version.Version.Minor, 0);
             Assert.Equal(c.Version.SpecialVersion.ToString(), "alpha");
+            c = NuGetv2.Grammar.OneSidedRange.Parse(">=0.0.0").Last();
+            c = NuGetv2.Grammar.OneSidedRange.Parse("<3.4.0199").Last();
+
+
         }
 
         [Fact]

@@ -83,6 +83,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SemanticVersion\GrammarTests.cs" />
+    <Compile Include="SemanticVersion\NodeSemVerTests.cs" />
     <Compile Include="SemanticVersion\PreReleaseModelTests.cs" />
     <Compile Include="SemanticVersion\RangeTests.cs" />
     <Compile Include="SemanticVersion\ModelTests.cs" />

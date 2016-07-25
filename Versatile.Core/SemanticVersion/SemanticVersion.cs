@@ -332,8 +332,8 @@ namespace Versatile
         #region Public static methods
         public static bool RangeIntersect(string left, string right, out string exception_message)
         {
-            IResult<ComparatorSet<SemanticVersion>> l = Grammar.Range.TryParse(left);
-            IResult<ComparatorSet<SemanticVersion>> r = Grammar.Range.TryParse(right);
+            IResult<List<ComparatorSet<SemanticVersion>>> l = Grammar.Range.TryParse(left);
+            IResult<List<ComparatorSet<SemanticVersion>>> r = Grammar.Range.TryParse(right);
             if (!l.WasSuccessful)
             {
                 exception_message = string.Format("Failed parsing version string {0}: {1}. ", left, l.Message);
@@ -350,6 +350,32 @@ namespace Versatile
                 return Range<SemanticVersion>.Intersect(l.Value, r.Value);
             }
         }
+
+        public static VersionStringType GetVersionType(string version)
+        {
+            IResult<SemanticVersion> v = Grammar.SemanticVersion.TryParse(version);
+            if (v.WasSuccessful)
+            {
+                return VersionStringType.Version;
+            }
+            IResult<List<ComparatorSet<SemanticVersion>>> r = Grammar.Range.TryParse(version);
+            if (r.WasSuccessful)
+            {
+                return VersionStringType.Range;
+            }
+            else return VersionStringType.Invalid;
+        }
         #endregion
+
+        #region Public enumerations
+        public enum VersionStringType
+        {
+            Invalid,
+            Version,
+            Range,
+        }
+        #endregion
+
+
     }
 }
