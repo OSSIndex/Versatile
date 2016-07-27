@@ -80,11 +80,6 @@ namespace Versatile
             }
         }
 
-        public override string ToNormalizedString()
-        {
-            return this.Aggregate((p, n) => p + "." + n);
-        }
-
         public override int CompareComponent(Version other)
         {
 

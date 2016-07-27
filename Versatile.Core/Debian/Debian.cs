@@ -18,34 +18,24 @@ namespace Versatile
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                int result = this.Major.GetHashCode();
-                if (this.Patch.HasValue)
-                {
-                    result = result * 31 + this.Patch.GetHashCode();
-                }
-
-                if (this.PreRelease != null)
-                {
-                    result = result * 31 + this.PreRelease.GetHashCode();
-                }
-                return result;
-            }
+            return ((List<string>)this).GetHashCode();
         }
 
-        public override string ToNormalizedString()
+        public override string ToString()
         {
-            return this.Aggregate((p, n) => p + "." + n);
+            string e = this.Epoch.HasValue ? this.Epoch.ToString() + ":" : "";
+            string uv = this.UpstreamVersion;
+            string dr = !string.IsNullOrEmpty(this.DebianRevision) && this.DebianRevision != "0" ? "-" + this.DebianRevision : string.Empty;
+            return e + uv + dr;
         }
+
 
         public override int CompareComponent(Version other)
         {
 
-            List<string> a = this.Take(4).ToList();
-            List<string> b = other.Take(4).ToList();
-            int min = Math.Min(a.Count, b.Count);
-            for (int i = 0; i < min; i++)
+            List<string> a = this.ToList();
+            List<string> b = other.ToList();
+            for (int i = 0; i < 3; i++)
             {
                 var ac = a[i];
                 var bc = b[i];
@@ -68,33 +58,7 @@ namespace Versatile
                     if (r != 0) return r;
                 }
             }
-            if (this.Count == 4 && other.Count == 4)
-            {
-                return 0;
-            }
-            if (this.Count <= 4 && other.Count == 5) //b has prerelease so a > b
-            {
-                if (other[3].StartsWith("patch"))
-                {
-                    return -1;
-                }
-                else
-                {
-                    return 1;
-                }
-            }
-            else if (other.Count <= 4 && this.Count == 5) //a has prerelease so a > b
-            {
-                if (this[3].StartsWith("patch"))
-                {
-                    return 1;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            else return Version.CompareComponent(this[4].Split('.').ToList(), other[4].Split('.').ToList());
+            return 0;
         }
         #endregion
 
@@ -121,7 +85,7 @@ namespace Versatile
 
         public Debian Max()
         {
-            return new Debian("1", "zzzzzzzzzzzzzzzz", "zzzzzzzzzzzzzzzz");
+            return new Debian("1", "999999", "999999999");
         }
 
         public Debian Min()
@@ -142,15 +106,23 @@ namespace Versatile
         {
             this.Epoch = Int32.Parse(epoch);
             this.UpstreamVersion = upstream_version;
-            this.DebianRevision = debian_revision;
+            this.DebianRevision = !string.IsNullOrEmpty(debian_revision) ? debian_revision : "0";
             this.Add(epoch);
-            this.Add(upstream_version);
-            this.Add(debian_revision);
+            this.Add(this.UpstreamVersion);
+            this.Add(this.DebianRevision);
         }
         public Debian(List<string> d)
         {
             if (d.Count < 3) throw new ArgumentOutOfRangeException("d", "The length of the list must be at least 3.");
-            this.Epoch = Int32.Parse(d[0]);
+            if (!string.IsNullOrEmpty(d[0]))
+            {
+                this.Epoch = Int32.Parse(d[0]);
+                this.Add(this.Epoch.ToString());
+            }
+            else
+            {
+                this.Add(string.Empty);
+            }
             if (!string.IsNullOrEmpty(d[1]))
             {
                 this.UpstreamVersion = char.IsDigit(d[1][0]) ? d[1] : "0." + d[1];
@@ -165,12 +137,92 @@ namespace Versatile
             }
             else
             {
-                this.DebianRevision = d[2];
+                this.DebianRevision = "0";
             }
-
-            this.Add(this.Epoch.ToString());
             this.Add(this.UpstreamVersion);
             this.Add(this.DebianRevision);
+        }
+        #endregion
+
+        #region Operators
+        public static bool operator ==(Debian left, Debian right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Debian left, Debian right)
+        {
+            return !left.Equals(right);
+        }
+
+        public static bool operator <(Debian left, Debian right)
+        {
+            return CompareComponent(left, right) == -1;
+        }
+
+
+        public static bool operator >(Debian left, Debian right)
+        {
+            return CompareComponent(left, right) == 1;
+        }
+
+
+        public static bool operator <=(Debian left, Debian right)
+        {
+            return (new List<int> { 0, -1 }).Contains(CompareComponent(left, right));
+        }
+
+        public static bool operator >=(Debian left, Debian right)
+        {
+            return (new List<int> { 0, 1 }).Contains(CompareComponent(left, right));
+        }
+
+        public static Debian operator ++(Debian s)
+        {
+            if (s.PreRelease != null && s.PreRelease.Count > 0)
+            {
+                ++s.PreRelease;
+                return s;
+            }
+            else if (s.Patch.HasValue)
+            {
+                ++s.Patch;
+                return s;
+            }
+            else if (s.Minor.HasValue)
+            {
+                ++s.Minor;
+                return s;
+            }
+            else
+            {
+                ++s.Major;
+                return s;
+            }
+        }
+
+        public static Debian operator --(Debian s)
+        {
+            if (s.PreRelease != null && s.PreRelease.Count > 0)
+            {
+                --s.PreRelease;
+                return s;
+            }
+            else if (s.Patch.HasValue)
+            {
+                --s.Patch;
+                return s;
+            }
+            else if (s.Minor.HasValue)
+            {
+                --s.Minor;
+                return s;
+            }
+            else
+            {
+                --s.Major;
+                return s;
+            }
         }
         #endregion
     }

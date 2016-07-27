@@ -11,11 +11,14 @@ namespace Versatile
         public enum DefaultValue { Min, Max }
 
         #region Abstract methods
-        public abstract string ToNormalizedString();
         public abstract int CompareComponent(Version other);
         #endregion
 
         #region Virtual methods
+        public virtual string ToNormalizedString()
+        {
+            return this.Aggregate((p, n) => p + "." + n);
+        }
         #endregion
 
         #region Overriden methods

@@ -34,6 +34,10 @@ namespace Versatile.Tests
             Assert.Equal(d.DebianRevision, "8+etch1");
             Assert.Equal(d.Count, 3);
             Assert.Equal(d[1], "0.vers123-1.foosvn20060823-car");
+            d = Debian.Grammar.DebianVersion.Parse("2:3.6.19-1~bpo70+1+b1");
+            Assert.Equal(d.Epoch, 2);
+            Assert.Equal(d.UpstreamVersion, "3.6.19");
+            Assert.Equal(d.DebianRevision, "1~bpo70+1+b1");
         }
     }
 }

@@ -54,7 +54,7 @@ namespace Versatile
                         let uv = v.Count() > 1 ?  string.Join("-", v.Take(v.Count() - 1)) : v.First()
                         let dr = v.Count() == 1 ? string.Empty : v.Last()
                         select new List<string> { e.GetOrDefault(), !string.IsNullOrEmpty(uv) && char.IsDigit(uv[0]) ? uv : "0." + uv,
-                            !string.IsNullOrEmpty(dr) && char.IsDigit(dr[0]) ? dr : "0." + dr };
+                            !string.IsNullOrEmpty(dr) && char.IsDigit(dr[0]) ? dr : "1." + dr };
                 }
             }
 

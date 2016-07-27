@@ -73,6 +73,7 @@
     <Compile Include="Composer\ModelTests.cs" />
     <Compile Include="Composer\RangeTests.cs" />
     <Compile Include="Debian\GrammarTests.cs" />
+    <Compile Include="Debian\ModelTests.cs" />
     <Compile Include="Drupal\GrammarTests.cs" />
     <Compile Include="Drupal\ModelTests.cs" />
     <Compile Include="Drupal\RangeTests.cs" />
