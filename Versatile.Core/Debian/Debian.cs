@@ -32,17 +32,27 @@ namespace Versatile
 
         public override int CompareComponent(Version other)
         {
-
             List<string> a = this.ToList();
             List<string> b = other.ToList();
             for (int i = 0; i < 3; i++)
             {
-                var ac = a[i];
-                var bc = b[i];
+                string ac = a[i];
+                string bc = b[i];
+                if (ac.Length > bc.Length)
+                {
+                    bc = bc.PadRight(ac.Length, '0');
+                }
+                
+                else if (bc.Length > ac.Length)
+                {
+                    ac = ac.PadRight(bc.Length, '0');
+                }
+
+
                 int anum, bnum;
                 bool isanum = Int32.TryParse(ac, out anum);
                 bool isbnum = Int32.TryParse(bc, out bnum);
-                int r;
+                int r = 0;
                 if (isanum && isbnum)
                 {
                     r = anum.CompareTo(bnum);
@@ -50,11 +60,16 @@ namespace Versatile
                 }
                 else
                 {
-                    if (isanum)
-                        return -1;
-                    if (isbnum)
-                        return 1;
-                    r = String.CompareOrdinal(ac, bc);
+                    for (int j = 0; j < ac.Length;j++)
+                    {
+                        int s = 0;
+                        char acc = ac[j];
+                        char bcc = bc[j];
+                        if (acc == '~' && bcc != '~') s =  -1;
+                        else if (bcc == '~' && acc != '~') s = 1;
+                        else s = acc.CompareTo(bcc);
+                        if (s != 0) return s;
+                    }                //r = String.CompareOrdinal(ac, bc);
                     if (r != 0) return r;
                 }
             }
@@ -104,10 +119,17 @@ namespace Versatile
         public Debian() : base() { }
         public Debian(string epoch, string upstream_version, string debian_revision)
         {
-            this.Epoch = Int32.Parse(epoch);
+            if (!string.IsNullOrEmpty(epoch))
+            {
+                this.Epoch = Int32.Parse(epoch);
+                this.Add(this.Epoch.ToString());
+            }
+            else
+            {
+                this.Add(string.Empty);
+            }
             this.UpstreamVersion = upstream_version;
             this.DebianRevision = !string.IsNullOrEmpty(debian_revision) ? debian_revision : "0";
-            this.Add(epoch);
             this.Add(this.UpstreamVersion);
             this.Add(this.DebianRevision);
         }
@@ -157,24 +179,26 @@ namespace Versatile
 
         public static bool operator <(Debian left, Debian right)
         {
-            return CompareComponent(left, right) == -1;
+            return CompareComponent(left, right) <= -1;
         }
 
 
         public static bool operator >(Debian left, Debian right)
         {
-            return CompareComponent(left, right) == 1;
+            return CompareComponent(left, right) >= 1;
         }
 
 
         public static bool operator <=(Debian left, Debian right)
         {
-            return (new List<int> { 0, -1 }).Contains(CompareComponent(left, right));
+            int c = CompareComponent(left, right);
+            return (c == 0) || (c <= -1);
         }
 
         public static bool operator >=(Debian left, Debian right)
         {
-            return (new List<int> { 0, 1 }).Contains(CompareComponent(left, right));
+            int c = CompareComponent(left, right);
+            return (c == 0) || (c >= 1); ;
         }
 
         public static Debian operator ++(Debian s)
@@ -224,6 +248,9 @@ namespace Versatile
                 return s;
             }
         }
+        #endregion
+
+        #region Public Static methods        
         #endregion
     }
 }

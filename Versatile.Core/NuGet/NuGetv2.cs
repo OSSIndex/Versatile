@@ -169,7 +169,7 @@ namespace Versatile
             }
 
             int result = Version.CompareTo(other.Version);
-
+            
             if (result != 0)
             {
                 return result;

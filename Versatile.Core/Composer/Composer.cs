@@ -79,7 +79,7 @@ namespace Versatile
 
         public Composer Max()
         {
-            return new Composer(1000000, 1000000, 0);
+            return new Composer(1000000, 1000000, 1000000);
         }
 
         public Composer Min()
@@ -147,7 +147,17 @@ namespace Versatile
                     if (isbnum)
                         return 1;
                     r = String.CompareOrdinal(ac, bc);
-                    if (r != 0) return r;
+                    if (r != 0)
+                    {
+                        if (r >= 1)
+                        {
+                            return 1;
+                        }
+                        else if (r <= -1)
+                        {
+                            return -1;
+                        }
+                    }
                 }
             }
             if (this.Count == 3 && other.Count == 3)

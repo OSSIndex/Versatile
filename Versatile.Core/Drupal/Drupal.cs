@@ -106,7 +106,17 @@ namespace Versatile
                     if (isbnum)
                         return 1;
                     r = String.CompareOrdinal(ac, bc);
-                    if (r != 0) return r;
+                    if (r != 0)
+                    {
+                        if (r >= 1)
+                        {
+                            return 1;
+                        }
+                        else if (r <= -1)
+                        {
+                            return -1;
+                        }
+                    }
                 }
             }
             if (this.Count == 4 && other.Count == 4)
@@ -136,6 +146,15 @@ namespace Versatile
                 }
             }
             else return Version.CompareComponent(this[4].Split('.').ToList(), other[4].Split('.').ToList());
+        }
+
+        public override string ToString()
+        {
+            string s = this.CoreCompatibility.ToString() + ".x-";
+            s += this.Major.HasValue ? this.Major.Value.ToString() : "0";
+            s += "." + (this.Patch.HasValue ? this.Patch.Value.ToString() : "0");
+            s += ReferenceEquals(this.PreRelease, null) || this.PreRelease.Count == 0 ? string.Empty : "-" + this.PreRelease.ToString();
+            return s;
         }
         #endregion
 
