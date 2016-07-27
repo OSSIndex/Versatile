@@ -20,6 +20,14 @@ namespace Versatile
             }
         }
 
+        public static Parser<char> Colon
+        {
+            get
+            {
+                return Parse.Char(':');
+            }
+        }
+
         public static Parser<char> Dash
         {
             get

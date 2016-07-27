@@ -50,6 +50,8 @@
     <Compile Include="Composer\Grammar.cs" />
     <Compile Include="Composer\Composer.cs" />
     <Compile Include="Composer\ComposerPreRelease.cs" />
+    <Compile Include="Debian\Debian.cs" />
+    <Compile Include="Debian\Grammar.cs" />
     <Compile Include="Drupal\Drupal.cs" />
     <Compile Include="Drupal\Grammar.cs" />
     <Compile Include="Grammar.cs" />
