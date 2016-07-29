@@ -40,12 +40,12 @@ namespace Versatile
                 string bc = b[i];
                 if (ac.Length > bc.Length)
                 {
-                    bc = bc.PadRight(ac.Length, '0');
+                    bc = bc.PadRight(ac.Length, char.MinValue);
                 }
                 
                 else if (bc.Length > ac.Length)
                 {
-                    ac = ac.PadRight(bc.Length, '0');
+                    ac = ac.PadRight(bc.Length, char.MinValue);
                 }
 
 
@@ -65,11 +65,40 @@ namespace Versatile
                         int s = 0;
                         char acc = ac[j];
                         char bcc = bc[j];
-                        if (acc == '~' && bcc != '~') s =  -1;
-                        else if (bcc == '~' && acc != '~') s = 1;
-                        else s = acc.CompareTo(bcc);
-                        if (s != 0) return s;
-                    }                //r = String.CompareOrdinal(ac, bc);
+                        if (acc == '~' && bcc != '~')
+                        {
+                            s = -1;
+                        }
+                        else if (bcc == '~' && acc != '~')
+                        {
+                            s = 1;
+                        }
+                        else if (!char.IsDigit(acc) && !char.IsDigit(bcc))
+                        {
+                            s = acc.CompareTo(bcc);
+                        }
+                        else if (char.IsDigit(acc) && !char.IsDigit(bcc))
+                        {
+                            s = -1;
+                        }
+                        else if (char.IsDigit(bcc) && !char.IsDigit(acc))
+                        {
+                            s = 1;
+                        }
+                        else
+                        {
+                            string ack = Parse.Number.Parse(ac.Substring(j));
+                            string bck = Parse.Number.Parse(bc.Substring(j));
+                            s = Int32.Parse(ack).CompareTo(Int32.Parse(bck));
+                            j += Math.Max(ack.Length, bck.Length) - 1;
+                            
+                        }
+                        if (s != 0)
+                        {
+                            if (s >= 1) return 1;
+                            else if (s <= -1) return -1;
+                        }
+                    }                
                     if (r != 0) return r;
                 }
             }

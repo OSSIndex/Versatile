@@ -21,6 +21,14 @@ namespace Versatile
                 }
             }
 
+            public new static Parser<string> Major
+            {
+                get
+                {
+                    return Parse.Char('v').Optional().Return(string.Empty).Then(v => NumericIdentifier).Token();
+                }
+            }
+
             public static Parser<string> PreReleaseSuffix
             {
                 get
@@ -148,14 +156,13 @@ namespace Versatile
                 get
                 {
                     return
-
                         Major
                         .Then(major => (Minor.XOr(Parse.Return(string.Empty)))
                         .Select(minor => major + "|" + minor))
                         .Then(minor => (Patch.XOr(Parse.Return(string.Empty)))
                         .Select(patch => (minor + "|" + patch)))
                         .Then(patch => (PreReleaseSuffix.XOr(Parse.Return(string.Empty)))
-                        .Select(prs => (patch + "|" + prs)))
+                        .Select(prs => (patch+ "|" + prs)))
                         .Then(prs => (BuildSuffix.XOr(Parse.Return(string.Empty)))
                         .Select(bs => (prs + "|" + bs)))
                         .Select(v => v.Split('|').ToList());
@@ -168,6 +175,20 @@ namespace Versatile
                 {
                     return SemanticVersionIdentifier.Select(v => new SemanticVersion(v.ToList()));
 
+                }
+            }
+
+            public static Parser<ComparatorSet<SemanticVersion>> EqualRange
+            {
+                get
+                {
+                    return
+                        from o in Equal
+                        from v in SemanticVersion
+                        select new ComparatorSet<SemanticVersion>
+                        {
+                            new Comparator<SemanticVersion> (ExpressionType.Equal, v)
+                        };
                 }
             }
 
@@ -243,7 +264,7 @@ namespace Versatile
             {
                 get
                 {
-                    return LessThanRange.Or(LessThanOrEqualRange).Or(GreaterThanRange).Or(GreaterThanOrEqualRange)
+                    return LessThanRange.Or(LessThanOrEqualRange).Or(GreaterThanRange).Or(GreaterThanOrEqualRange).Or(EqualRange)
                         .Or(SemanticVersion
                         .Select(v => new ComparatorSet<SemanticVersion>
                             {

@@ -17,7 +17,19 @@ namespace Versatile.Tests
         Debian d1 = Debian.Grammar.DebianVersion.Parse("2:3.6.19-1~bpo70+1+b1");
         Debian d2 = Debian.Grammar.DebianVersion.Parse("3:3.6.19-1~bpo70+1+b1");
         Debian d3 = Debian.Grammar.DebianVersion.Parse("3.6.19-1~bpo70+1+b1");
-
+        List<string[]> versions = new List<string[]> { //item 1 is greater than item 2
+  new string[] {"1.0.1","1.0.0"}
+, new string[] {"2.0.1","1.0.1"}
+, new string[] {"2.0.0","2.0.0~rc1"}
+, new string[] {"2.0.0~rc2","2.0.0~rc1"}
+, new string[] {"2.0.0~rc2+u1","2.0.0~rc2"}
+, new string[] {"1.0.3~rc2+b2","1.0.3~rc2+b1"}
+, new string[] {"2.0.0","2.0.0~b1"}
+, new string[] {"2.0.0+u10","2.0.0+u9"}
+, new string[] {"2.21-9","2.19-18+deb8u3"}
+, new string[] {"2.21-9","2.19-18+deb8u3"}
+, new string[] {"2:1.2498-1","2:1.2492-4"}
+};
 
         [Fact]
         public void CanConstruct()
@@ -41,7 +53,12 @@ namespace Versatile.Tests
         [Fact]
         public void CanCompareGreaterThan()
         {
+            Assert.True(Debian.Grammar.DebianVersion.Parse("2.0.0") > Debian.Grammar.DebianVersion.Parse("2.0.0~rc1"));
             Assert.True(d100 > d100rc1);
+            foreach (string[] v in versions)
+            {
+                Assert.True(Debian.Grammar.DebianVersion.Parse(v[0]) > Debian.Grammar.DebianVersion.Parse(v[1]));
+            }
         }
     }
 }

@@ -152,6 +152,14 @@ namespace Versatile
             }
         }
 
+        public static Parser<ExpressionType> Equal
+        {
+            get
+            {
+                return Sprache.Parse.String("=").Once().Token().Return(ExpressionType.Equal);
+            }
+        }
+
         public static Parser<ExpressionType> LessThan
         {
             get
@@ -159,8 +167,6 @@ namespace Versatile
                 return Sprache.Parse.String("<").Once().Token().Return(ExpressionType.LessThan);
             }
         }
-
-    
 
         public static Parser<ExpressionType> LessThanOrEqual
         {
