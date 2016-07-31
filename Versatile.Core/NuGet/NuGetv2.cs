@@ -206,6 +206,14 @@ namespace Versatile
         {
             return new NuGetv2(0, 0, 0, 0);
         }
+
+        public Parser<NuGetv2> Parser
+        {
+            get
+            {
+                return Grammar.NuGetv2Version;
+            }
+        }
         #endregion
 
         #region Public static methods

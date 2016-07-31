@@ -189,6 +189,14 @@ namespace Versatile
             return new Drupal(0, 0, 0, 0);
         }
 
+        public Parser<Drupal> Parser
+        {
+            get
+            {
+                return Grammar.DrupalVersion;
+            }
+        }
+
         #endregion
 
         #region Operators

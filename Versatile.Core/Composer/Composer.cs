@@ -87,6 +87,13 @@ namespace Versatile
             return new Composer(0, 0, 0);
         }
 
+        public Parser<Composer> Parser
+        {
+            get
+            {
+                return Grammar.ComposerVersion;
+            }
+        }
         #endregion
 
         #region Overriden methods

@@ -34,6 +34,8 @@ namespace Versatile
         {
             List<string> a = this.ToList();
             List<string> b = other.ToList();
+            if (string.IsNullOrEmpty(a[0])) a[0] = "0";
+            if (string.IsNullOrEmpty(b[0])) b[0] = "0";
             for (int i = 0; i < 3; i++)
             {
                 string ac = a[i];
@@ -142,6 +144,13 @@ namespace Versatile
         public int? Epoch { get; set; }
         public string UpstreamVersion { get; set; }
         public string DebianRevision { get; set; }
+        public Parser<Debian> Parser
+        {
+            get
+            {
+                return Grammar.DebianVersion;
+            }
+        }
         #endregion
 
         #region Constructors

@@ -194,6 +194,92 @@ namespace Versatile
             }
         }
 
+        public static Parser<ComparatorSet<T>> LessThanRange
+        {
+            get
+            {
+                return
+                    from o in LessThan
+                    from v in V.Parser
+                    select new ComparatorSet<T>
+                    {
+                            new Comparator<T> (ExpressionType.GreaterThan, V.Min()),
+                            new Comparator<T> (ExpressionType.LessThan, v)
+                    };
+            }
+        }
+
+
+        public static Parser<ComparatorSet<T>> LessThanOrEqualRange
+        {
+            get
+            {
+                return
+                    from o in LessThanOrEqual
+                    from v in V.Parser
+                    select new ComparatorSet<T>
+                    {
+                            new Comparator<T> (ExpressionType.GreaterThan, V.Min()),
+                            new Comparator<T> (ExpressionType.LessThanOrEqual, v)
+                    };
+            }
+        }
+
+        public static Parser<ComparatorSet<T>> GreaterThanRange
+        {
+            get
+            {
+                return
+                    from o in GreaterThan
+                    from v in V.Parser
+                    select new ComparatorSet<T>
+                    {
+                            new Comparator<T> (ExpressionType.LessThan, V.Max()),
+                            new Comparator<T> (ExpressionType.GreaterThan, v)
+                    };
+            }
+        }
+
+        public static Parser<ComparatorSet<T>> GreaterThanOrEqualRange
+        {
+            get
+            {
+                return
+                    from o in GreaterThanOrEqual
+                    from v in V.Parser
+                    select new ComparatorSet<T>
+                    {
+                            new Comparator<T> (ExpressionType.LessThan, V.Max()),
+                            new Comparator<T> (ExpressionType.GreaterThanOrEqual, v)
+                    };
+            }
+        }
+
+        public static Parser<ComparatorSet<T>> EqualRange
+        {
+            get
+            {
+                return
+                    from o in Equal
+                    from v in V.Parser
+                    select new ComparatorSet<T>
+                    {
+                        new Comparator<T> (ExpressionType.Equal, v)
+                    };
+            }
+        }
+
+
+        public static Parser<ComparatorSet<T>> OneSidedRange
+        {
+            get
+            {
+                return LessThanRange.Or(LessThanOrEqualRange).Or(GreaterThanRange).Or(GreaterThanOrEqualRange)
+                    .Or(V.Parser.Select(s => new ComparatorSet<T> { new Comparator<T>(ExpressionType.Equal, s) }));
+            }
+        }
+
+
         public static Parser<ExpressionType> OneSidedIntervalOperator
         {
             get

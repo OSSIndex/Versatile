@@ -13,6 +13,13 @@ namespace Versatile
     {
         #region Public properties
         public IEnumerable<string> Build { get; set; } = null;
+        public Parser<SemanticVersion> Parser
+        {
+            get
+            {
+                return Grammar.SemanticVersion;
+            }
+        }
         #endregion
 
         #region Constructors
