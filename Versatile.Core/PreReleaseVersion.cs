@@ -69,7 +69,7 @@ namespace Versatile
             }
             else
             {
-                return this.Aggregate((p, v) => p + "." + v);
+                return this.Aggregate((p, v) => p + "" + v);
             }
         
     }

@@ -33,6 +33,23 @@ namespace Versatile.Tests
             Assert.Equal("0", d[3]);
             Assert.Equal("alpha.1", d[4]);
             Assert.Throws<ParseException>(() => Drupal.Grammar.ContribIdentifier.End().Parse("7.x-1.0-release1"));
+            d = Drupal.Grammar.ContribIdentifierWithoutCoreIdentitifier.Parse("6.5");
+            Assert.Equal(d[0], "6");
+            Assert.Equal(d[1], "5");
+            d = Drupal.Grammar.ContribIdentifierWithoutCoreIdentitifier.Parse("4.2.7");
+            Assert.Equal(d[0], "4");
+            Assert.Equal(d[1], "2");
+            Assert.Equal(d[3], "7");
+            d = Drupal.Grammar.ContribIdentifierWithoutCoreIdentitifier.Parse("4.5-alpha1");
+            Assert.Equal(d[0], "4");
+            Assert.Equal(d[1], "5");
+            Assert.Equal(d[2], "0");
+            d = Drupal.Grammar.ContribIdentifierWithoutCoreIdentitifier.Parse("6.5.3_rc2");
+            Assert.Equal(d[0], "6");
+            Assert.Equal(d[1], "5");
+            Assert.Equal(d[2], "0");
+            Assert.Equal(d[3], "3");
+            Assert.Equal(d[4], "rc.2");
         }
 
         [Fact]
@@ -49,6 +66,17 @@ namespace Versatile.Tests
             Assert.Equal(0, v.Patch);
             Assert.Equal("dev", v.PreRelease.ToString());
             Assert.Throws<ParseException>(() => Drupal.Grammar.DrupalVersion.End().Parse("7.x-1.0-release1"));
+        }
+
+        [Fact]
+        public void CanParseCommaDelimitedRange()
+        {
+            List<ComparatorSet<Drupal>> r = Drupal.Grammar.CommaDelimitedRange.Parse("4.4.0,4.5.0,4.6-rc1");
+            Assert.NotEmpty(r);
+            Assert.Equal(r[0].First().Version.ToString(), "4.x-4.0");
+            Assert.Equal(r[1].First().Version.ToString(), "4.x-5.0");
+            Assert.Equal(r[2].First().Version.ToString(), "4.x-6.0-rc1");
+
         }
     }
 }

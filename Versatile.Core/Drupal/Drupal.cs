@@ -20,8 +20,7 @@ namespace Versatile
         {
             this.CoreCompatibility = Int32.Parse(d[0]);
             this.Insert(0, d[0]);
-
-            if (d.Count == 5)
+            if (d.Count == 5 && !string.IsNullOrEmpty(d[4]))
             {
                 IResult<List<string>> pr = Grammar.PreReleaseIdentifier.TryParse("-" + d[4]);
                 if (pr.WasSuccessful)

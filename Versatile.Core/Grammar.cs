@@ -44,6 +44,13 @@ namespace Versatile
             }
         }
 
+        public static Parser<char> Comma
+        {
+            get
+            {
+                return Parse.Char(',');
+            }
+        }
 
         public static Parser<string> Digits
         {
@@ -306,6 +313,17 @@ namespace Versatile
             get
             {
                 return CaretRangeIdentifier.Select(cr => CaretVersionToRange(cr));
+            }
+        }
+
+        public static Parser<List<ComparatorSet<T>>> CommaDelimitedRange
+        {
+            get
+            {
+                return
+                    from cd in V.Parser.DelimitedBy(Comma.Token())
+                    let x = cd.Select(c => new ComparatorSet<T> { new Comparator<T>(ExpressionType.Equal, c) }) .ToList()
+                    select x;
             }
         }
 
