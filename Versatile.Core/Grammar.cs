@@ -52,6 +52,30 @@ namespace Versatile
             }
         }
 
+        public static Parser<char> Ampersand
+        {
+            get
+            {
+                return Parse.Char('&');
+            }
+        }
+
+        public static Parser<char> OpenBracket
+        {
+            get
+            {
+                return Parse.Char('(');
+            }
+        }
+
+        public static Parser<char> ClosedBracket
+        {
+            get
+            {
+                return Parse.Char(')');
+            }
+        }
+
         public static Parser<string> Digits
         {
             get

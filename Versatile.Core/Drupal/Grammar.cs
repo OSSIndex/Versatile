@@ -55,6 +55,22 @@ namespace Versatile
                 }
             }
 
+            public static Parser<List<string>> ContribIdentifierWithPatchXIdentifier
+            {
+                get
+                {
+                    return
+                        from c in CoreIdentifier
+                        from dash in Dash
+                        from major in Major
+                        from dot in Dot
+                        from x in XIdentifier
+                        from pre in PreReleaseIdentifier.Optional().Select(p => p.GetOrElse(null))
+                        let has_pre = pre is List<string>
+                        select has_pre ? new List<string> { c, major, "", "0", string.Join(".", pre) } : new List<string> { c, major, "", "0" };
+                }
+            }
+
             public static Parser<List<string>> ContribIdentifierWithoutCoreIdentitifier
             {
                 get
@@ -70,12 +86,24 @@ namespace Versatile
                 }
             }
 
+            public static Parser<List<string>> ContribIdentifierWithCoreIdentitifierOnly
+            {
+                get
+                {
+                    return
+                        from c in CoreIdentifier
+                        select new List<string> { c, "0", "0", "0" }; 
+                    
+                }
+            }
+
             public static Parser<Drupal> DrupalVersion
             {
                 get
                 {
                     return
-                        from dv in ContribIdentifier.Or(ContribIdentifierWithoutCoreIdentitifier)
+                        from dv in ContribIdentifierWithPatchXIdentifier.Or(ContribIdentifier)
+                        .Or(ContribIdentifierWithCoreIdentitifierOnly).Or(ContribIdentifierWithoutCoreIdentitifier)
                         select new Drupal(dv);
                 }
             }
@@ -90,11 +118,49 @@ namespace Versatile
                 }
             }
 
-            public static Parser<ComparatorSet<Drupal>> Range
+            public static Parser<ComparatorSet<Drupal>> TwoSidedIntervalRange
             {
                 get
                 {
-                    return OneSidedRange;
+                    return
+                        from le in OneSidedIntervalOperator
+                        from l in DrupalVersion.Token()
+                        from a in Parse.WhiteSpace.Or(Ampersand).Token().Optional()
+                        from re in OneSidedIntervalOperator
+                        from r in DrupalVersion.Token()
+                        select new ComparatorSet<Drupal>
+                        {
+                            new Comparator<Drupal>(le,  l),
+                            new Comparator<Drupal>(re, r)
+                        };
+                }
+            }
+
+            public static Parser<ComparatorSet<Drupal>> BracketedTwoSidedIntervalRange
+            {
+                get
+                {
+                    return
+                    from b1 in OpenBracket
+                    from d in TwoSidedIntervalRange
+                    from b2 in ClosedBracket
+                    select d;
+                }
+            }
+
+            public static Parser<ComparatorSet<Drupal>> OneOrTwoSidedRange
+            {
+                get
+                {
+                    return BracketedTwoSidedIntervalRange.Or(TwoSidedIntervalRange).Or(OneSidedRange);
+                }
+            }
+
+            public static Parser<List<ComparatorSet<Drupal>>> Range
+            {
+                get
+                {
+                    return CommaDelimitedRange.Or(OneOrTwoSidedRange.DelimitedBy(Parse.String("||").Token())).Select(r => r.ToList());
                 }
             }
 

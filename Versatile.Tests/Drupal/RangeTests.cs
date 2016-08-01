@@ -10,19 +10,14 @@ namespace Versatile.Tests
 {
     public partial class DrupalTests
     {
-        /*
         [Fact]
-        public void CanRangeIntersect()
+        public void CanRangeIntersectCommaDelimitedRange()
         {
             string e;
-            Assert.True(Drupal.RangeIntersect("4.5.7", "(2.4, 6.1.3-alpha5]", out e));
-            Assert.False(Drupal.RangeIntersect("4.5.7", "(4.5.7, 6.1.3-alpha5]", out e));
-            Assert.True(Drupal.RangeIntersect("4.5.7", "[4.5.7, 6.1.3-alpha5]", out e));
-            Assert.True(Drupal.RangeIntersect("(5.5,]", "(2.4, 6.1.3-alpha5]", out e));
-            Assert.True(Drupal.RangeIntersect("(11, 11.9)", "(11, 11.3.0-beta7]", out e));
-            Assert.True(Drupal.RangeIntersect("(11, 13.3.0-beta7]", "12", out e));
-            Assert.False(Drupal.RangeIntersect("(11, 13.3.0-beta7]", "13.4", out e));
+            Assert.True(Drupal.RangeIntersect("6.5.3, 6.5.2, 6.5", "6.x-5.0", out e));
+            Assert.True(Drupal.RangeIntersect("6.5.3, 6.5.2, 6.5", ">=6.x", out e));
+            Assert.False(Drupal.RangeIntersect("6.5.3, 6.5.2, 6.5", "<6.x", out e));
+            Assert.False(Drupal.RangeIntersect("6.5.3, 6.5.2, 6.5", "6.x-4.0", out e));
         }
-        */
     }
 }
