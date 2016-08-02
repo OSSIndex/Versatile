@@ -36,6 +36,14 @@ namespace Versatile
             }
         }
 
+        public static Parser<char> Underscore
+        {
+            get
+            {
+                return Parse.Char('_');
+            }
+        }
+
         public static Parser<char> Caret
         {
             get

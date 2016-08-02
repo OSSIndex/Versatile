@@ -13,7 +13,7 @@ namespace Versatile
     {
         public class Grammar : Versatile.Grammar<Drupal>
         {
-            public static Parser<string> CoreIdentifier
+            public static Parser<string> CoreIdentifierPrefix
             {
                 get
                 {
@@ -25,27 +25,16 @@ namespace Versatile
                 }
             }
 
-            public static Parser<string> CoreIdentifierNumericOnly
-            {
-                get
-                {
-                    return
-                        from digits in Digits
-                        select digits;
-                }
-            }
-
-
             public static Parser<List<string>> PreReleaseIdentifier
             {
                 get
                 {
 
                     return
-                        from dash in Dash.Or(Parse.Char('_'))
+                        from dash in Dash.Or(Underscore)
                         from s in Parse.String("dev").Or(Parse.String("unstable")).Or(Parse.String("alpha"))
                             .Or(Parse.String("beta")).Or(Parse.String("rc")).Or(Parse.String("rev")).Text()
-                        from d in NumericIdentifier.Optional().Select(o => o.GetOrElse(s == "dev"? string.Empty : "0"))
+                        from d in NumericIdentifier.Or(Dot.Return(string.Empty)).Optional().Select(o => o.GetOrElse(s == "dev"? string.Empty : "0"))
                         let has_number = !string.IsNullOrEmpty(d)
                         select has_number ? new List<string> { s, d } : new List<string> { s };
                 }
@@ -56,8 +45,8 @@ namespace Versatile
                 get
                 {
                     return
-                        from c in CoreIdentifier
-                        from dash in Dash
+                        from c in CoreIdentifierPrefix
+                        from dash in Dash.Or(Underscore)
                         from major in Major
                         from patch in Patch
                         from pre in PreReleaseIdentifier.Optional().Select(p => p.GetOrElse(null))
@@ -71,7 +60,7 @@ namespace Versatile
                 get
                 {
                     return
-                        from c in CoreIdentifier
+                        from c in CoreIdentifierPrefix
                         from dash in Dash
                         from major in Major
                         from dot in Dot
@@ -82,7 +71,7 @@ namespace Versatile
                 }
             }
 
-            public static Parser<List<string>> ContribIdentifierWithoutCoreIdentitifier
+            public static Parser<List<string>> CoreIdentitifier
             {
                 get
                 {
@@ -90,12 +79,14 @@ namespace Versatile
                         from xdl in NumericIdentifier.Or(XIdentifier).DelimitedBy(Dot).Select(nid => nid.ToList())
                         let d = xdl.Select(d => d == "x" ? "0" : d).ToList()
                         from prerelease in PreReleaseIdentifier.Optional()
+                        let has_last_prerelease = !prerelease.IsDefined && (d.Last().Contains("-") || d.Last().Contains("_"))
+                        let last_prerelease = has_last_prerelease ? d.Last().Split(new char[] { '-', '_'}).Last() : string.Empty
                         let has1 = d.Count() == 1
-                        let d1 = has1 ? new List<string> { d[0], "0", "0", "0", prerelease.IsDefined ? string.Join(".", prerelease.Get()) : string.Empty } : null
+                        let d1 = has1 ? new List<string> { d[0], "0", "0", "0", prerelease.IsDefined ? string.Join(".", prerelease.Get()) : has_last_prerelease ? last_prerelease : string.Empty } : null
                         let has2 = d.Count() == 2
-                        let d2 = has2 ? new List<string> { d[0], d[1], "0", "0", prerelease.IsDefined ? string.Join(".", prerelease.Get()) : string.Empty } : null
+                        let d2 = has2 ? new List<string> { d[0], d[1], "0", "0", prerelease.IsDefined ? string.Join(".", prerelease.Get()) : has_last_prerelease ? last_prerelease : string.Empty } : null
                         let has3 = d.Count() == 3
-                        let d3 = has3 ? new List<string> { d[0], d[1], "0", d[2], prerelease.IsDefined ? string.Join(".", prerelease.Get()) : string.Empty } : null
+                        let d3 = has3 ? new List<string> { d[0], d[1], "0", d[2], prerelease.IsDefined ? string.Join(".", prerelease.Get()) : has_last_prerelease ? last_prerelease : string.Empty } : null
                         select has1 ? d1 : has2 ? d2 : has3 ? d3 : d.Take(5).ToList();
                 }
             }
@@ -105,9 +96,20 @@ namespace Versatile
                 get
                 {
                     return
-                        from c in CoreIdentifier
+                        from c in CoreIdentifierPrefix
                         select new List<string> { c, "0", "0", "0" }; 
                     
+                }
+            }
+
+            public static Parser<List<string>> ContribIdentifierWithDashOnly
+            {
+                get
+                {
+                    return
+                        from d in Dash
+                        select new List<string> { "1", "0", "0", "0" };
+
                 }
             }
 
@@ -117,7 +119,8 @@ namespace Versatile
                 {
                     return
                         from dv in ContribIdentifierWithPatchXIdentifier.Or(ContribIdentifier)
-                        .Or(ContribIdentifierWithCoreIdentitifierOnly).Or(ContribIdentifierWithoutCoreIdentitifier)
+                        .Or(ContribIdentifierWithCoreIdentitifierOnly).Or(CoreIdentitifier)
+                        .Or(ContribIdentifierWithDashOnly)
                         select new Drupal(dv);
                 }
             }
