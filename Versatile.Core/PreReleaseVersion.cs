@@ -67,12 +67,17 @@ namespace Versatile
             {
                 return this[0];
             }
-            else
+            else if (this.Count == 2)
             {
                 return this.Aggregate((p, v) => p + "" + v);
             }
-        
-    }
+            else
+            {
+                return this.Aggregate((p, v) => p + "." + v);
+            }
+
+
+        }
 
         #endregion
 

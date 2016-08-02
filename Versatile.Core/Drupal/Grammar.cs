@@ -25,6 +25,17 @@ namespace Versatile
                 }
             }
 
+            public static Parser<string> CoreIdentifierNumericOnly
+            {
+                get
+                {
+                    return
+                        from digits in Digits
+                        select digits;
+                }
+            }
+
+
             public static Parser<List<string>> PreReleaseIdentifier
             {
                 get
@@ -76,13 +87,16 @@ namespace Versatile
                 get
                 {
                     return
-                        from d in NumericIdentifier.DelimitedBy(Dot).Select(nid => nid.ToList())
+                        from xdl in NumericIdentifier.Or(XIdentifier).DelimitedBy(Dot).Select(nid => nid.ToList())
+                        let d = xdl.Select(d => d == "x" ? "0" : d).ToList()
                         from prerelease in PreReleaseIdentifier.Optional()
+                        let has1 = d.Count() == 1
+                        let d1 = has1 ? new List<string> { d[0], "0", "0", "0", prerelease.IsDefined ? string.Join(".", prerelease.Get()) : string.Empty } : null
                         let has2 = d.Count() == 2
                         let d2 = has2 ? new List<string> { d[0], d[1], "0", "0", prerelease.IsDefined ? string.Join(".", prerelease.Get()) : string.Empty } : null
                         let has3 = d.Count() == 3
                         let d3 = has3 ? new List<string> { d[0], d[1], "0", d[2], prerelease.IsDefined ? string.Join(".", prerelease.Get()) : string.Empty } : null
-                        select has2 ? d2 : has3 ? d3 : d.Take(5).ToList();
+                        select has1 ? d1 : has2 ? d2 : has3 ? d3 : d.Take(5).ToList();
                 }
             }
 
@@ -160,7 +174,7 @@ namespace Versatile
             {
                 get
                 {
-                    return CommaDelimitedRange.Or(OneOrTwoSidedRange.DelimitedBy(Parse.String("||").Token())).Select(r => r.ToList());
+                    return CommaDelimitedRange.End().Or(OneOrTwoSidedRange.DelimitedBy(Parse.String("||").Token()).End()).Select(r => r.ToList());
                 }
             }
 

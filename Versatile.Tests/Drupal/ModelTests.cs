@@ -17,7 +17,7 @@ namespace Versatile.Tests
         Drupal d7201b11 = new Drupal(7, 2, 0, 1, "beta111");
 
         [Fact]
-        public void CanCompareEqual()
+        public void ModelCanCompareEqual()
         {
             Assert.Equal(d6207, new Drupal(new List<string> { "6", "2", "0", "7" }));
             Assert.True(d6207 == new Drupal(new List<string> { "6", "2", "0", "7" }));
@@ -27,7 +27,7 @@ namespace Versatile.Tests
 
 
         [Fact]
-        public void CanCompareLessThan()
+        public void ModelCanCompareLessThan()
         {
             Assert.True(d5207 < d6207);
             Assert.True(d6207 < d6407);
@@ -38,7 +38,7 @@ namespace Versatile.Tests
         }
 
         [Fact]
-        public void CanRangeIntersect()
+        public void ModelCanRangeIntersect()
         {
             string o;
             Assert.True(Drupal.RangeIntersect("<6.x-2.0", "5.x-3.0", out o));

@@ -74,6 +74,7 @@ namespace Versatile.Tests
             Assert.True(v.CoreCompatibility == 8);
             Assert.Equal(v.Major, 2);
             Assert.Equal(v.Patch, 0);
+            v = Drupal.Grammar.DrupalVersion.Parse("4.7.x");
         }
 
         [Fact]
@@ -84,7 +85,9 @@ namespace Versatile.Tests
             Assert.Equal(r[0].First().Version.ToString(), "4.x-4.0");
             Assert.Equal(r[1].First().Version.ToString(), "4.x-5.0");
             Assert.Equal(r[2].First().Version.ToString(), "4.x-6.0-rc1");
-
+            r = Drupal.Grammar.CommaDelimitedRange.Parse("6,5");
+            Assert.Equal(r[0].First().Version.ToString(), "6.x-0.0");
+            r = Drupal.Grammar.CommaDelimitedRange.Parse("6.2,6.0,6.0,5.0,5.7,5,5.2,6.0,5.4,6.0,5.5.,5.0,5.0,6,5.0,5.8,5.0,5.5,5.6,6.0,6.0,5.3,6.0,6.1,5.1,6.0,6.0");
         }
 
         [Fact]

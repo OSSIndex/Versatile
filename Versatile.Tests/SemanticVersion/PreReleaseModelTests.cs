@@ -72,10 +72,10 @@ namespace Versatile.Tests
             SemanticVersion bx860new = new SemanticVersion(0, 0, 0, "beta.x86.0.new");
             PreReleaseVersion v11 = ++(v1.PreRelease);
             PreReleaseVersion v21 = ++(v2.PreRelease);
-            Assert.Equal(v11.ToString(), "alpha.2");
+            Assert.Equal(v11.ToString(), "alpha2");
             Assert.Equal(v11[1], "2");
             Assert.Equal(v21[1], "3");
-            Assert.Equal(v21.ToString(), "alpha.3");
+            Assert.Equal(v21.ToString(), "alpha3");
             ++(v3.PreRelease);
             Assert.Equal(v3.PreRelease.Count, 2);
             Assert.Equal(v3.PreRelease[1], "1");
@@ -96,7 +96,7 @@ namespace Versatile.Tests
             PreReleaseVersion v21 = --(v2.PreRelease);
             Assert.Equal(v11.Count, 1);
             Assert.Equal(v11.ToString(), "alpha");
-            Assert.Equal(v21.ToString(), "alpha.1");
+            Assert.Equal(v21.ToString(), "alpha1");
             Assert.Equal((--v3).ToString(), "0.0.0");
             Assert.Equal((--v4).ToString(), "0.0.0.beta");            
         }

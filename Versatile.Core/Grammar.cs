@@ -351,6 +351,25 @@ namespace Versatile
             }
         }
 
+        public static Parser<List<ComparatorSet<T>>> BracketedRange(Parser<List<ComparatorSet<T>>> range)
+        {
+            return
+                from b1 in OpenBracket
+                from r in range
+                from b2 in ClosedBracket
+                select r;
+
+        }
+        public static Parser<ComparatorSet<T>> BracketedRange(Parser<ComparatorSet<T>> range)
+        {
+            return
+                from b1 in OpenBracket
+                from r in range
+                from b2 in ClosedBracket
+                select r;
+        }
+
+
         public static ComparatorSet<T> CaretVersionToRange(Tuple<int, int, int> cv)
         {
             int major = cv.Item1;
