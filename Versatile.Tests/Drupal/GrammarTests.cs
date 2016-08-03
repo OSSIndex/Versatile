@@ -21,23 +21,14 @@ namespace Versatile.Tests
             List<string> d;
             Assert.Equal("6", dx);
             Assert.Throws<ParseException>(() => Drupal.Grammar.CoreIdentifierPrefix.Parse("A.x"));
-            d = Drupal.Grammar.CoreIdentitifier.Parse("6.5");
+            d = Drupal.Grammar.ContribIdentitifierWithoutCoreIdentifierPrefix.Parse("6.5");
             Assert.Equal(d[0], "6");
             Assert.Equal(d[1], "5");
-            d = Drupal.Grammar.CoreIdentitifier.Parse("4.2.7");
+            d = Drupal.Grammar.ContribIdentitifierWithoutCoreIdentifierPrefix.Parse("4.2.7");
             Assert.Equal(d[0], "4");
             Assert.Equal(d[1], "2");
             Assert.Equal(d[3], "7");
-            d = Drupal.Grammar.CoreIdentitifier.Parse("4.5-alpha1");
-            Assert.Equal(d[0], "4");
-            Assert.Equal(d[1], "5");
-            Assert.Equal(d[2], "0");
-            d = Drupal.Grammar.CoreIdentitifier.Parse("6.5.3_rc2");
-            Assert.Equal(d[0], "6");
-            Assert.Equal(d[1], "5");
-            Assert.Equal(d[2], "0");
-            Assert.Equal(d[3], "3");
-            Assert.Equal(d[4], "rc.2");
+           
         }
 
         [Fact]
@@ -51,6 +42,30 @@ namespace Versatile.Tests
             Assert.Equal("3", d[1]);
             Assert.Equal("0", d[3]);
             Assert.Equal("alpha.1", d[4]);
+            d = Drupal.Grammar.ContribIdentifierWithPreReleaseOnly.Parse("6.x-dev");
+            Assert.Equal(d[0], "6");
+            d = Drupal.Grammar.ContribIdentitifierWithoutCoreIdentifierPrefix.Parse("5.1_rev1.1");
+            Assert.Equal(d[4], "rev.1");
+            d = Drupal.Grammar.ContribIdentitifierWithNumericCoreIdentifier.Parse("4.6_1.0");
+            Assert.Equal(d[0], "4");
+            d = Drupal.Grammar.ContribIdentitifierWithoutCoreIdentifierPrefix.Parse("4.5-alpha1");
+            Assert.Equal(d[0], "4");
+            Assert.Equal(d[1], "5");
+            Assert.Equal(d[2], "0");
+            d = Drupal.Grammar.ContribIdentitifierWithoutCoreIdentifierPrefix.Parse("6.5.3_rc2");
+            Assert.Equal(d[0], "6");
+            Assert.Equal(d[1], "5");
+            Assert.Equal(d[2], "0");
+            Assert.Equal(d[3], "3");
+            Assert.Equal(d[4], "rc.2");
+            d = Drupal.Grammar.ContribIdentitifierWithoutCoreIdentifierPrefix.Parse("4.7_rev1.1");
+            Assert.Equal(d[4], "rev.1");
+            d = Drupal.Grammar.ContribIdentitifierWithNumericCoreIdentifier.Parse("4.x_1.2");
+            Assert.Equal("4", d[0]);
+            //v = Drupal.Grammar.DrupalVersion.Parse("-");
+            //Assert.Equal(v.CoreCompatibility, 1);
+            //Assert.Equal(v.Major, 0);
+
             Assert.Throws<ParseException>(() => Drupal.Grammar.ContribIdentifier.End().Parse("7.x-1.0-release1"));
         }
 
@@ -77,11 +92,17 @@ namespace Versatile.Tests
             Assert.Equal(v.Patch, 0);
             v = Drupal.Grammar.DrupalVersion.Parse("4.7.x");
             Assert.Equal(4, v.CoreCompatibility);
-            v = Drupal.Grammar.DrupalVersion.Parse("4.x_1.2");
-            Assert.Equal(1, v.Major);
-            v = Drupal.Grammar.DrupalVersion.Parse("-");
-            Assert.Equal(v.CoreCompatibility, 1);
+            v = Drupal.Grammar.DrupalVersion.Parse("4.7_1.2");
+            Assert.Equal(v.Major, 7);
+            Assert.Equal(v.CoreCompatibility, 4);
+            Assert.Equal(v.Minor, 1);
+            Assert.Equal(v.Patch, 2);
+            v = Drupal.Grammar.DrupalVersion.Parse("7.x-dev");
             Assert.Equal(v.Major, 0);
+            Assert.Equal(v.CoreCompatibility, 7);
+            v = Drupal.Grammar.DrupalVersion.Parse("-");
+            Assert.Equal(v.Major, 0);
+            Assert.Equal(1, v.CoreCompatibility);
         }
 
         [Fact]

@@ -34,9 +34,26 @@ namespace Versatile
                         from dash in Dash.Or(Underscore)
                         from s in Parse.String("dev").Or(Parse.String("unstable")).Or(Parse.String("alpha"))
                             .Or(Parse.String("beta")).Or(Parse.String("rc")).Or(Parse.String("rev")).Text()
-                        from d in NumericIdentifier.Or(Dot.Return(string.Empty)).Optional().Select(o => o.GetOrElse(s == "dev"? string.Empty : "0"))
+                        from d in NumericIdentifier.Optional().Select(o => o.GetOrElse(s == "dev" ? string.Empty : "0"))
                         let has_number = !string.IsNullOrEmpty(d)
                         select has_number ? new List<string> { s, d } : new List<string> { s };
+                }
+            }
+
+            public static Parser<List<string>> CoreIdentifier
+            {
+                get
+                {
+                    return
+                        from xdl in NumericIdentifier.Or(XIdentifier).DelimitedBy(Dot).Select(nid => nid.ToList())
+                        let d = xdl.Select(d => d == "x" ? "0" : d).ToList()
+                        let has1 = d.Count() == 1
+                        let d1 = has1 ? new List<string> { d[0], "0", "0" } : null
+                        let has2 = d.Count() == 2
+                        let d2 = has2 ? new List<string> { d[0], d[1], "0" } : null
+                        let has3 = d.Count() == 3
+                        let d3 = has3 ? new List<string> { d[0], d[1], "0", d[2] } : null
+                        select has1 ? d1 : has2 ? d2 : has3 ? d3 : d.Take(5).ToList();
                 }
             }
 
@@ -71,7 +88,7 @@ namespace Versatile
                 }
             }
 
-            public static Parser<List<string>> CoreIdentitifier
+            public static Parser<List<string>> ContribIdentitifierWithoutCoreIdentifierPrefix
             {
                 get
                 {
@@ -79,19 +96,34 @@ namespace Versatile
                         from xdl in NumericIdentifier.Or(XIdentifier).DelimitedBy(Dot).Select(nid => nid.ToList())
                         let d = xdl.Select(d => d == "x" ? "0" : d).ToList()
                         from prerelease in PreReleaseIdentifier.Optional()
-                        let has_last_prerelease = !prerelease.IsDefined && (d.Last().Contains("-") || d.Last().Contains("_"))
-                        let last_prerelease = has_last_prerelease ? d.Last().Split(new char[] { '-', '_'}).Last() : string.Empty
                         let has1 = d.Count() == 1
-                        let d1 = has1 ? new List<string> { d[0], "0", "0", "0", prerelease.IsDefined ? string.Join(".", prerelease.Get()) : has_last_prerelease ? last_prerelease : string.Empty } : null
+                        let d1 = has1 ? new List<string> { d[0], "0", "0", "0", prerelease.IsDefined ? string.Join(".", prerelease.Get()) : string.Empty } : null
                         let has2 = d.Count() == 2
-                        let d2 = has2 ? new List<string> { d[0], d[1], "0", "0", prerelease.IsDefined ? string.Join(".", prerelease.Get()) : has_last_prerelease ? last_prerelease : string.Empty } : null
+                        let d2 = has2 ? new List<string> { d[0], d[1], "0", "0", prerelease.IsDefined ? string.Join(".", prerelease.Get()) : string.Empty } : null
                         let has3 = d.Count() == 3
-                        let d3 = has3 ? new List<string> { d[0], d[1], "0", d[2], prerelease.IsDefined ? string.Join(".", prerelease.Get()) : has_last_prerelease ? last_prerelease : string.Empty } : null
-                        select has1 ? d1 : has2 ? d2 : has3 ? d3 : d.Take(5).ToList();
+                        let d3 = has3 ? new List<string> { d[0], d[1], "0", d[2], prerelease.IsDefined ? string.Join(".", prerelease.Get()) : string.Empty } : null
+                        let has4 = d.Count() == 4
+                        let d4 = has4 ? new List<string> { d[0], d[1], d[2], d[3], prerelease.IsDefined ? string.Join(".", prerelease.Get()) : string.Empty } : null
+                        select has1 ? d1 : has2 ? d2 : has3 ? d3 : has4 ? d4 : d.Take(5).ToList();
                 }
             }
 
-            public static Parser<List<string>> ContribIdentifierWithCoreIdentitifierOnly
+            public static Parser<List<string>> ContribIdentitifierWithNumericCoreIdentifier
+            {
+                get
+                {
+                    return
+                        from xdl in NumericIdentifier.Or(XIdentifier).DelimitedBy(Dot).Select(nid => nid.ToList())
+                        let c = xdl.Select(d => d == "x" ? "0" : d).ToList()
+                        from dash in Dash.Or(Underscore)
+                        from contrib in NumericIdentifier.Or(XIdentifier).DelimitedBy(Dot).Select(nid => nid.ToList())
+                        let has2 = c.Count() >= 2
+                        let core = has2 ? new List<string> { c[0], c[1] } : new List<string> { c[0], "0" }
+                        select core.Concat(contrib).ToList();
+                }
+            }
+
+            public static Parser<List<string>> CoreIdentitifierPrefixOnly
             {
                 get
                 {
@@ -113,14 +145,25 @@ namespace Versatile
                 }
             }
 
+            public static Parser<List<string>> ContribIdentifierWithPreReleaseOnly
+            {
+                get
+                {
+                    return
+                        from c in CoreIdentifierPrefix
+                        from p in PreReleaseIdentifier
+                        select new List<string> { c, "0", "0", "0", string.Join(".", p) };
+                }
+            }
+
             public static Parser<Drupal> DrupalVersion
             {
                 get
                 {
                     return
                         from dv in ContribIdentifierWithPatchXIdentifier.Or(ContribIdentifier)
-                        .Or(ContribIdentifierWithCoreIdentitifierOnly).Or(CoreIdentitifier)
-                        .Or(ContribIdentifierWithDashOnly)
+                        .Or(ContribIdentitifierWithNumericCoreIdentifier).Or(CoreIdentitifierPrefixOnly).Or(ContribIdentitifierWithoutCoreIdentifierPrefix)
+                        .Or(ContribIdentifierWithPreReleaseOnly).Or(ContribIdentifierWithDashOnly)
                         select new Drupal(dv);
                 }
             }
