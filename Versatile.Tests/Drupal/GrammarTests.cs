@@ -45,7 +45,7 @@ namespace Versatile.Tests
             d = Drupal.Grammar.ContribIdentifierWithPreReleaseOnly.Parse("6.x-dev");
             Assert.Equal(d[0], "6");
             d = Drupal.Grammar.ContribIdentitifierWithoutCoreIdentifierPrefix.Parse("5.1_rev1.1");
-            Assert.Equal(d[4], "rev.1");
+            Assert.Equal("rev.1.1", d[4]);
             d = Drupal.Grammar.ContribIdentitifierWithNumericCoreIdentifier.Parse("4.6_1.0");
             Assert.Equal(d[0], "4");
             d = Drupal.Grammar.ContribIdentitifierWithoutCoreIdentifierPrefix.Parse("4.5-alpha1");
@@ -59,7 +59,7 @@ namespace Versatile.Tests
             Assert.Equal(d[3], "3");
             Assert.Equal(d[4], "rc.2");
             d = Drupal.Grammar.ContribIdentitifierWithoutCoreIdentifierPrefix.Parse("4.7_rev1.1");
-            Assert.Equal(d[4], "rev.1");
+            Assert.Equal("rev.1.1", d[4]);
             d = Drupal.Grammar.ContribIdentitifierWithNumericCoreIdentifier.Parse("4.x_1.2");
             Assert.Equal("4", d[0]);
             //v = Drupal.Grammar.DrupalVersion.Parse("-");
@@ -103,6 +103,7 @@ namespace Versatile.Tests
             v = Drupal.Grammar.DrupalVersion.Parse("-");
             Assert.Equal(v.Major, 0);
             Assert.Equal(1, v.CoreCompatibility);
+            v = Drupal.Grammar.DrupalVersion.Parse("4.7_rev1.15");   
         }
 
         [Fact]
@@ -115,6 +116,7 @@ namespace Versatile.Tests
             Assert.Equal(r[2].First().Version.ToString(), "4.x-6.0-rc1");
             r = Drupal.Grammar.CommaDelimitedRange.Parse("6,5");
             Assert.Equal(r[0].First().Version.ToString(), "6.x-0.0");
+            r = Drupal.Grammar.CommaDelimitedRange.Parse("4.7_");
             r = Drupal.Grammar.CommaDelimitedRange.Parse("6.2,6.0,6.0,5.0,5.7,5,5.2,6.0,5.4,6.0,5.5.,5.0,5.0,6,5.0,5.8,5.0,5.5,5.6,6.0,6.0,5.3,6.0,6.1,5.1,6.0,6.0");
         }
 
@@ -129,5 +131,18 @@ namespace Versatile.Tests
             ComparatorSet<Drupal> csb = Drupal.Grammar.BracketedTwoSidedIntervalRange.Parse("(>=7.x-3.x & <7.x-3.8)");
             Assert.Equal(cs[0].Version, csb[0].Version);
         }
+
+        [Fact]
+        public void GrammarCanParseRangeVersionIdentifier()
+        {
+            List<ComparatorSet<Drupal>> csl = Drupal.Grammar.Range.Parse("7.x-dev");
+            Assert.Equal(1, csl.Count());
+            csl = Drupal.Grammar.Range.Parse("4.7_rev1.1");
+            Assert.Equal(1, csl.Count());
+            csl = Drupal.Grammar.Range.Parse("8.x-2.x");
+            Assert.Equal(1, csl.Count());
+
+        }
+
     }
 }

@@ -116,6 +116,17 @@ namespace Versatile
             }
         }
 
+        public static Parser<string> NumericOnlyIdentifier
+        {
+            get
+            {
+                return
+                from chars in Parse.Digit.Or(Dot).AtLeastOnce()
+                let x = chars.Where(c => char.IsDigit(c)).ToArray()
+                select new string(x);
+            }
+        }
+
         public static Parser<char> AlphaNumericIdentifierChar
         {
             get
