@@ -32,11 +32,18 @@ namespace Versatile
 
                     return
                         from dash in Dash.Or(Underscore)
-                        from s in Parse.String("dev").Or(Parse.String("unstable")).Or(Parse.String("alpha"))
-                            .Or(Parse.String("beta")).Or(Parse.String("rc")).Or(Parse.String("rev")).Text()
+                        from s in Parse.String("dev")
+                            .Or(Parse.String("unstable"))
+                            .Or(Parse.String("alpha"))
+                            .Or(Parse.String("beta"))
+                            .Or(Parse.String("rc"))
+                            .Or(Parse.String("revision_").Return("rev"))
+                            .Or(Parse.String("rev_").Return("rev"))
+                            .Or(Parse.String("rev"))
+                        .Text()
                         from d in NumericIdentifier.DelimitedBy(Dot).Optional().Select(o => o.GetOrElse(s == "dev" ? null : new List<string> { "0" }))
                         let has_number = !ReferenceEquals(null, d)
-                        select has_number ? new List<string> { s }.Concat(d).ToList() : new List<string> { s };
+                        select has_number ? new List<string> {s}.Concat(d).ToList() : new List<string> {s};
                 }
             }
 
@@ -163,12 +170,12 @@ namespace Versatile
                 {
                     return
                         from dv in ContribIdentifierWithPreReleaseOnly
-                        .Or(ContribIdentifier)
-                        .Or(ContribIdentifierWithPatchXIdentifier)
-                        .Or(ContribIdentitifierWithNumericCoreIdentifier)
-                        .Or(ContribIdentitifierWithoutCoreIdentifierPrefix)
-                        .Or(ContribIdentifierWithDashOnly)
-                        .Or(CoreIdentitifierPrefixOnly)
+                            .Or(ContribIdentifier)
+                            .Or(ContribIdentifierWithPatchXIdentifier)
+                            .Or(ContribIdentitifierWithNumericCoreIdentifier)
+                            .Or(ContribIdentitifierWithoutCoreIdentifierPrefix)
+                            .Or(ContribIdentifierWithDashOnly)
+                            .Or(CoreIdentitifierPrefixOnly)
                         select new Drupal(dv);
                 }
             }
@@ -213,11 +220,23 @@ namespace Versatile
                 }
             }
 
+            public static Parser<ComparatorSet<Drupal>> BracketedOneSidedIntervalRange
+            {
+                get
+                {
+                    return
+                    from b1 in OpenBracket
+                    from d in OneSidedRange
+                    from b2 in ClosedBracket
+                    select d;
+                }
+            }
+
             public static Parser<ComparatorSet<Drupal>> OneOrTwoSidedRange
             {
                 get
                 {
-                    return BracketedTwoSidedIntervalRange.Or(TwoSidedIntervalRange).Or(OneSidedRange);
+                    return BracketedTwoSidedIntervalRange.Or(TwoSidedIntervalRange).Or(BracketedOneSidedIntervalRange).Or(OneSidedRange);
                 }
             }
 

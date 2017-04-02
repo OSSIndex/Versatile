@@ -75,7 +75,7 @@ namespace Versatile
             {
                 get
                 {
-                    return AlphaNumericIdentifier;
+                    return AlphaNumericIdentifier.DelimitedBy(Dot).Select(d => d.Aggregate((d1, d2) => d1 + "." + d2));
                 }
             }
 
@@ -338,11 +338,37 @@ namespace Versatile
                 }
             }
 
+            public static Parser<ComparatorSet<NuGetv2>> TwoSidedIntervalRange
+            {
+                get
+                {
+                    return
+                        from le in OneSidedIntervalOperator
+                        from l in NuGetv2Version.Token()
+                        from a in Sprache.Parse.WhiteSpace.Or(Sprache.Parse.Char(',')).Token().Optional()
+                        from re in OneSidedIntervalOperator
+                        from r in NuGetv2Version.Token()
+                        select new ComparatorSet<NuGetv2>
+                        {
+                            new Comparator<NuGetv2>(le,  l),
+                            new Comparator<NuGetv2>(re, r)
+                        };
+                }
+            }
+
+            public static Parser<ComparatorSet<NuGetv2>> TwoSidedRange
+            {
+                get
+                {
+                    return TwoSidedIntervalRange.Or(ClosedBracketClosedBracketRange).Or(ClosedBracketOpenBracketRange).Or(OpenBracketClosedBracketRange).Or(OpenBracketOpenBracketRange);
+                }
+            }
+
             public static Parser<ComparatorSet<NuGetv2>> Range
             {
                 get
                 {
-                    return OneSidedRange.Or(ClosedBracketClosedBracketRange).Or(ClosedBracketOpenBracketRange).Or(OpenBracketClosedBracketRange).Or(OpenBracketOpenBracketRange);
+                    return TwoSidedRange.Or(OneSidedRange);
                 }
             }
         }

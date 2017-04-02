@@ -4,16 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
 using Sprache;
 namespace Versatile
 {
     public partial class Drupal : Version, IVersionFactory<Drupal>, IEquatable<Drupal>, IComparable, IComparable<Drupal>
     {
-        #region Public properties
-        public int CoreCompatibility { get; set; }
-        #endregion
-
         #region Constructors
         public Drupal() : base() { }
         public Drupal(List<string> d) : base(d.Skip(1).ToList())
@@ -81,7 +76,6 @@ namespace Versatile
 
         public override int CompareComponent(Version other)
         {
-
             List<string> a = this.Take(4).ToList();
             List<string> b = other.Take(4).ToList();
             int min = Math.Min(a.Count, b.Count);
@@ -157,7 +151,11 @@ namespace Versatile
         }
         #endregion
 
-        #region Public methods
+        #region Properties
+        public int CoreCompatibility { get; set; }
+        #endregion
+
+        #region Methods
         public bool Equals(Drupal other)
         {
             return base.Equals((Version)other);
@@ -193,6 +191,27 @@ namespace Versatile
             get
             {
                 return Grammar.DrupalVersion;
+            }
+        }
+
+        public static bool RangeIntersect(string left, string right, out string exception_message)
+        {
+            IResult<List<ComparatorSet<Drupal>>> l = Grammar.Range.TryParse(left);
+            IResult<List<ComparatorSet<Drupal>>> r = Grammar.Range.TryParse(right);
+            if (!l.WasSuccessful)
+            {
+                exception_message = string.Format("Failed parsing version string {0}: {1}. ", left, l.Message);
+                return false;
+            }
+            else if (!r.WasSuccessful)
+            {
+                exception_message = string.Format("Failed parsing version string {0}: {1}.", right, r.Message);
+                return false;
+            }
+            else
+            {
+                exception_message = string.Empty;
+                return Range<Drupal>.Intersect(l.Value, r.Value);
             }
         }
 
@@ -276,29 +295,6 @@ namespace Versatile
             {
                 --s.Major;
                 return s;
-            }
-        }
-        #endregion
-
-        #region Public Static methods        
-        public static bool RangeIntersect(string left, string right, out string exception_message)
-        {
-            IResult<List<ComparatorSet<Drupal>>> l = Grammar.Range.TryParse(left);
-            IResult<List<ComparatorSet<Drupal>>> r = Grammar.Range.TryParse(right);
-            if (!l.WasSuccessful)
-            {
-                exception_message = string.Format("Failed parsing version string {0}: {1}. ", left, l.Message);
-                return false;
-            }
-            else if (!r.WasSuccessful)
-            {
-                exception_message = string.Format("Failed parsing version string {0}: {1}.", right, r.Message);
-                return false;
-            }
-            else
-            {
-                exception_message = string.Empty;
-                return Range<Drupal>.Intersect(l.Value, r.Value);
             }
         }
         #endregion
