@@ -364,11 +364,19 @@ namespace Versatile
                 }
             }
 
-            public static Parser<ComparatorSet<NuGetv2>> Range
+            public static Parser<ComparatorSet<NuGetv2>> OneOrTwoSidedRange
             {
                 get
                 {
                     return TwoSidedRange.Or(OneSidedRange);
+                }
+            }
+
+            public static Parser<List<ComparatorSet<NuGetv2>>> Range
+            {
+                get
+                {
+                    return CommaDelimitedRange.End().Or(OneOrTwoSidedRange.DelimitedBy(Sprache.Parse.String("||").Token())).End().Select(r => r.ToList());
                 }
             }
         }

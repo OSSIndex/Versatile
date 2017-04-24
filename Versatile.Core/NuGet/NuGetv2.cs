@@ -452,8 +452,8 @@ namespace Versatile
 
         public static bool RangeIntersect(string left, string right, out string exception_message)
         {
-            IResult<ComparatorSet<NuGetv2>> l = Grammar.Range.TryParse(left);
-            IResult<ComparatorSet<NuGetv2>> r = Grammar.Range.TryParse(right);
+            IResult<List<ComparatorSet<NuGetv2>>> l = Grammar.Range.TryParse(left);
+            IResult<List<ComparatorSet<NuGetv2>>> r = Grammar.Range.TryParse(right);
             if (!l.WasSuccessful)
             {
                 exception_message = string.Format("Failed parsing version string {0}: {1}. ", left, l.Message);
