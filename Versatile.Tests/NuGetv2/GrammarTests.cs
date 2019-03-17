@@ -67,7 +67,7 @@ namespace Versatile.Tests
             c = NuGetv2.Grammar.OneSidedRange.Parse(">=0.0.0").Last();
             c = NuGetv2.Grammar.OneSidedRange.Parse("<3.4.0199").Last();
 
-
+            
         }
 
         [Fact]

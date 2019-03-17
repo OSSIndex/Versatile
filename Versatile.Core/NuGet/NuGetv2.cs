@@ -1,4 +1,20 @@
-﻿using System;
+﻿/* Based on the SemanticVersion implementation of the NuGet2 project: https://github.com/NuGet/NuGet2/blob/2.14/src/Core/SemanticVersion.cs
+ * 
+ * Copyright 2010-2014 Outercurve Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Collections.Generic;
@@ -436,8 +452,8 @@ namespace Versatile
 
         public static bool RangeIntersect(string left, string right, out string exception_message)
         {
-            IResult<ComparatorSet<NuGetv2>> l = Grammar.Range.TryParse(left);
-            IResult<ComparatorSet<NuGetv2>> r = Grammar.Range.TryParse(right);
+            IResult<List<ComparatorSet<NuGetv2>>> l = Grammar.Range.TryParse(left);
+            IResult<List<ComparatorSet<NuGetv2>>> r = Grammar.Range.TryParse(right);
             if (!l.WasSuccessful)
             {
                 exception_message = string.Format("Failed parsing version string {0}: {1}. ", left, l.Message);

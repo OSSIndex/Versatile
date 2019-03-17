@@ -21,16 +21,16 @@ namespace Versatile.Tests
             Interval<NuGetv2> i2 = cs2.ToInterval();
             Assert.True(i1.Intersect(i1));
             Assert.True(i1.Intersect(i2));
-            Interval<NuGetv2> i3 = NuGetv2.Grammar.Range.Parse("[3.2, 5.3.1)").ToInterval();
+            Interval<NuGetv2> i3 = NuGetv2.Grammar.OneOrTwoSidedRange.Parse("[3.2, 5.3.1)").ToInterval();
             Assert.True(i1.Intersect(i3));
-            i3 = NuGetv2.Grammar.Range.Parse("(3.2, 5.3.1)").ToInterval();
+            i3 = NuGetv2.Grammar.OneOrTwoSidedRange.Parse("(3.2, 5.3.1)").ToInterval();
             Assert.True(i1.Intersect(i3));
-            Interval<NuGetv2> i4 = NuGetv2.Grammar.Range.Parse("( , 5.3.1]").ToInterval();
+            Interval<NuGetv2> i4 = NuGetv2.Grammar.OneOrTwoSidedRange.Parse("( , 5.3.1]").ToInterval();
             Assert.True(i2.Intersect(i4));
-            Assert.False(i1.Intersect(NuGetv2.Grammar.Range.Parse("(5.3.1, 6.3.1)").ToInterval()));
-            Assert.True(i4.Intersect(NuGetv2.Grammar.Range.Parse("[5.3.1, )").ToInterval()));
-            Assert.False(i4.Intersect(NuGetv2.Grammar.Range.Parse("(5.3.1, )").ToInterval()));
-            Assert.True(i2.Intersect(NuGetv2.Grammar.Range.Parse("(5.3.1, )").ToInterval()));
+            Assert.False(i1.Intersect(NuGetv2.Grammar.OneOrTwoSidedRange.Parse("(5.3.1, 6.3.1)").ToInterval()));
+            Assert.True(i4.Intersect(NuGetv2.Grammar.OneOrTwoSidedRange.Parse("[5.3.1, )").ToInterval()));
+            Assert.False(i4.Intersect(NuGetv2.Grammar.OneOrTwoSidedRange.Parse("(5.3.1, )").ToInterval()));
+            Assert.True(i2.Intersect(NuGetv2.Grammar.OneOrTwoSidedRange.Parse("(5.3.1, )").ToInterval()));
         }
 
         [Fact]
@@ -45,6 +45,11 @@ namespace Versatile.Tests
             Assert.True(NuGetv2.RangeIntersect("(11, 13.3.0-beta7]", "12", out e));
             Assert.False(NuGetv2.RangeIntersect("(11, 13.3.0-beta7]", "13.4", out e));
             Assert.True(NuGetv2.RangeIntersect("3.4.0199", ">= 0.0.0", out e));
+            Assert.False(NuGetv2.RangeIntersect("1.3.0", ">=1.2.19 <1.2.24", out e));
+            Assert.False(NuGetv2.RangeIntersect("1.3.0", ">1.3.0-beta.1 <1.3.0-beta.14", out e));
+            Assert.True(NuGetv2.RangeIntersect("1.3.0", ">1.3.0-beta.14.4 <1.4.0-beta.2", out e));
+            Assert.True(NuGetv2.RangeIntersect("5.1", "4.4, 6.3,5.1", out e));
+            Assert.False(NuGetv2.RangeIntersect("5.1", "5.4,6.3, 5.0", out e));
         }
     }
 }
