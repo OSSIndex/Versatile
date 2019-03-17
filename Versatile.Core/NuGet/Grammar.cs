@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 using Sprache;
 
-
 namespace Versatile
 {
     public partial class NuGetv2

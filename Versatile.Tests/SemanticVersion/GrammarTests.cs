@@ -90,6 +90,14 @@ namespace Versatile.Tests
         }
 
         [Fact]
+        public void GrammarCanParseEqualRange()
+        {
+            Comparator<SemanticVersion> c = SemanticVersion.Grammar.EqualRange.Parse("=10.3.4").Single();
+            Assert.Equal(ExpressionType.Equal, c.Operator);
+            Assert.Equal(3, c.Version.Minor);
+        }
+
+        [Fact]
         public void GrammarCanParseOneSidedRange()
         {
             Comparator<SemanticVersion> re = SemanticVersion.Grammar.OneSidedRange.Parse("<10.3.4").First();
@@ -174,6 +182,10 @@ namespace Versatile.Tests
             List<ComparatorSet<SemanticVersion>> lcs = SemanticVersion.Grammar.Range.Parse("<8 >5 || > 13 || 47.3.6-alpha1");
             Assert.False(Range<SemanticVersion>.Intersect(lcs, SemanticVersion.Grammar.Range.Parse("5")));
             Assert.True(Range<SemanticVersion>.Intersect(lcs, SemanticVersion.Grammar.Range.Parse("6")));
+
+            var cs = SemanticVersion.Grammar.Range.Parse("=4.2.2").Single();
+            Assert.Single(cs);
+            Assert.Equal(ExpressionType.Equal, cs.Single().Operator);
         }
     }
 }

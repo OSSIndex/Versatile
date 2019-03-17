@@ -412,7 +412,7 @@ namespace Versatile
             {
                 get
                 {
-                    return TwoSidedIntervalRange.Or(HyphenRange).Or(XRange).Or(TildeRange).Or(CaretRange).Or(OneSidedRange);
+                    return TwoSidedIntervalRange.Or(HyphenRange).Or(XRange).Or(TildeRange).Or(CaretRange).Or(EqualRange).Or(OneSidedRange);
                 }
             }
 

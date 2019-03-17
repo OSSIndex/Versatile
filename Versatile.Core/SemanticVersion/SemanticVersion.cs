@@ -11,19 +11,9 @@ namespace Versatile
 {
     public partial class SemanticVersion : Version, IVersionFactory<SemanticVersion>, IComparable, IComparable<SemanticVersion>, IEquatable<SemanticVersion>
     {
-        #region Public properties
-        public IEnumerable<string> Build { get; set; } = null;
-        public Parser<SemanticVersion> Parser
-        {
-            get
-            {
-                return Grammar.SemanticVersion;
-            }
-        }
-        #endregion
-
         #region Constructors
         public SemanticVersion() {}
+
         public SemanticVersion(int? major, int? minor = null, int? patch = null, string prerelease = "", string build = "") : base(major, minor, patch, prerelease)
         {
             if (!string.IsNullOrEmpty(prerelease))
@@ -81,6 +71,17 @@ namespace Versatile
         }
         
         public SemanticVersion(string v) : this(Grammar.SemanticVersionIdentifier.Parse(v)) {}
+        #endregion
+
+        #region Public properties
+        public IEnumerable<string> Build { get; set; } = null;
+        public Parser<SemanticVersion> Parser
+        {
+            get
+            {
+                return Grammar.SemanticVersion;
+            }
+        }
         #endregion
 
         #region Public methods

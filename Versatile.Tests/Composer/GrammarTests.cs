@@ -22,9 +22,9 @@ namespace Versatile.Tests
             Composer cp = Composer.Grammar.ComposerVersion.Parse("dev-silex-1");
             Assert.Equal(0, cp.Major);
             Assert.Equal(cp.PreRelease.ToString(), "dev-silex-1");
-            //Assert.Throws<ParseException>(() => Composer.Grammar.ComposerVersion.Parse("A.2.3"));
+            Assert.Throws<ParseException>(() => Composer.Grammar.ComposerVersion.Parse("A.2.3"));
             //Assert.Throws<ParseException>(() => Composer.Grammar.ComposerVersion.Parse("3.2.3.X"));
-            //Assert.Throws<ParseException>(() => Composer.Grammar.ComposerVersion.Parse("1.2.3-foo"));
+            Assert.Throws<ParseException>(() => Composer.Grammar.ComposerVersion.Parse("1.2.3-foo"));
         }
 
         [Fact]
@@ -69,6 +69,17 @@ namespace Versatile.Tests
             Assert.Equal(cs[0].Version, new Composer(11, 3));
             Assert.Equal(cs[1].Operator, ExpressionType.LessThanOrEqual);
             Assert.Equal(cs[1].Version, new Composer(20));
+        }
+
+        [Fact]
+        public void GrammarCanParseTildeRange()
+        {
+            ComparatorSet<Composer> cs = Composer.Grammar.TildeRange.Parse("~4.8");
+           
+            //Assert.Equal(cs[0].Operator, ExpressionType.GreaterThanOrEqual);
+            //Assert.Equal(cs[0].Version, new Composer(11, 3));
+            //Assert.Equal(cs[1].Operator, ExpressionType.LessThanOrEqual);
+            //Assert.Equal(cs[1].Version, new Composer(20));
         }
 
         [Fact]

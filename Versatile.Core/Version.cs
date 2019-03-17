@@ -9,8 +9,6 @@ namespace Versatile
 {
     public abstract class Version : List<string>, IComparable, IComparable<Version>, IEquatable<Version>
     {
-        public enum DefaultValue { Min, Max }
-
         #region Abstract methods
         public abstract int CompareComponent(Version other);
         #endregion

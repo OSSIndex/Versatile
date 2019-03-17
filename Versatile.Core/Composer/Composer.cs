@@ -53,7 +53,6 @@ namespace Versatile
         }
 
         public Composer(string v) : this(Grammar.ComposerVersionIdentifier.Parse(v)) { }
-
         #endregion
 
         #region Public methods

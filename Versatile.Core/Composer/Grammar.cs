@@ -210,8 +210,8 @@ namespace Versatile
                         })
                         select new ComparatorSet<Composer>
                         {
-                        new Comparator<Composer>(ExpressionType.GreaterThanOrEqual, new Composer(major, minor)),
-                        new Comparator<Composer>(ExpressionType.LessThan, new Composer(major, minor  + 1))
+                            new Comparator<Composer>(ExpressionType.GreaterThanOrEqual, new Composer(major, minor)),
+                            new Comparator<Composer>(ExpressionType.LessThan, new Composer(major + 1))
                         };
 
                 }
