@@ -46,6 +46,14 @@ namespace Versatile
                 }
             }
 
+            public static Parser<char> AnyChar
+            {
+                get
+                {
+                    return Sprache.Parse.AnyChar;
+                }
+            }
+
             public static Parser<int> Build
             {
                 get
@@ -82,10 +90,9 @@ namespace Versatile
             {
                 get
                 {
-
-                    return
-                        from dot in Sprache.Parse.Char('-')
-                        from s in Special
+                    return 
+                        from dash in Sprache.Parse.Char('-')
+                        from s in AnyIdentifier
                         select s;
                 }
             }
@@ -110,7 +117,7 @@ namespace Versatile
                             else
                             {
                                 return new NuGetv2(v[0] == "" ? 0 : Int32.Parse(v[0]), v[1] == "" ? 0 : Int32.Parse(v[1]), v[2] == "" ? 0 : Int32.Parse(v[2]),
-                                    v[3] == "" ? 0 : Int32.Parse(v[3]));
+                                    v[3] == "" ? 0 : Int32.Parse(v[3]), v[4]);
                             }
                         });
                 }

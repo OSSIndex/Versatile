@@ -143,6 +143,22 @@ namespace Versatile
             }
         }
 
+        public static Parser<char> AnyIdentifierChar
+        {
+            get
+            {
+                return Parse.Digit.Or(NonDigit).Or(Dot).Or(Dash);
+            }
+        }
+
+        public static Parser<string> AnyIdentifier
+        {
+            get
+            {
+                return AnyIdentifierChar.AtLeastOnce().Token().Text();
+            }
+        }
+
         public static Parser<string> XIdentifier
         {
             get

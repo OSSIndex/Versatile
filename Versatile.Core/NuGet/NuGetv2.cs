@@ -52,6 +52,12 @@ namespace Versatile
             
         }
 
+        public NuGetv2(int major, int minor, int build, int revision, string specialVersion)
+            : this(new System.Version(major, minor, build, revision), specialVersion)
+        {
+            this.Add(this.Major.ToString());
+        }
+
         public NuGetv2(int major, int minor, int build, int revision)
             : this(new System.Version(major, minor, build, revision))
         {
