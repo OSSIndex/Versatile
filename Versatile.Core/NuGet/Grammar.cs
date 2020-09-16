@@ -14,7 +14,7 @@ namespace Versatile
         public class Grammar : Grammar<NuGetv2>
         {
         
-            public static new Parser<char> NonDigit
+            public new static Parser<char> NonDigit
             {
                 get
                 {
