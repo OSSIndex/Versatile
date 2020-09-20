@@ -14,7 +14,7 @@ namespace Versatile
         public class Grammar : Grammar<NuGetv2>
         {
         
-            public static new Parser<char> NonDigit
+            public new static Parser<char> NonDigit
             {
                 get
                 {
@@ -43,6 +43,14 @@ namespace Versatile
                 get
                 {
                     return Sprache.Parse.AnyChar.Where(c => "(),<>".Contains(c));
+                }
+            }
+
+            public static Parser<char> AnyChar
+            {
+                get
+                {
+                    return Sprache.Parse.AnyChar;
                 }
             }
 
@@ -82,10 +90,9 @@ namespace Versatile
             {
                 get
                 {
-
-                    return
-                        from dot in Sprache.Parse.Char('-')
-                        from s in Special
+                    return 
+                        from dash in Sprache.Parse.Char('-')
+                        from s in AnyIdentifier
                         select s;
                 }
             }
@@ -110,7 +117,7 @@ namespace Versatile
                             else
                             {
                                 return new NuGetv2(v[0] == "" ? 0 : Int32.Parse(v[0]), v[1] == "" ? 0 : Int32.Parse(v[1]), v[2] == "" ? 0 : Int32.Parse(v[2]),
-                                    v[3] == "" ? 0 : Int32.Parse(v[3]));
+                                    v[3] == "" ? 0 : Int32.Parse(v[3]), v[4]);
                             }
                         });
                 }

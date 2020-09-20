@@ -37,8 +37,8 @@ namespace Versatile
     public sealed partial class NuGetv2 : Version, IVersionFactory<NuGetv2>, IComparable, IComparable<NuGetv2>, IEquatable<NuGetv2>
     {
         private const RegexOptions _flags = RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture;
-        private static readonly Regex _NuGetRegex = new Regex(@"^(?<Version>\d+(\s*\.\s*\d+){0,3})(?<Release>-[a-z][0-9a-z-]*)?$", _flags);
-        private static readonly Regex _strictNuGetRegex = new Regex(@"^(?<Version>\d+(\.\d+){2})(?<Release>-[a-z][0-9a-z-]*)?$", _flags);
+        private static readonly Regex _NuGetRegex = new Regex(@"^(?<Version>\d+(\s*\.\s*\d+){0,3})(?<Release>\-[a-z][0-9a-z\-\.]*)?$", _flags);
+        private static readonly Regex _strictNuGetRegex = new Regex(@"^(?<Version>\d+(\.\d+){2})(?<Release>\-[a-z][0-9a-z\-\.]*)?$", _flags);
         private readonly string _originalString;
         private string _normalizedVersionString;
 
@@ -50,6 +50,12 @@ namespace Versatile
             // The original string represents the original form in which the version is represented to be used when printing.
             _originalString = version;
             
+        }
+
+        public NuGetv2(int major, int minor, int build, int revision, string specialVersion)
+            : this(new System.Version(major, minor, build, revision), specialVersion)
+        {
+            this.Add(this.Major.ToString());
         }
 
         public NuGetv2(int major, int minor, int build, int revision)
@@ -263,7 +269,7 @@ namespace Versatile
             NuGetv2 semVer;
             if (!TryParse(version, out semVer))
             {
-                throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, "Invalid Version String", version), "version");
+                throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, "Invalid Version String {0}", version), "version");
             }
             return semVer;
         }
